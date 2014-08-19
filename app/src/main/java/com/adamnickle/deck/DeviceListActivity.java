@@ -60,7 +60,7 @@ public class DeviceListActivity extends ActionBarActivity
         pairedListView.setOnItemClickListener( mDeviceClickListener );
 
         ListView newDevicesListView = (ListView) findViewById( R.id.new_devices );
-        newDevicesListView.setAdapter( mPairedDevicesArrayAdapter );
+        newDevicesListView.setAdapter( mNewDevicesArrayAdapter );
         newDevicesListView.setOnItemClickListener( mDeviceClickListener );
 
         IntentFilter filter = new IntentFilter( BluetoothDevice.ACTION_FOUND );

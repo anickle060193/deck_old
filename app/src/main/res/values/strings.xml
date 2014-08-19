@@ -2,7 +2,16 @@
 <resources>
 
     <string name="app_name">Deck</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_device_list">DeviceList</string>
+    <string name="settings_menu_item_text">Settings</string>
+    <string name="device_list_activity_title">DeviceList</string>
+    <string name="find_server_menu_item_text">Find Server</string>
+    <string name="create_server_menu_item_text">Create Server</string>
+    <string name="finish_connecting_menu_item_text">Finish Connecting</string>
+    <string name="close_server_menu_item_text">Close Server</string>
+    <string name="restart_connecting_menu_item_text">Restart Connecting</string>
+    <string name="leave_server_menu_item_text">Leave Server</string>
+    <string name="sendMessageButtonText">Send Message</string>
+    <string name="messageEditTextHint">Message…</string>
+    <string name="title_activity_game_creator">Game Creator</string>
 
 </resources>

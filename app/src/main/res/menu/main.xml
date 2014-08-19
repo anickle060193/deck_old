@@ -3,18 +3,37 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".Main">
     <item
-        android:id="@+id/action_discoverable"
-        android:title="Make Discoverable"
+        android:id="@+id/actionCreateServer"
+        android:title="@string/create_server_menu_item_text"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_scan_devices"
-        android:title="Scan for devices"
+        android:id="@+id/actionFinishConnecting"
+        android:title="@string/finish_connecting_menu_item_text"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionRestartConnecting"
+        android:title="@string/restart_connecting_menu_item_text"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionCloseServer"
+        android:title="@string/close_server_menu_item_text"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionFindServer"
+        android:title="@string/find_server_menu_item_text"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:id="@+id/actionLeaveServer"
+        android:title="@string/leave_server_menu_item_text"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionSettings"
+        android:title="@string/settings_menu_item_text"
         app:showAsAction="never"/>
 </menu>

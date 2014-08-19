@@ -9,10 +9,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,10 +29,17 @@ public class MainActivity extends ActionBarActivity
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
     private static final int REQUEST_CONNECT_DEVICE = 2;
 
+    private static final int CONNECTION_TYPE_NONE = 1;
+    private static final int CONNECTION_TYPE_CLIENT = 2;
+    private static final int CONNECTION_TYPE_SERVER = 3;
+
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothConnection mBluetoothConnection;
 
     private TextView mTextView;
+    private ScrollView mScrollView;
+    private EditText mMessageEditText;
+    private int mConnectionType;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -46,9 +57,38 @@ public class MainActivity extends ActionBarActivity
             return;
         }
 
+        mScrollView = (ScrollView) findViewById( R.id.scrollView );
         mTextView = (TextView) findViewById( R.id.textView );
+        mTextView.addTextChangedListener( new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged( CharSequence charSequence, int i, int i2, int i3 ) { }
 
+            @Override
+            public void onTextChanged( CharSequence charSequence, int i, int i2, int i3 ) { }
+
+            @Override
+            public void afterTextChanged( Editable editable )
+            {
+                mScrollView.post( new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        mScrollView.fullScroll( View.FOCUS_DOWN );
+                    }
+                } );
+            }
+        } );
+        mMessageEditText = (EditText) findViewById( R.id.messageEditText );
         mBluetoothConnection = new BluetoothConnection( this, mHandler );
+        setConnectionType( CONNECTION_TYPE_NONE );
+    }
+
+    private void setConnectionType( int connectionType )
+    {
+        mConnectionType = connectionType;
+        this.invalidateOptionsMenu();
     }
 
     @Override
@@ -114,6 +154,57 @@ public class MainActivity extends ActionBarActivity
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate( R.menu.main, menu );
+
+        if( mConnectionType == CONNECTION_TYPE_NONE )
+        {
+            menu.findItem( R.id.actionCreateServer ).setVisible( true );
+            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+            menu.findItem( R.id.actionFindServer ).setVisible( true );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+        }
+        else if( mConnectionType == CONNECTION_TYPE_CLIENT )
+        {
+            menu.findItem( R.id.actionCreateServer ).setVisible( false );
+            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+
+            if( mBluetoothConnection.getState() == BluetoothConnection.STATE_CONNECTED )
+            {
+                menu.findItem( R.id.actionFindServer ).setVisible( false );
+                menu.findItem( R.id.actionLeaveServer ).setVisible( true );
+            }
+            else
+            {
+                menu.findItem( R.id.actionFindServer ).setVisible( true );
+                menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+            }
+        }
+        else if( mConnectionType == CONNECTION_TYPE_SERVER )
+        {
+            menu.findItem( R.id.actionCreateServer ).setVisible( false );
+
+            if( mBluetoothConnection.getState() == BluetoothConnection.STATE_LISTENING )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            }
+            else if( mBluetoothConnection.getState() == BluetoothConnection.STATE_CONNECTED_LISTENING )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            }
+            else if( mBluetoothConnection.getState() == BluetoothConnection.STATE_CONNECTED )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+            }
+            menu.findItem( R.id.actionCloseServer ).setVisible( true );
+            menu.findItem( R.id.actionFindServer ).setVisible( false );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+        }
         return true;
     }
 
@@ -125,16 +216,40 @@ public class MainActivity extends ActionBarActivity
         // as you specify a parent activity in AndroidManifest.xml.
         switch( item.getItemId() )
         {
-            case R.id.action_settings:
+            case R.id.actionSettings:
                 return true;
 
-            case R.id.action_discoverable:
+            case R.id.actionCreateServer:
+                setConnectionType( CONNECTION_TYPE_SERVER );
+
+                mBluetoothConnection.setIsClient( false );
                 mBluetoothConnection.ensureDiscoverable();
+                startBluetoothConnection();
                 return true;
 
-            case R.id.action_scan_devices:
+            case R.id.actionFinishConnecting:
+                mBluetoothConnection.finishConnecting();
+                return true;
+
+            case R.id.actionRestartConnecting:
+                mBluetoothConnection.restart();
+                return true;
+
+            case R.id.actionCloseServer:
+                setConnectionType( CONNECTION_TYPE_NONE );
+
+                mBluetoothConnection.stop();
+                return true;
+
+            case R.id.actionFindServer:
                 Intent devicesIntent = new Intent( this, DeviceListActivity.class );
                 startActivityForResult( devicesIntent, REQUEST_CONNECT_DEVICE );
+                return true;
+
+            case R.id.actionLeaveServer:
+                setConnectionType( CONNECTION_TYPE_NONE );
+
+                mBluetoothConnection.stop();
                 return true;
         }
 
@@ -217,6 +332,9 @@ public class MainActivity extends ActionBarActivity
             case REQUEST_CONNECT_DEVICE:
                 if( resultCode == Activity.RESULT_OK )
                 {
+                    setConnectionType( CONNECTION_TYPE_CLIENT );
+
+                    mBluetoothConnection.setIsClient( true );
                     String address = data.getStringExtra( DeviceListActivity.EXTRA_DEVICE_ADDRESS );
                     BluetoothDevice device = mBluetoothAdapter.getRemoteDevice( address );
                     mBluetoothConnection.connect( device );
@@ -229,25 +347,21 @@ public class MainActivity extends ActionBarActivity
     {
         switch( view.getId() )
         {
-            case R.id.serverButton:
-                mBluetoothConnection.setIsClient( false );
-                startBluetoothConnection();
-                break;
-
-            case R.id.clientButton:
-                mBluetoothConnection.setIsClient( true );
-                startBluetoothConnection();
-                break;
-
             case R.id.sendMessageButton:
-                sendData( "Testing Message".getBytes() );
+                String message = mMessageEditText.getText().toString();
+                if( message.isEmpty() )
+                {
+                   message = "Default message text";
+                }
+                sendData( message.getBytes() );
+                mMessageEditText.getText().clear();
                 break;
         }
     }
 
     private void sendData( byte[] data )
     {
-        if( mBluetoothConnection.getState() != BluetoothConnection.STATE_CONNECTED )
+        if( !mBluetoothConnection.isConnected() )
         {
             Toast.makeText( this, "Not connected.", Toast.LENGTH_LONG ).show();
             return;

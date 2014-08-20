@@ -23,10 +23,6 @@
             android:name=".DeviceListActivity"
             android:label="@string/device_list_activity_title" >
         </activity>
-        <activity
-            android:name=".GameCreator"
-            android:label="@string/title_activity_game_creator" >
-        </activity>
     </application>
 
 </manifest>

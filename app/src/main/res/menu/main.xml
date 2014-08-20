@@ -34,6 +34,6 @@
 
     <item
         android:id="@+id/actionSettings"
-        android:title="@string/settings_menu_item_text"
+        android:title="@string/main_settings_menu_item_text"
         app:showAsAction="never"/>
 </menu>

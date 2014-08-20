@@ -32,12 +32,12 @@
         android:layout_alignStart="@+id/sendMessageButton"
         android:layout_toLeftOf="@+id/sendMessageButton"
         android:layout_toStartOf="@+id/sendMessageButton"
-        android:hint="@string/messageEditTextHint"
+        android:hint="@string/message_edit_text_hint"
         android:layout_alignTop="@+id/sendMessageButton"/>
 
     <Button
         style="?android:attr/buttonStyleSmall"
-        android:text="@string/sendMessageButtonText"
+        android:text="@string/send_message_button_text"
         android:id="@+id/sendMessageButton"
         android:onClick="onClick"
         android:layout_width="wrap_content"

@@ -83,6 +83,8 @@ public class MainActivity extends ActionBarActivity
         mMessageEditText = (EditText) findViewById( R.id.messageEditText );
         mBluetoothConnection = new BluetoothConnection( this, mHandler );
         setConnectionType( CONNECTION_TYPE_NONE );
+
+        startActivity( new Intent( this, GameCreatorActivity.class ) );
     }
 
     private void setConnectionType( int connectionType )
@@ -217,6 +219,7 @@ public class MainActivity extends ActionBarActivity
         switch( item.getItemId() )
         {
             case R.id.actionSettings:
+                startActivity( new Intent( this, GameCreatorActivity.class ) );
                 return true;
 
             case R.id.actionCreateServer:

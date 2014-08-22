@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="points_value_styles">
+        <item>Face Value</item>
+        <item>Hearts</item>
+        <item>Custom</item>
+    </string-array>
+    
+    <string-array name="card_set_points_method" >
+        <item>By Suit</item>
+        <item>By Rank</item>
+        <item>Face Cards and Rest Face Value</item>
+        <item>Per Card</item>
+    </string-array>
+
+</resources>

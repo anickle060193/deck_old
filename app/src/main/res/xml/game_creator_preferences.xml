@@ -11,7 +11,7 @@
 
     <PreferenceCategory
         android:title="Players"
-        android:key="pref_players_settings">
+        android:key="pref_players_category">
 
         <EditTextPreference
             android:key="pref_min_players"
@@ -31,7 +31,7 @@
 
     <PreferenceCategory
         android:title="Card Points"
-        android:key="pref_card_points_settings" >
+        android:key="pref_card_points_category">
 
         <CheckBoxPreference
             android:key="pref_track_points"
@@ -44,24 +44,21 @@
             android:title="Card points value style"
             android:entries="@array/points_value_styles"
             android:entryValues="@array/points_value_styles"
-            android:defaultValue="0"
+            android:defaultValue="Face Value"
             android:dependency="pref_track_points"
             android:persistent="false"/>
 
         <PreferenceScreen
-            android:key="pref_card_points_value_screen"
-            android:title="Set custom card point values" >
+            android:key="pref_custom_points_value_screen"
+            android:title="Custom card point values"
+            android:dependency="pref_points_value_style" >
 
             <ListPreference
-                android:key="pref_card_set_points_method"
+                android:key="pref_card_points_set_method"
                 android:title="Method of assigning point value"
                 android:entries="@array/card_set_points_method"
                 android:entryValues="@array/card_set_points_method"
-                android:defaultValue="Per Suit"
                 android:persistent="false" />
-
-            <Preference
-                android:widgetLayout="@layout/number_preference_widget" />
 
         </PreferenceScreen>
 

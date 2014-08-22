@@ -10,8 +10,7 @@
     <string-array name="card_set_points_method" >
         <item>By Suit</item>
         <item>By Rank</item>
-        <item>Face Cards and Rest Face Value</item>
-        <item>Per Card</item>
+        <item>By Card</item>
     </string-array>
 
 </resources>

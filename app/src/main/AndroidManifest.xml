@@ -25,7 +25,16 @@
         </activity>
         <activity
             android:name=".GameCreatorActivity"
-            android:label="@string/title_activity_game_creator" >
+            android:label="@string/game_creator_activity_title" >
+        </activity>
+        <activity
+            android:name=".GameActivity"
+            android:label="@string/game_activity_title"
+            android:parentActivityName=".MainActivity"
+            android:hardwareAccelerated="true" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.MainActivity" />
         </activity>
     </application>
 

@@ -12,6 +12,8 @@
     <string name="leave_server_menu_item_text">Leave Server</string>
     <string name="send_message_button_text">Send Message</string>
     <string name="message_edit_text_hint">Message…</string>
-    <string name="title_activity_game_creator">Game Creator</string>
+    <string name="game_creator_activity_title">Game Creator</string>
+    <string name="game_activity_title">Game Activity</string>
+    <string name="game_settings_menu_item_text">Settings</string>
 
 </resources>

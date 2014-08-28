@@ -1,4 +1,6 @@
-package com.adamnickle.deck;
+package com.adamnickle.deck.Game;
+
+import com.adamnickle.deck.CardResources;
 
 import java.security.InvalidParameterException;
 import java.util.Comparator;
@@ -20,8 +22,8 @@ public class Card
         }
 
         mCardNumber = cardNumber;
-        mSuit = cardNumber / Deck.RANKS;
-        mRank = cardNumber % Deck.RANKS;
+        mSuit = calculateSuit( mCardNumber );
+        mRank = calculateRank( mCardNumber );
     }
 
     public Card( int suit, int rank )
@@ -37,6 +39,16 @@ public class Card
 
         mSuit = suit;
         mRank = rank;
+    }
+
+    public static int calculateSuit( int cardNumber )
+    {
+        return cardNumber / Deck.RANKS;
+    }
+
+    public static int calculateRank( int cardNumber )
+    {
+        return cardNumber % Deck.RANKS;
     }
 
     public int getCardNumber()

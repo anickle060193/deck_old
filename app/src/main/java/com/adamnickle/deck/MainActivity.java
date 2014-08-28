@@ -84,7 +84,7 @@ public class MainActivity extends ActionBarActivity
         mBluetoothConnection = new BluetoothConnection( this, mHandler );
         setConnectionType( CONNECTION_TYPE_NONE );
 
-        startActivity( new Intent( this, GameCreatorActivity.class ) );
+        startActivity( new Intent( this, GameActivity.class ) );
     }
 
     private void setConnectionType( int connectionType )

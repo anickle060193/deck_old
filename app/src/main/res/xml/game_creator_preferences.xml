@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:persistent="false" >
 
     <EditTextPreference
         android:key="pref_game_name"
@@ -10,7 +11,7 @@
         android:persistent="false" />
 
     <PreferenceCategory
-        android:title="Players"
+        android:title="Player Settings"
         android:key="pref_players_category">
 
         <EditTextPreference
@@ -30,7 +31,29 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Card Points"
+        android:title="Card Settings"
+        android:key="pref_card_category">
+
+        <CheckBoxPreference
+            android:key="pref_deal_full_amount"
+            android:title="Deal full deck"
+            android:summary="Deal all cards, evenly, to all players"
+            android:defaultValue="true"
+            android:disableDependentsState="true"
+            android:persistent="false" />
+
+        <EditTextPreference
+            android:key="pref_initial_cards_per_player"
+            android:title="Initial amount of cards dealt to each player"
+            android:defaultValue="0"
+            android:inputType="number"
+            android:dependency="pref_deal_full_amount"
+            android:persistent="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Card Points Settings"
         android:key="pref_card_points_category">
 
         <CheckBoxPreference
@@ -59,6 +82,43 @@
                 android:entries="@array/card_set_points_method"
                 android:entryValues="@array/card_set_points_method"
                 android:persistent="false" />
+
+            <PreferenceCategory
+                android:key="pref_suits_category"
+                android:title="Suits"
+                android:persistent="false" />
+
+            <PreferenceCategory
+                android:key="pref_ranks_category"
+                android:title="Ranks"
+                android:persistent="false" />
+
+            <PreferenceCategory
+                android:key="pref_cards_category"
+                android:title="Cards"
+                android:persistent="false" >
+
+                <PreferenceScreen
+                    android:key="pref_cards_spades_category"
+                    android:title="Spades"
+                    android:persistent="false" />
+
+                <PreferenceScreen
+                    android:key="pref_cards_hearts_category"
+                    android:title="Hearts"
+                    android:persistent="false" />
+
+                <PreferenceScreen
+                    android:key="pref_cards_clubs_category"
+                    android:title="Clubs"
+                    android:persistent="false" />
+
+                <PreferenceScreen
+                    android:key="pref_cards_diamonds_category"
+                    android:title="Diamonds"
+                    android:persistent="false" />
+
+            </PreferenceCategory>
 
         </PreferenceScreen>
 

@@ -25,6 +25,10 @@ public class BluetoothConnection
     private static final String TAG = "BluetoothConnection";
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
 
+    public static final int CONNECTION_TYPE_NONE = 0;
+    public static final int CONNECTION_TYPE_SERVER = 1;
+    public static final int CONNECTION_TYPE_CLIENT = 2;
+
     public static final int STATE_NONE = 0;
     public static final int STATE_LISTENING = 1;
     public static final int STATE_CONNECTING = 2;
@@ -46,7 +50,7 @@ public class BluetoothConnection
     private ConnectThread mConnectThread;
     private ArrayList< ConnectedThread > mConnectedThreads;
     private int mState;
-    private boolean mIsClient;
+    private int mConnectionType;
 
     public BluetoothConnection( Context c, Handler h )
     {
@@ -54,18 +58,19 @@ public class BluetoothConnection
         this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         this.mHandler = h;
         this.mState = STATE_NONE;
+        this.mConnectionType = CONNECTION_TYPE_NONE;
 
         mConnectedThreads = new ArrayList< ConnectedThread >();
     }
 
-    public synchronized boolean getIsClient()
+    public synchronized int getConnectionType()
     {
-        return mIsClient;
+        return mConnectionType;
     }
 
-    public synchronized void setIsClient( boolean isClient )
+    private synchronized void setConnectionType( int connectionType )
     {
-        mIsClient = isClient;
+        mConnectionType = connectionType;
     }
 
     public synchronized int getState()
@@ -98,9 +103,10 @@ public class BluetoothConnection
         }
     }
 
-    public synchronized void start()
+    public synchronized void start( int connectionType )
     {
         Log.d( TAG, "BEGIN start()" );
+        setConnectionType( connectionType );
 
         if( mConnectThread != null )
         {
@@ -114,19 +120,22 @@ public class BluetoothConnection
         }
         mConnectedThreads.clear();
 
-        if( mIsClient )
+        switch( getConnectionType() )
         {
-            setState( STATE_NONE );
-        }
-        else
-        {
-            setState( STATE_LISTENING );
+            case CONNECTION_TYPE_NONE:
+            case CONNECTION_TYPE_CLIENT:
+                setState( STATE_NONE );
+                break;
 
-            if( mAcceptThread == null )
-            {
-                mAcceptThread = new AcceptThread();
-                mAcceptThread.start();
-            }
+            case CONNECTION_TYPE_SERVER:
+                setState( STATE_LISTENING );
+
+                if( mAcceptThread == null )
+                {
+                    mAcceptThread = new AcceptThread();
+                    mAcceptThread.start();
+                }
+                break;
         }
     }
 
@@ -134,9 +143,9 @@ public class BluetoothConnection
     {
         Log.d( TAG, "BEGIN restart()" );
 
-        if( mIsClient )
+        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
-            start();
+            start( CONNECTION_TYPE_CLIENT );
             return;
         }
 
@@ -184,6 +193,7 @@ public class BluetoothConnection
     public synchronized void stop()
     {
         Log.d( TAG, "BEGIN stop" );
+        setConnectionType( CONNECTION_TYPE_NONE );
 
         if( mConnectThread != null )
         {
@@ -222,6 +232,7 @@ public class BluetoothConnection
         mConnectThread = new ConnectThread( device );
         mConnectThread.start();
 
+        setConnectionType( CONNECTION_TYPE_CLIENT );
         setState( STATE_CONNECTING );
     }
 
@@ -235,7 +246,7 @@ public class BluetoothConnection
             mConnectThread = null;
         }
 
-        if( mIsClient )
+        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
             for( ConnectedThread thread : mConnectedThreads )
             {
@@ -259,7 +270,7 @@ public class BluetoothConnection
 
         mHandler.obtainMessage( BluetoothConnection.MESSAGE_NEW_DEVICE, device ).sendToTarget();
 
-        if( mIsClient )
+        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
             setState( STATE_CONNECTED );
         }

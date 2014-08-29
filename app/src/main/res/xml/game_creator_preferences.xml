@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:persistent="false" >
+    android:key="pref_game_creator_screen" >
 
     <EditTextPreference
         android:key="pref_game_name"
@@ -85,38 +85,31 @@
 
             <PreferenceCategory
                 android:key="pref_suits_category"
-                android:title="Suits"
-                android:persistent="false" />
+                android:title="Suits" />
 
             <PreferenceCategory
                 android:key="pref_ranks_category"
-                android:title="Ranks"
-                android:persistent="false" />
+                android:title="Ranks" />
 
             <PreferenceCategory
                 android:key="pref_cards_category"
-                android:title="Cards"
-                android:persistent="false" >
+                android:title="Cards" >
 
                 <PreferenceScreen
-                    android:key="pref_cards_spades_category"
-                    android:title="Spades"
-                    android:persistent="false" />
+                    android:key="pref_cards_spades_screen"
+                    android:title="Spades" />
 
                 <PreferenceScreen
-                    android:key="pref_cards_hearts_category"
-                    android:title="Hearts"
-                    android:persistent="false" />
+                    android:key="pref_cards_hearts_screen"
+                    android:title="Hearts" />
 
                 <PreferenceScreen
-                    android:key="pref_cards_clubs_category"
-                    android:title="Clubs"
-                    android:persistent="false" />
+                    android:key="pref_cards_clubs_screen"
+                    android:title="Clubs" />
 
                 <PreferenceScreen
-                    android:key="pref_cards_diamonds_category"
-                    android:title="Diamonds"
-                    android:persistent="false" />
+                    android:key="pref_cards_diamonds_screen"
+                    android:title="Diamonds" />
 
             </PreferenceCategory>
 

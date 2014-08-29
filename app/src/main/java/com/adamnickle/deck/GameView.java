@@ -3,6 +3,7 @@ package com.adamnickle.deck;
 import android.graphics.Canvas;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -17,6 +18,8 @@ public class GameView extends View
 {
     private static final String TAG = "GameView";
 
+    private static final float MINIMUM_VELOCITY = 400.0f;
+
     private GestureDetectorCompat mDetector;
     private final LinkedList<CardDrawable> mCardDrawables;
     private SparseArray<CardDrawable> mMovingCardDrawables;
@@ -24,6 +27,7 @@ public class GameView extends View
     public GameView( GameActivity context )
     {
         super( context );
+        Log.d( TAG, "___ CONSTRUCTOR ___" );
 
         mDetector = new GestureDetectorCompat( context, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
@@ -33,7 +37,7 @@ public class GameView extends View
         for( int i = 0; i < 13; i++ )
         {
             card = new Card( i );
-            mCardDrawables.addFirst( new CardDrawable( getResources(), card.getResource(), 300, 300, width, height, true ) );
+            mCardDrawables.addFirst( new CardDrawable( this, getResources(), card.getResource(), 300, 300, width, height, true ) );
         }
         mMovingCardDrawables = new SparseArray< CardDrawable >();
     }
@@ -82,59 +86,36 @@ public class GameView extends View
         switch( action )
         {
             case MotionEvent.ACTION_DOWN:
-            {
-                final int pointerIndex = MotionEventCompat.getActionIndex( event );
-                final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
-                final float x = MotionEventCompat.getX( event, pointerIndex );
-                final float y = MotionEventCompat.getY( event, pointerIndex );
-
-                synchronized( mCardDrawables )
-                {
-                    CardDrawable activeCardDrawable = null;
-                    for( CardDrawable cardDrawable : mCardDrawables )
-                    {
-                        if( cardDrawable != null && cardDrawable.contains( (int) x, (int) y ) )
-                        {
-                            activeCardDrawable = cardDrawable;
-                            mMovingCardDrawables.put( pointerId, activeCardDrawable );
-                            break;
-                        }
-                    }
-                    if( activeCardDrawable != null )
-                    {
-                        mCardDrawables.removeFirstOccurrence( activeCardDrawable );
-                        mCardDrawables.addFirst( activeCardDrawable );
-                    }
-                }
-                break;
-            }
-
             case MotionEvent.ACTION_POINTER_DOWN:
             {
+                switch( action )
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        break;
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        break;
+                }
                 final int pointerIndex = MotionEventCompat.getActionIndex( event );
                 final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
                 final float x = MotionEventCompat.getX( event, pointerIndex );
                 final float y = MotionEventCompat.getY( event, pointerIndex );
 
-                synchronized( mCardDrawables )
+                CardDrawable activeCardDrawable = null;
+                for( CardDrawable cardDrawable : mCardDrawables )
                 {
-                    CardDrawable activeCardDrawable = null;
-                    for( CardDrawable cardDrawable : mCardDrawables )
+                    if( cardDrawable != null && !cardDrawable.isHeld() && cardDrawable.contains( (int) x, (int) y ) )
                     {
-                        if( cardDrawable != null && cardDrawable.contains( (int) x, (int) y ) )
-                        {
-                            activeCardDrawable = cardDrawable;
-                            mMovingCardDrawables.put( pointerId, activeCardDrawable );
-                            break;
-                        }
-                    }
-                    if( activeCardDrawable != null )
-                    {
-                        mCardDrawables.removeFirstOccurrence( activeCardDrawable );
-                        mCardDrawables.addFirst( activeCardDrawable );
+                        activeCardDrawable = cardDrawable;
+                        break;
                     }
                 }
-
+                if( activeCardDrawable != null )
+                {
+                    activeCardDrawable.setIsHeld( true );
+                    mMovingCardDrawables.put( pointerId, activeCardDrawable );
+                    mCardDrawables.removeFirstOccurrence( activeCardDrawable );
+                    mCardDrawables.addFirst( activeCardDrawable );
+                }
                 break;
             }
 
@@ -157,25 +138,33 @@ public class GameView extends View
 
             case MotionEvent.ACTION_CANCEL:
             {
+                Log.d( TAG, "--- ACTION CANCEL ---" );
+                for( int i = 0; i < mMovingCardDrawables.size(); i++ )
+                {
+                    mMovingCardDrawables.valueAt( i ).setIsHeld( false );
+                }
                 mMovingCardDrawables.clear();
                 break;
             }
 
             case MotionEvent.ACTION_UP:
-            {
-                final int pointerIndex = MotionEventCompat.getActionIndex( event );
-                final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
-                mMovingCardDrawables.remove( pointerId );
-                break;
-            }
-
             case MotionEvent.ACTION_POINTER_UP:
             {
+                switch( action )
+                {
+                    case MotionEvent.ACTION_UP:
+                        break;
+                    case MotionEvent.ACTION_POINTER_UP:
+                        break;
+                }
                 final int pointerIndex = MotionEventCompat.getActionIndex( event );
                 final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
-
-                mMovingCardDrawables.remove( pointerId );
-
+                final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
+                if( cardDrawable != null )
+                {
+                    cardDrawable.setIsHeld( false );
+                    mMovingCardDrawables.remove( pointerId );
+                }
                 break;
             }
         }
@@ -183,11 +172,39 @@ public class GameView extends View
         return true;
     }
 
+    public void onOrientationChange()
+    {
+        Log.d( TAG, "__ ORIENTATION CHANGE __" );
+        for( CardDrawable cardDrawable : mCardDrawables )
+        {
+            cardDrawable.onOrientationChange();
+        }
+    }
+
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener()
     {
         @Override
         public boolean onDown( MotionEvent event )
         {
+            return true;
+        }
+
+        @Override
+        public boolean onFling( MotionEvent event1, MotionEvent event2, float velocityX, float velocityY )
+        {
+            Log.d( TAG, "__ ON FLING __" );
+            final float velocity = (float)Math.sqrt( velocityX * velocityX + velocityY * velocityY );
+            Log.d( TAG, "VELOCITY: " + velocity );
+            if( velocity > MINIMUM_VELOCITY )
+            {
+                final int pointerIndex = MotionEventCompat.getActionIndex( event2 );
+                final int pointerId = MotionEventCompat.getPointerId( event2, pointerIndex );
+                final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
+                if( cardDrawable != null )
+                {
+                    cardDrawable.setVelocity( velocityX, velocityY );
+                }
+            }
             return true;
         }
     };

@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.view.View;
 
 public class CardDrawable extends Drawable
 {
@@ -15,6 +17,9 @@ public class CardDrawable extends Drawable
     public static final int DEFAULT_WIDTH = 598;
     public static final int DEFAULT_HEIGHT = 834;
 
+    private static final float TIME_CONVERT = 1000.0f;
+
+    private View mParent;
     private Bitmap mBitmap;
     private Rect mDrawRect;
     private int mWidth;
@@ -22,12 +27,19 @@ public class CardDrawable extends Drawable
     private int mX;
     private int mY;
     private boolean mIsBitmapLoaded;
+    private boolean mIsHeld;
+    private float mVelocityX;
+    private float mVelocityY;
+    private Handler mPositionUpdateHandler;
+    private long mLastUpdate;
 
-    public CardDrawable( final Resources resources, final int resource, final int x, final int y, final int reqWidth, final int reqHeight, final boolean forceSize )
+    public CardDrawable( final View view, final Resources resources, final int resource, final int x, final int y, final int reqWidth, final int reqHeight, final boolean forceSize )
     {
         mIsBitmapLoaded = false;
+        mParent = view;
         mX = x;
         mY = y;
+        mPositionUpdateHandler = new Handler();
 
         new Thread()
         {
@@ -77,14 +89,83 @@ public class CardDrawable extends Drawable
         }.start();
     }
 
-    public CardDrawable( Resources resources, int resource, int x, int y, int reqWidth, int reqHeight )
+    public CardDrawable( View view, Resources resources, int resource, int x, int y, int reqWidth, int reqHeight )
     {
-        this( resources, resource, x, y, reqWidth, reqHeight, false );
+        this( view, resources, resource, x, y, reqWidth, reqHeight, false );
     }
 
-    public CardDrawable( Resources resources, int resource, int x, int y )
+    public CardDrawable( View view, Resources resources, int resource, int x, int y )
     {
-        this( resources, resource, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT );
+        this( view, resources, resource, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT );
+    }
+
+    public boolean isHeld()
+    {
+        return mIsHeld;
+    }
+
+    public void setIsHeld( boolean isHeld )
+    {
+        mIsHeld = isHeld;
+        if( mIsHeld )
+        {
+            mVelocityX = 0.0f;
+            mVelocityY = 0.0f;
+        }
+    }
+
+    public void setVelocity( float velocityX, float velocityY )
+    {
+        mVelocityX = velocityX;
+        mVelocityY = velocityY;
+        mLastUpdate = System.currentTimeMillis();
+
+        mPositionUpdateHandler.postDelayed( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                updateWithVelocity();
+
+                if( mVelocityX != 0 || mVelocityY != 0 )
+                {
+                    mPositionUpdateHandler.postDelayed( this, 10 );
+                }
+            }
+        }, 10 );
+    }
+
+    private void updateWithVelocity()
+    {
+        final long now = System.currentTimeMillis();
+        final long t = now - mLastUpdate;
+        final float dx = mVelocityX * ( t / TIME_CONVERT );
+        final float dy = mVelocityY * ( t / TIME_CONVERT );
+        mX += (int)dx;
+        mY += (int)dy;
+        updateBounds();
+        mLastUpdate = now;
+
+        if( !isOnScreen() )
+        {
+            mVelocityX = 0.0f;
+            mVelocityY = 0.0f;
+        }
+    }
+
+    private boolean isOnScreen()
+    {
+        final Rect parentRect = new Rect();
+        mParent.getDrawingRect( parentRect );
+        return Rect.intersects( parentRect, mDrawRect );
+    }
+
+    @SuppressWarnings( "SuspiciousNameCombination" )
+    public void onOrientationChange()
+    {
+        final int newTop = mDrawRect.left;
+        final int newLeft = mDrawRect.top;
+        mDrawRect.set( newLeft, newTop, newLeft + mWidth, newTop + mHeight );
     }
 
     private void updateBounds()

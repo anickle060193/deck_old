@@ -30,11 +30,7 @@
         <activity
             android:name=".GameActivity"
             android:label="@string/game_activity_title"
-            android:parentActivityName=".MainActivity"
             android:hardwareAccelerated="true" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.adamnickle.deck.MainActivity" />
         </activity>
     </application>
 

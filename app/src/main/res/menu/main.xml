@@ -33,6 +33,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/actionOpenGame"
+        android:title="@string/open_game_menu_item_text"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/actionSettings"
         android:title="@string/main_settings_menu_item_text"
         app:showAsAction="never"/>

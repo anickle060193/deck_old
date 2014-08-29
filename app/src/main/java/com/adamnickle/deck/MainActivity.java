@@ -29,17 +29,13 @@ public class MainActivity extends ActionBarActivity
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
     private static final int REQUEST_CONNECT_DEVICE = 2;
 
-    private static final int CONNECTION_TYPE_NONE = 1;
-    private static final int CONNECTION_TYPE_CLIENT = 2;
-    private static final int CONNECTION_TYPE_SERVER = 3;
-
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothConnection mBluetoothConnection;
 
     private TextView mTextView;
     private ScrollView mScrollView;
     private EditText mMessageEditText;
-    private int mConnectionType;
+    private int mSavedConnectionType;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -82,15 +78,6 @@ public class MainActivity extends ActionBarActivity
         } );
         mMessageEditText = (EditText) findViewById( R.id.messageEditText );
         mBluetoothConnection = new BluetoothConnection( this, mHandler );
-        setConnectionType( CONNECTION_TYPE_NONE );
-
-        startActivity( new Intent( this, GameActivity.class ) );
-    }
-
-    private void setConnectionType( int connectionType )
-    {
-        mConnectionType = connectionType;
-        this.invalidateOptionsMenu();
     }
 
     @Override
@@ -107,19 +94,20 @@ public class MainActivity extends ActionBarActivity
         Log.d( TAG, "+ ON RESUME +" );
     }
 
-    private void startBluetoothConnection()
+    private void startBluetoothConnection( int connectionType )
     {
         Log.d( TAG, "startBluetoothConnection" );
 
         if( !mBluetoothAdapter.isEnabled() )
         {
+            mSavedConnectionType = connectionType;
             Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
             startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
         } else
         {
             if( mBluetoothConnection != null )
             {
-                mBluetoothConnection.start();
+                mBluetoothConnection.start( connectionType );
             }
         }
     }
@@ -154,10 +142,11 @@ public class MainActivity extends ActionBarActivity
     @Override
     public boolean onCreateOptionsMenu( Menu menu )
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate( R.menu.main, menu );
+        int connectionType = mBluetoothConnection.getConnectionType();
+        int state = mBluetoothConnection.getState();
 
-        if( mConnectionType == CONNECTION_TYPE_NONE )
+        if( connectionType == BluetoothConnection.CONNECTION_TYPE_NONE )
         {
             menu.findItem( R.id.actionCreateServer ).setVisible( true );
             menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
@@ -165,47 +154,42 @@ public class MainActivity extends ActionBarActivity
             menu.findItem( R.id.actionCloseServer ).setVisible( false );
             menu.findItem( R.id.actionFindServer ).setVisible( true );
             menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-        }
-        else if( mConnectionType == CONNECTION_TYPE_CLIENT )
+        } else if( connectionType == BluetoothConnection.CONNECTION_TYPE_CLIENT )
         {
             menu.findItem( R.id.actionCreateServer ).setVisible( false );
             menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
             menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
             menu.findItem( R.id.actionCloseServer ).setVisible( false );
 
-            if( mBluetoothConnection.getState() == BluetoothConnection.STATE_CONNECTED )
+            if( state == BluetoothConnection.STATE_CONNECTED )
             {
                 menu.findItem( R.id.actionFindServer ).setVisible( false );
                 menu.findItem( R.id.actionLeaveServer ).setVisible( true );
-            }
-            else
+            } else
             {
                 menu.findItem( R.id.actionFindServer ).setVisible( true );
                 menu.findItem( R.id.actionLeaveServer ).setVisible( false );
             }
-        }
-        else if( mConnectionType == CONNECTION_TYPE_SERVER )
+        } else if( connectionType == BluetoothConnection.CONNECTION_TYPE_SERVER )
         {
             menu.findItem( R.id.actionCreateServer ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( true );
+            menu.findItem( R.id.actionFindServer ).setVisible( false );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
 
-            if( mBluetoothConnection.getState() == BluetoothConnection.STATE_LISTENING )
+            if( state == BluetoothConnection.STATE_LISTENING )
             {
                 menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
                 menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            }
-            else if( mBluetoothConnection.getState() == BluetoothConnection.STATE_CONNECTED_LISTENING )
+            } else if( state == BluetoothConnection.STATE_CONNECTED_LISTENING )
             {
                 menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
                 menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            }
-            else if( mBluetoothConnection.getState() == BluetoothConnection.STATE_CONNECTED )
+            } else if( state == BluetoothConnection.STATE_CONNECTED )
             {
                 menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
                 menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
             }
-            menu.findItem( R.id.actionCloseServer ).setVisible( true );
-            menu.findItem( R.id.actionFindServer ).setVisible( false );
-            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
         }
         return true;
     }
@@ -222,12 +206,13 @@ public class MainActivity extends ActionBarActivity
                 startActivity( new Intent( this, GameCreatorActivity.class ) );
                 return true;
 
-            case R.id.actionCreateServer:
-                setConnectionType( CONNECTION_TYPE_SERVER );
+            case R.id.actionOpenGame:
+                startActivity( new Intent( this, GameActivity.class ) );
+                return true;
 
-                mBluetoothConnection.setIsClient( false );
+            case R.id.actionCreateServer:
                 mBluetoothConnection.ensureDiscoverable();
-                startBluetoothConnection();
+                startBluetoothConnection( BluetoothConnection.CONNECTION_TYPE_SERVER );
                 return true;
 
             case R.id.actionFinishConnecting:
@@ -239,8 +224,6 @@ public class MainActivity extends ActionBarActivity
                 return true;
 
             case R.id.actionCloseServer:
-                setConnectionType( CONNECTION_TYPE_NONE );
-
                 mBluetoothConnection.stop();
                 return true;
 
@@ -250,8 +233,6 @@ public class MainActivity extends ActionBarActivity
                 return true;
 
             case R.id.actionLeaveServer:
-                setConnectionType( CONNECTION_TYPE_NONE );
-
                 mBluetoothConnection.stop();
                 return true;
         }
@@ -291,6 +272,7 @@ public class MainActivity extends ActionBarActivity
                             setStatus( "Not connected" );
                             break;
                     }
+                    supportInvalidateOptionsMenu();
                     break;
                 case BluetoothConnection.MESSAGE_WRITE:
                     byte[] writeBuf = (byte[]) msg.obj;
@@ -322,7 +304,8 @@ public class MainActivity extends ActionBarActivity
             case REQUEST_ENABLE_BLUETOOTH:
                 if( resultCode == Activity.RESULT_OK )
                 {
-                    startBluetoothConnection();
+                    startBluetoothConnection( mSavedConnectionType );
+                    mSavedConnectionType = -1;
                 }
                 else
                 {
@@ -335,9 +318,6 @@ public class MainActivity extends ActionBarActivity
             case REQUEST_CONNECT_DEVICE:
                 if( resultCode == Activity.RESULT_OK )
                 {
-                    setConnectionType( CONNECTION_TYPE_CLIENT );
-
-                    mBluetoothConnection.setIsClient( true );
                     String address = data.getStringExtra( DeviceListActivity.EXTRA_DEVICE_ADDRESS );
                     BluetoothDevice device = mBluetoothAdapter.getRemoteDevice( address );
                     mBluetoothConnection.connect( device );

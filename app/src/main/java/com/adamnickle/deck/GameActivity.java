@@ -1,10 +1,10 @@
 package com.adamnickle.deck;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 
 
-public class GameActivity extends ActionBarActivity
+public class GameActivity extends Activity
 {
     private static final String TAG = "GameActivity";
 
@@ -13,6 +13,12 @@ public class GameActivity extends ActionBarActivity
     {
         super.onCreate( savedInstanceState );
 
-        setContentView( new GameView( this ) );
+        if( savedInstanceState == null )
+        {
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace( android.R.id.content, new GameFragment() )
+                    .commit();
+        }
     }
 }

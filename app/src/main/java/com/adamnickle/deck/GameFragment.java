@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
+
+import com.adamnickle.deck.Game.Card;
 
 public class GameFragment extends Fragment
 {
+    public static final String FRAGMENT_NAME = GameFragment.class.getSimpleName();
+
     private GameView mGameView;
     private int mLastOrientation;
 
@@ -19,16 +22,17 @@ public class GameFragment extends Fragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
-        getActivity().requestWindowFeature( Window.FEATURE_NO_TITLE );
-        getActivity().getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedStateInstance )
     {
+        getActivity().getActionBar().hide();
+        getActivity().getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
+
         if( mGameView == null )
         {
-            mGameView = new GameView( (GameActivity) this.getActivity() );
+            mGameView = new GameView( getActivity() );
             mLastOrientation = getResources().getConfiguration().orientation;
         }
         else
@@ -44,5 +48,10 @@ public class GameFragment extends Fragment
         }
 
         return mGameView;
+    }
+
+    public void addCard( Card card )
+    {
+        mGameView.addCard( card );
     }
 }

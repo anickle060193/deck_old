@@ -1,5 +1,6 @@
 package com.adamnickle.deck;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -23,6 +24,9 @@ public class GameView extends View
      * Log TAG for {@link com.adamnickle.deck.GameView}.
      */
     private static final String TAG = "GameView";
+
+    private static final int CARD_WIDTH = (int)( CardDrawable.DEFAULT_WIDTH / 2.0f );
+    private static final int CARD_HEIGHT = (int)( CardDrawable.DEFAULT_HEIGHT / 2.0f );
 
     /**
      * The minimum velocity required for a series of {@link android.view.MotionEvent}s to be considered a Fling gesture.
@@ -51,22 +55,19 @@ public class GameView extends View
      * Constructs a {@link com.adamnickle.deck.GameView} object with the given {@link com.adamnickle.deck.GameActivity} as the {@link android.view.View}'s context.
      * @param context A {@link com.adamnickle.deck.GameActivity} that will display the constructed {@link com.adamnickle.deck.GameView}.
      */
-    public GameView( GameActivity context )
+    public GameView( Context context )
     {
         super( context );
         Log.d( TAG, "___ CONSTRUCTOR ___" );
 
         mDetector = new GestureDetectorCompat( context, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
-        Card card;
-        final int width = (int)( CardDrawable.DEFAULT_WIDTH * 0.5f );
-        final int height = (int)( CardDrawable.DEFAULT_HEIGHT * 0.5f );
-        for( int i = 0; i < 13; i++ )
-        {
-            card = new Card( i );
-            mCardDrawables.addFirst( new CardDrawable( this, getResources(), card.getResource(), 300, 300, width, height, true ) );
-        }
         mMovingCardDrawables = new SparseArray< CardDrawable >();
+    }
+
+    public void addCard( Card card )
+    {
+        mCardDrawables.addFirst( new CardDrawable( this, getResources(), card, getWidth() / 2, getHeight() / 2, CARD_WIDTH, CARD_HEIGHT, true ) );
     }
 
     /**
@@ -240,9 +241,7 @@ public class GameView extends View
         @Override
         public boolean onFling( MotionEvent event1, MotionEvent event2, float velocityX, float velocityY )
         {
-            Log.d( TAG, "__ ON FLING __" );
             final float velocity = (float)Math.sqrt( velocityX * velocityX + velocityY * velocityY );
-            Log.d( TAG, "VELOCITY: " + velocity );
             if( velocity > MINIMUM_VELOCITY )
             {
                 final int pointerIndex = MotionEventCompat.getActionIndex( event2 );
@@ -253,6 +252,15 @@ public class GameView extends View
                     cardDrawable.setVelocity( velocityX, velocityY );
                 }
             }
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap( MotionEvent event )
+        {
+            final int pointerIndex = MotionEventCompat.getActionIndex( event );
+            final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
+            final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
             return true;
         }
     };

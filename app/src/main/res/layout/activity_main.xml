@@ -14,34 +14,18 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scrollbars="vertical"
-        android:layout_above="@+id/messageEditText">
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView" />
+            android:id="@+id/text" />
 
     </ScrollView>
-
-    <EditText
-        android:id="@+id/messageEditText"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/sendMessageButton"
-        android:layout_toLeftOf="@+id/sendMessageButton"/>
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:text="@string/send_message_button_text"
-        android:id="@+id/sendMessageButton"
-        android:onClick="onClick"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

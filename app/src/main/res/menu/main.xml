@@ -1,44 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".Main">
-    <item
-        android:id="@+id/actionCreateServer"
-        android:title="@string/create_server_menu_item_text"
-        app:showAsAction="never"/>
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/actionFinishConnecting"
-        android:title="@string/finish_connecting_menu_item_text"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/actionRestartConnecting"
-        android:title="@string/restart_connecting_menu_item_text"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/actionCloseServer"
-        android:title="@string/close_server_menu_item_text"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/actionFindServer"
-        android:title="@string/find_server_menu_item_text"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/actionLeaveServer"
-        android:title="@string/leave_server_menu_item_text"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/actionOpenGame"
-        android:title="@string/open_game_menu_item_text"
+        android:id="@+id/addCard"
+        android:title="@string/new_card_menu_item_text"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/actionSettings"
         android:title="@string/main_settings_menu_item_text"
         app:showAsAction="never"/>
+
 </menu>

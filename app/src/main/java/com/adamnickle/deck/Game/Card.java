@@ -121,11 +121,11 @@ public class Card
 
         private int compareRank( Card card, Card card2 )
         {
-            if( card.mRank < card2.mRank )
+            if( card.getRank() < card2.getRank() )
             {
                 return -1;
             }
-            else if( card.mRank > card2.mRank )
+            else if( card.getRank() > card2.getRank() )
             {
                 return 1;
             }
@@ -137,11 +137,11 @@ public class Card
 
         private int compareSuit( Card card, Card card2 )
         {
-            if( card.mSuit < card2.mSuit )
+            if( card.getSuit() < card2.getSuit() )
             {
                 return -1;
             }
-            else if( card.mSuit > card2.mSuit )
+            else if( card.getSuit() > card2.getSuit() )
             {
                 return 1;
             }
@@ -154,6 +154,15 @@ public class Card
         @Override
         public int compare( Card card, Card card2 )
         {
+            if( card == null )
+            {
+                return -1;
+            }
+            else if( card2 == null )
+            {
+                return 1;
+            }
+
             if( mCompareType == CardCollection.SORT_BY_RANK )
             {
                 int comp = compareRank( card, card2 );

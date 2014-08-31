@@ -22,7 +22,7 @@ import android.view.MenuItem;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Deck;
-import com.adamnickle.deck.Game.Game;
+import com.adamnickle.deck.Game.GameSettings;
 
 import java.util.HashMap;
 
@@ -337,27 +337,27 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
     {
         Log.d( TAG, "returnResult()" );
 
-        Game game = new Game();
-        game.GameName = ( (EditTextPreference) this.findPreference( KEY_PREF_GAME_NAME ) ).getText();
-        game.MinimumPlayers = Integer.parseInt( ( (EditTextPreference) this.findPreference( KEY_PREF_MIN_PLAYERS ) ).getText() );
-        game.MaximumPlayers = Integer.parseInt( ( (EditTextPreference) this.findPreference( KEY_PREF_MAX_PLAYERS ) ).getText() );
-        game.TrackPoints = ( (CheckBoxPreference) this.findPreference( KEY_PREF_TRACK_POINTS ) ).isChecked();
-        if( game.TrackPoints )
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.GameName = ( (EditTextPreference) this.findPreference( KEY_PREF_GAME_NAME ) ).getText();
+        gameSettings.MinimumPlayers = Integer.parseInt( ( (EditTextPreference) this.findPreference( KEY_PREF_MIN_PLAYERS ) ).getText() );
+        gameSettings.MaximumPlayers = Integer.parseInt( ( (EditTextPreference) this.findPreference( KEY_PREF_MAX_PLAYERS ) ).getText() );
+        gameSettings.TrackPoints = ( (CheckBoxPreference) this.findPreference( KEY_PREF_TRACK_POINTS ) ).isChecked();
+        if( gameSettings.TrackPoints )
         {
-            game.CardPointValues = getCardPointValues();
+            gameSettings.CardPointValues = getCardPointValues();
         } else
         {
-            game.CardPointValues = null;
+            gameSettings.CardPointValues = null;
         }
-        game.DealFullDeck = ( (CheckBoxPreference) this.findPreference( KEY_PREF_DEAL_FULL_DECK ) ).isChecked();
-        if( !game.DealFullDeck )
+        gameSettings.DealFullDeck = ( (CheckBoxPreference) this.findPreference( KEY_PREF_DEAL_FULL_DECK ) ).isChecked();
+        if( !gameSettings.DealFullDeck )
         {
-            game.InitialCardsPerPlayer = Integer.parseInt( ( (EditTextPreference) this.findPreference( KEY_PREF_INITIAL_CARDS_PER_PLAYER ) ).getText() );
+            gameSettings.InitialCardsPerPlayer = Integer.parseInt( ( (EditTextPreference) this.findPreference( KEY_PREF_INITIAL_CARDS_PER_PLAYER ) ).getText() );
         }
 
 
         Intent resultIntent = new Intent();
-        resultIntent.putExtra( EXTRA_GAME, game );
+        resultIntent.putExtra( EXTRA_GAME, gameSettings );
         this.getActivity().setResult( Activity.RESULT_OK, resultIntent );
         this.getActivity().finish();
     }

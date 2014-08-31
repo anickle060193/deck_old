@@ -24,6 +24,7 @@ public class BluetoothConnection
 {
     private static final String TAG = "BluetoothConnection";
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
+    private static final String SERVICE_NAME = "Deck Server";
 
     public static final int CONNECTION_TYPE_NONE = 0;
     public static final int CONNECTION_TYPE_SERVER = 1;
@@ -37,13 +38,12 @@ public class BluetoothConnection
 
     public static final int MESSAGE_NEW_DEVICE = 1;
     public static final int MESSAGE_STATE_CHANGED = 2;
-    public static final int MESSAGE_TOAST = 3;
+    public static final int MESSAGE_NOTIFICATION = 3;
     public static final int MESSAGE_WRITE = 4;
     public static final int MESSAGE_READ = 5;
 
     public static final String SENDER_DEVICE_NAME = "sender_device_name";
 
-    private final Context mContext;
     private final BluetoothAdapter mBluetoothAdapter;
     private final Handler mHandler;
     private AcceptThread mAcceptThread;
@@ -52,9 +52,8 @@ public class BluetoothConnection
     private int mState;
     private int mConnectionType;
 
-    public BluetoothConnection( Context c, Handler h )
+    public BluetoothConnection( Handler h )
     {
-        this.mContext = c;
         this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         this.mHandler = h;
         this.mState = STATE_NONE;
@@ -91,7 +90,7 @@ public class BluetoothConnection
         return ( mState == STATE_CONNECTED ) || ( mState == STATE_CONNECTED_LISTENING );
     }
 
-    public void ensureDiscoverable()
+    public void ensureDiscoverable( Context context )
     {
         Log.d( TAG, "ensureDiscoverable" );
 
@@ -99,7 +98,7 @@ public class BluetoothConnection
         {
             Intent discoverableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
             discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
-            mContext.startActivity( discoverableIntent );
+            context.startActivity( discoverableIntent );
         }
     }
 
@@ -296,14 +295,14 @@ public class BluetoothConnection
 
     private void connectionFailed()
     {
-        mHandler.obtainMessage( BluetoothConnection.MESSAGE_TOAST, "Unable to connect to device." ).sendToTarget();
+        mHandler.obtainMessage( BluetoothConnection.MESSAGE_NOTIFICATION, "Unable to connect to device." ).sendToTarget();
 
         restart();
     }
 
     private void connectionLost( ConnectedThread connectedThread )
     {
-        mHandler.obtainMessage( BluetoothConnection.MESSAGE_TOAST, "Device connection was lost" ).sendToTarget();
+        mHandler.obtainMessage( BluetoothConnection.MESSAGE_NOTIFICATION, "Device connection was lost" ).sendToTarget();
         mConnectedThreads.remove( connectedThread );
 
         restart();
@@ -318,7 +317,7 @@ public class BluetoothConnection
             BluetoothServerSocket temp = null;
             try
             {
-                temp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord( MainActivity.SERVICE_NAME, MY_UUID );
+                temp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord( SERVICE_NAME, MY_UUID );
             } catch( IOException io )
             {
                 Log.e( TAG, "Socket listen() failed", io );

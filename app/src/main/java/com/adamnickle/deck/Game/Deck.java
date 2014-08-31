@@ -16,15 +16,4 @@ public class Deck extends CardCollection
 
     public static final String[] SUIT_STRINGS = { "Spades", "Hearts", "Clubs", "Diamonds", };
     public static final String[] RANK_STRINGS = { "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King", "Ace", };
-
-    public Card dealCard()
-    {
-        Card dealt = null;
-        if( !mCards.isEmpty() )
-        {
-            dealt = mCards.get( 0 );
-            removeCard( dealt );
-        }
-        return dealt;
-    }
 }

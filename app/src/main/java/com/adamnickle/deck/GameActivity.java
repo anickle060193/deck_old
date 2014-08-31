@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 public class GameActivity extends Activity
 {
-    private static final String TAG = "GameActivity";
+    private static final String TAG = GameActivity.class.getSimpleName();
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -17,7 +17,7 @@ public class GameActivity extends Activity
         {
             getFragmentManager()
                     .beginTransaction()
-                    .replace( android.R.id.content, new GameFragment() )
+                    .replace( android.R.id.content, new GameFragment(), GameFragment.FRAGMENT_NAME )
                     .commit();
         }
     }

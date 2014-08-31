@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
-/**
- * Created by Adam on 8/19/2014.
- */
+
 public class CardCollection
 {
     public static final int SORT_BY_RANK = 1;

@@ -6,10 +6,10 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
+
+import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.BluetoothConnectionListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,12 +17,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
-/**
- * Created by Adam on 8/14/2014.
- */
-public class BluetoothConnection
+
+public class BluetoothConnection implements BluetoothConnectionInterface
 {
-    private static final String TAG = "BluetoothConnection";
+    private static final String TAG = BluetoothConnection.class.getSimpleName();
+
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
     private static final String SERVICE_NAME = "Deck Server";
 
@@ -36,30 +35,29 @@ public class BluetoothConnection
     public static final int STATE_CONNECTED = 3;
     public static final int STATE_CONNECTED_LISTENING = 4;
 
-    public static final int MESSAGE_NEW_DEVICE = 1;
-    public static final int MESSAGE_STATE_CHANGED = 2;
-    public static final int MESSAGE_NOTIFICATION = 3;
-    public static final int MESSAGE_WRITE = 4;
-    public static final int MESSAGE_READ = 5;
-
-    public static final String SENDER_DEVICE_NAME = "sender_device_name";
+    public static final int LOCAL_DEVICE_ID = -1;
+    private static int NEXT_DEVICE_ID = 0;
 
     private final BluetoothAdapter mBluetoothAdapter;
-    private final Handler mHandler;
+    private BluetoothConnectionListener mListener;
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ArrayList< ConnectedThread > mConnectedThreads;
     private int mState;
     private int mConnectionType;
 
-    public BluetoothConnection( Handler h )
+    public BluetoothConnection()
     {
         this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        this.mHandler = h;
         this.mState = STATE_NONE;
         this.mConnectionType = CONNECTION_TYPE_NONE;
 
         mConnectedThreads = new ArrayList< ConnectedThread >();
+    }
+
+    public void addBluetoothConnectionListener( BluetoothConnectionListener bluetoothConnectionListener )
+    {
+        mListener = bluetoothConnectionListener;
     }
 
     public synchronized int getConnectionType()
@@ -82,7 +80,7 @@ public class BluetoothConnection
         Log.d( TAG, "setState() " + mState + " -> " + state );
         mState = state;
 
-        mHandler.obtainMessage( MESSAGE_STATE_CHANGED, mState, -1 ).sendToTarget();
+        mListener.onConnectionStateChange( mState );
     }
 
     public boolean isConnected()
@@ -267,7 +265,7 @@ public class BluetoothConnection
         mConnectedThreads.add( connectedThread );
         connectedThread.start();
 
-        mHandler.obtainMessage( BluetoothConnection.MESSAGE_NEW_DEVICE, device ).sendToTarget();
+        mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
@@ -279,30 +277,32 @@ public class BluetoothConnection
         }
     }
 
-    public void write( byte[] out )
+    private void write( int deviceID, byte[] out )
     {
-        ConnectedThread connectedThread;
-        synchronized( this )
+        if( isConnected() )
         {
-            if( !isConnected() )
+            synchronized( this )
             {
-                return;
+                for( ConnectedThread connectedThread : mConnectedThreads )
+                {
+                    if( connectedThread.getID() == deviceID )
+                    {
+                        connectedThread.write( out );
+                    }
+                }
             }
-            connectedThread = mConnectedThreads.get( 0 );
         }
-        connectedThread.write( out );
     }
 
     private void connectionFailed()
     {
-        mHandler.obtainMessage( BluetoothConnection.MESSAGE_NOTIFICATION, "Unable to connect to device." ).sendToTarget();
-
+        mListener.onNotification( "Unable to connect to device." );
         restart();
     }
 
     private void connectionLost( ConnectedThread connectedThread )
     {
-        mHandler.obtainMessage( BluetoothConnection.MESSAGE_NOTIFICATION, "Device connection was lost" ).sendToTarget();
+        mListener.onConnectionLost( connectedThread.getID() );
         mConnectedThreads.remove( connectedThread );
 
         restart();
@@ -331,7 +331,7 @@ public class BluetoothConnection
             Log.d( TAG, "BEGIN AcceptThread" );
             setName( "AcceptThread" );
 
-            BluetoothSocket socket = null;
+            BluetoothSocket socket;
 
             while( mState != STATE_CONNECTED )
             {
@@ -456,13 +456,16 @@ public class BluetoothConnection
         private final BluetoothSocket mSocket;
         private final InputStream mInputStream;
         private final OutputStream mOutputStream;
-        private final String mDeviceName;
+        private final int mID;
 
         public ConnectedThread( BluetoothSocket socket )
         {
             Log.d( TAG, "BEGIN create ConnectedThread" );
             mSocket = socket;
-            mDeviceName = mSocket.getRemoteDevice().getName();
+            synchronized( BluetoothConnection.this )
+            {
+                mID = NEXT_DEVICE_ID++;
+            }
 
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -479,6 +482,11 @@ public class BluetoothConnection
             mOutputStream = tmpOut;
         }
 
+        public int getID()
+        {
+            return mID;
+        }
+
         public void run()
         {
             Log.d( TAG, "BEGIN ConnectedThread" );
@@ -493,11 +501,7 @@ public class BluetoothConnection
                     bytes = mInputStream.read( buffer );
                     if( bytes > 0 )
                     {
-                        Message msg = mHandler.obtainMessage( BluetoothConnection.MESSAGE_READ, bytes, -1, buffer );
-                        Bundle bundle = new Bundle();
-                        bundle.putString( SENDER_DEVICE_NAME, mDeviceName );
-                        msg.setData( bundle );
-                        msg.sendToTarget();
+                        mListener.onMessageReceive( mID, bytes, buffer );
                     }
                 } catch( IOException io )
                 {
@@ -513,7 +517,6 @@ public class BluetoothConnection
             try
             {
                 mOutputStream.write( buffer );
-                mHandler.obtainMessage( BluetoothConnection.MESSAGE_WRITE, -1, -1, buffer ).sendToTarget();
             } catch( IOException io )
             {
                 Log.e( TAG, "Exception during write", io );
@@ -529,6 +532,21 @@ public class BluetoothConnection
             {
                 Log.e( TAG, "close() of connected socket failed", io );
             }
+        }
+    }
+
+    @Override
+    public void sendDataToDevice( int deviceID, byte[] data )
+    {
+        if( !isConnected() )
+        {
+            mListener.onNotification( "Not connected" );
+            return;
+        }
+
+        if( data.length > 0 )
+        {
+            write( deviceID, data );
         }
     }
 }

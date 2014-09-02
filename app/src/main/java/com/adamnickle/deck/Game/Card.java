@@ -90,19 +90,7 @@ public class Card
             return false;
         }
 
-        Card card = (Card)obj;
-
-        if( this.mSuit != card.mSuit )
-        {
-            return false;
-        }
-
-        if( this.mRank != card.mRank )
-        {
-            return false;
-        }
-
-        if( this.mCardNumber != card.mCardNumber )
+        if( this.mCardNumber != ( (Card) obj ).mCardNumber )
         {
             return false;
         }

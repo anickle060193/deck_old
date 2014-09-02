@@ -6,16 +6,28 @@ import java.util.Collection;
 
 public class Player
 {
-    private String mName;
-    private ArrayList<Card> mHand;
+    private final String mName;
+    private final int mDeviceID;
+    private final ArrayList<Card> mHand;
 
-    public Player( String name )
+    public Player( int deviceID, String name )
     {
         mName = name;
+        mDeviceID = deviceID;
         mHand = new ArrayList< Card >();
     }
 
-    public boolean isStillPlaying()
+    public int getID()
+    {
+        return mDeviceID;
+    }
+
+    public String getName()
+    {
+        return mName;
+    }
+
+    public boolean hasCards()
     {
         return getCardCount() > 0;
     }
@@ -33,16 +45,5 @@ public class Player
     public void addCards( Collection<Card> cards )
     {
         mHand.addAll( cards );
-    }
-
-    public Card playCard()
-    {
-        Card card = null;
-        if( mHand.size() > 0 )
-        {
-            final int index = Game.RANDOM.nextInt( mHand.size() );
-            card = mHand.remove( index );
-        }
-        return card;
     }
 }

@@ -3,7 +3,6 @@ package com.adamnickle.deck.Game;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Random;
 
 
 public class CardCollection
@@ -11,17 +10,15 @@ public class CardCollection
     public static final int SORT_BY_RANK = 1;
     public static final int SORT_BY_SUIT = 2;
 
-    protected ArrayList<Card> mCards;
+    private ArrayList<Card> mCards;
 
     public CardCollection()
     {
-        mCards = new ArrayList< Card >();
-    }
-
-    public CardCollection( ArrayList<Card> cards )
-    {
-        mCards = new ArrayList< Card >();
-        mCards.addAll( cards );
+        mCards = new ArrayList< Card >( Deck.CARD_COUNT );
+        for( int i = 0; i < Deck.CARD_COUNT; i++ )
+        {
+            mCards.add( new Card( i ) );
+        }
     }
 
     public int getCardCount()
@@ -29,42 +26,33 @@ public class CardCollection
         return mCards.size();
     }
 
-    public void addCard( Card card )
+    public boolean addCard( Card card )
     {
-        mCards.add( card );
+        if( mCards.size() < Deck.CARD_COUNT && !mCards.contains( card ) )
+        {
+            mCards.add( mCards.size(), card );
+            return true;
+        }
+        return false;
     }
 
-    public void removeCard( Card card )
+    public boolean removeCard( Card card )
     {
-        mCards.remove( card );
+        return mCards.remove( card );
     }
 
-    public Card removeCard( int cardNumber )
+    public Card removeCard( int index )
     {
-        Card remove = null;
-        for( Card card : mCards )
-        {
-            if( card.getCardNumber() == cardNumber )
-            {
-                remove = card;
-                break;
-            }
-        }
-        if( remove != null )
-        {
-            removeCard( remove );
-        }
-        return remove;
+        return mCards.remove( index );
     }
 
     public void shuffle()
     {
-        Random random = new Random();
         Card card;
         int index;
         for( int i = 0; i < getCardCount(); i++ )
         {
-            index = random.nextInt( getCardCount() );
+            index = Deck.RANDOM.nextInt( getCardCount() );
             card = mCards.get( i );
             mCards.set( i, mCards.get( index ) );
             mCards.set( index, card );

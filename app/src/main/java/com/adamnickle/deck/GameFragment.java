@@ -8,20 +8,45 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.ClientGame;
+import com.adamnickle.deck.Game.Game;
+import com.adamnickle.deck.Game.GameConnection;
+import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.BluetoothConnectionListener;
 
 public class GameFragment extends Fragment
 {
     public static final String FRAGMENT_NAME = GameFragment.class.getSimpleName();
 
-    private GameView mGameView;
     private int mLastOrientation;
+    private GameConnection mGameConnection;
+    private Game mGame;
+    private GameView mGameView;
+
+    public GameFragment()
+    {
+        mGameConnection = new GameConnection();
+        mGame = new ClientGame();
+
+        mGame.setGameConnectionInterface( mGameConnection );
+        mGameConnection.setGameConnectionListener( mGame );
+    }
 
     @Override
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
+    }
+
+    public BluetoothConnectionListener getBluetoothConnectionListener()
+    {
+        return mGameConnection;
+    }
+
+    public void setBluetoothConnectionInterface( BluetoothConnectionInterface bluetoothConnectionInterface)
+    {
+        mGameConnection.setBluetoothConnectionInterface( bluetoothConnectionInterface );
     }
 
     @Override
@@ -33,6 +58,10 @@ public class GameFragment extends Fragment
         if( mGameView == null )
         {
             mGameView = new GameView( getActivity() );
+            mGameView.setGameUiListener( mGame );
+
+            mGame.setGameUiInterface( mGameView );
+
             mLastOrientation = getResources().getConfiguration().orientation;
         }
         else
@@ -48,10 +77,5 @@ public class GameFragment extends Fragment
         }
 
         return mGameView;
-    }
-
-    public void addCard( Card card )
-    {
-        mGameView.addCard( card );
     }
 }

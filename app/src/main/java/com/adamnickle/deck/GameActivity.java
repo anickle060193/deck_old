@@ -15,9 +15,16 @@ public class GameActivity extends Activity
 
         if( savedInstanceState == null )
         {
+            final BluetoothConnectionFragment bluetoothConnectionFragment = new BluetoothConnectionFragment();
+            final GameFragment gameFragment = new GameFragment();
+
+            gameFragment.setBluetoothConnectionInterface( bluetoothConnectionFragment.getBluetoothConnectionInterface() );
+            bluetoothConnectionFragment.setBluetoothConnectionListener( gameFragment.getBluetoothConnectionListener() );
+
             getFragmentManager()
                     .beginTransaction()
-                    .replace( android.R.id.content, new GameFragment(), GameFragment.FRAGMENT_NAME )
+                    .add( bluetoothConnectionFragment, BluetoothConnectionFragment.FRAGMENT_NAME )
+                    .replace( android.R.id.content, gameFragment, GameFragment.FRAGMENT_NAME )
                     .commit();
         }
     }

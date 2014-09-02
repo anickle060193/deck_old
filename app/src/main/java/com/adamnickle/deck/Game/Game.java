@@ -1,126 +1,80 @@
 package com.adamnickle.deck.Game;
 
-import android.os.SystemClock;
-import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import com.adamnickle.deck.BluetoothConnection;
+import com.adamnickle.deck.spi.GameConnectionInterface;
+import com.adamnickle.deck.spi.GameConnectionListener;
+import com.adamnickle.deck.spi.GameUiInterface;
+import com.adamnickle.deck.spi.GameUiListener;
 
-public class Game
+public abstract class Game implements GameConnectionListener, GameUiListener
 {
-    public static final Random RANDOM = new Random();
-
-    private ArrayList< Player > mPlayers;
-    private ArrayList<Card> mDeck;
-    private Card.CardComparator mCardComparator;
-
-    public Game( int players )
+    protected GameConnectionInterface mGameConnection;
+    protected GameUiInterface mGameUI;
+    /*
+    public Game( GameConnectionInterface gameConnectionInterface, GameUiInterface gameUiInterface )
     {
-        mPlayers = new ArrayList< Player >( players );
-        for( int i = 0; i < players; i++ )
-        {
-            mPlayers.add( new Player( "" ) );
-        }
-        mDeck = new ArrayList< Card >( Deck.CARD_COUNT );
-        for( int i = 0; i < Deck.CARD_COUNT; i++ )
-        {
-            mDeck.add( new Card( i ) );
-        }
-        mCardComparator = new Card.CardComparator( CardCollection.SORT_BY_RANK );
+        mGameConnection = gameConnectionInterface;
+        mGameUI = gameUiInterface;
+    }
+    */
+    public void setGameConnectionInterface( GameConnectionInterface gameConnectionInterface )
+    {
+        mGameConnection = gameConnectionInterface;
     }
 
-    public void shuffle()
+    public void setGameUiInterface( GameUiInterface gameUiInterface )
     {
-        for( int i = 0; i < mDeck.size(); i++ )
-        {
-            final int index = RANDOM.nextInt( mDeck.size() );
-            final Card card = mDeck.get( index );
-            mDeck.set( index, mDeck.get( i ) );
-            mDeck.set( i, card );
-        }
+        mGameUI = gameUiInterface;
     }
 
-    public void dealCards( int cardPerPlayer )
+    /*******************************************************************
+     * GameConnectionListener Methods
+     *******************************************************************/
+    @Override
+    public abstract void onPlayerConnect( int deviceID, String deviceName );
+
+    @Override
+    public abstract void onPlayerDisconnect( int deviceID );
+
+    @Override
+    public void onNotification( String notification )
     {
-        for( int i = 0; i < cardPerPlayer; i++ )
-        {
-            for( Player player : mPlayers )
-            {
-                if( mDeck.size() == 0 )
-                {
-                    return;
-                }
-                else
-                {
-                    player.addCard( mDeck.remove( 0 ) );
-                }
-            }
-        }
+        mGameUI.displayNotification( notification );
     }
 
-    public void setupGame()
+    @Override
+    public void onConnectionStateChange( int newState )
     {
-        shuffle();
-        dealCards( Deck.CARD_COUNT / mPlayers.size() );
-    }
-
-    public void playGame()
-    {
-        Log.d( "GAME", "STARTED GAME" );
-        Card playedCards[] = new Card[ mPlayers.size() ];
-        int rounds = 1;
-        while( stillPlaying() )
+        switch( newState )
         {
-            Log.d( "GAME", "+-------- ROUND " + rounds + " --------+" );
-            for( int i = 0; i < mPlayers.size(); i++ )
-            {
-                playedCards[ i ] = mPlayers.get( i ).playCard();
-                if( playedCards[ i ] != null )
-                {
-                    Log.d( "GAME", "Player " + i + " played " + playedCards[ i ].toString() );
-                }
-            }
+            case BluetoothConnection.STATE_NONE:
+                break;
 
-            int highestCardIndex = 0;
-            for( int i = 1; i < playedCards.length; i++ )
-            {
-                if( playedCards[ i ] != null )
-                {
-                    if( mCardComparator.compare( playedCards[ highestCardIndex ], playedCards[ i ] ) < 0 )
-                    {
-                        highestCardIndex = i;
-                    }
-                }
-            }
+            case BluetoothConnection.STATE_LISTENING:
+            case BluetoothConnection.STATE_CONNECTED_LISTENING:
+                mGameUI.displayNotification( "Waiting for more players..." );
+                break;
 
-            mPlayers.get( highestCardIndex ).addCards( Arrays.asList( playedCards ) );
-            for( int i = 0; i < playedCards.length; i++ )
-            {
-                playedCards[ i ] = null;
-            }
-            rounds++;
-            SystemClock.sleep( 1000 );
+            case BluetoothConnection.STATE_CONNECTING:
+                mGameUI.displayNotification( "Connecting..." );
+                break;
+
+            case BluetoothConnection.STATE_CONNECTED:
+                mGameUI.displayNotification( "Connected" );
+                break;
         }
     }
 
-    private boolean stillPlaying()
-    {
-        boolean stillPlaying = false;
-        for( Player player : mPlayers )
-        {
-            if( player.isStillPlaying() )
-            {
-                if( stillPlaying )
-                {
-                    return true;
-                }
-                else
-                {
-                    stillPlaying = true;
-                }
-            }
-        }
-        return false;
-    }
+    @Override
+    public abstract void onCardReceive( int senderID, Card card );
+
+    @Override
+    public abstract void onCardSendRequested( int requesterID );
+
+    /*******************************************************************
+     * GameUiListener Methods
+     *******************************************************************/
+    @Override
+    public abstract boolean onAttemptSendCard( Card card );
 }

@@ -1,6 +1,6 @@
 package com.adamnickle.deck;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Canvas;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -9,8 +9,11 @@ import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.spi.GameUiInterface;
+import com.adamnickle.deck.spi.GameUiListener;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,7 +21,7 @@ import java.util.LinkedList;
 /**
  * Displays game related items such as cards, points, etc.
  */
-public class GameView extends View
+public class GameView extends View implements GameUiInterface
 {
     /**
      * Log TAG for {@link com.adamnickle.deck.GameView}.
@@ -51,23 +54,27 @@ public class GameView extends View
      */
     private SparseArray<CardDrawable> mMovingCardDrawables;
 
+    private final Activity mParentActivity;
+    private GameUiListener mListener;
+
     /**
      * Constructs a {@link com.adamnickle.deck.GameView} object with the given {@link com.adamnickle.deck.GameActivity} as the {@link android.view.View}'s context.
-     * @param context A {@link com.adamnickle.deck.GameActivity} that will display the constructed {@link com.adamnickle.deck.GameView}.
+     * @param activity A {@link com.adamnickle.deck.GameActivity} that will display the constructed {@link com.adamnickle.deck.GameView}.
      */
-    public GameView( Context context )
+    public GameView( Activity activity )
     {
-        super( context );
+        super( activity );
         Log.d( TAG, "___ CONSTRUCTOR ___" );
 
-        mDetector = new GestureDetectorCompat( context, mGestureListener );
+        mParentActivity = activity;
+        mDetector = new GestureDetectorCompat( activity, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
         mMovingCardDrawables = new SparseArray< CardDrawable >();
     }
 
-    public void addCard( Card card )
+    public void setGameUiListener( GameUiListener gameUiListener )
     {
-        mCardDrawables.addFirst( new CardDrawable( this, getResources(), card, getWidth() / 2, getHeight() / 2, CARD_WIDTH, CARD_HEIGHT, true ) );
+        mListener = gameUiListener;
     }
 
     /**
@@ -261,7 +268,47 @@ public class GameView extends View
             final int pointerIndex = MotionEventCompat.getActionIndex( event );
             final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
             final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
+            if( mListener.onAttemptSendCard( cardDrawable.getCard() ) )
+            {
+                mCardDrawables.remove( cardDrawable );
+            }
             return true;
         }
     };
+
+    /*******************************************************************
+     * GameUiInterface Methods
+     *******************************************************************/
+    @Override
+    public void addCard( Card card )
+    {
+        mCardDrawables.addFirst( new CardDrawable( this, getResources(), card, getWidth() / 2, getHeight() / 2, CARD_WIDTH, CARD_HEIGHT, true ) );
+    }
+
+    @Override
+    public boolean removeCard( Card card )
+    {
+        for( CardDrawable cardDrawable : mCardDrawables )
+        {
+            if( cardDrawable.getCard().equals( card ) )
+            {
+                mCardDrawables.remove( cardDrawable );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void displayNotification( final String notification )
+    {
+        mParentActivity.runOnUiThread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText( mParentActivity, notification, Toast.LENGTH_SHORT ).show();
+            }
+        } );
+    }
 }

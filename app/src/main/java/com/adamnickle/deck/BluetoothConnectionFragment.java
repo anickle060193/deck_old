@@ -1,47 +1,38 @@
 package com.adamnickle.deck;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.BluetoothConnectionListener;
 
 
 public class BluetoothConnectionFragment extends Fragment
 {
-    private static final String TAG = "BluetoothConnectionFragment";
+    private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
 
-    public static final String FRAGMENT_NAME = "BluetoothConnection";
+    public static final String FRAGMENT_NAME = BluetoothConnectionFragment.class.getSimpleName();
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
     private static final int REQUEST_CONNECT_DEVICE = 2;
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothConnection mBluetoothConnection;
-    private BluetoothConnectionListener mListener;
 
     private int mSavedConnectionType;
 
-    @Override
-    public void onAttach( Activity activity )
+    public BluetoothConnectionFragment()
     {
-        super.onAttach( activity );
-        try
-        {
-            mListener = (BluetoothConnectionListener)activity;
-        }
-        catch( ClassCastException e )
-        {
-            e.printStackTrace();
-            throw new ClassCastException( "Parent activity must implement " + BluetoothConnectionListener.class.getSimpleName() + "." );
-        }
+        mBluetoothConnection = new BluetoothConnection();
     }
 
     @Override
@@ -60,11 +51,9 @@ public class BluetoothConnectionFragment extends Fragment
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if( mBluetoothAdapter == null )
         {
-            mListener.onNotification( "Device does not support bluetooth. Application closing." );
+            Toast.makeText( getActivity(), "Bluetooth not supported by device. Application exiting.", Toast.LENGTH_LONG ).show();
             this.getActivity().finish();
         }
-
-        mBluetoothConnection = new BluetoothConnection( mHandler );
     }
 
     @Override
@@ -80,7 +69,16 @@ public class BluetoothConnectionFragment extends Fragment
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
+        super.onCreateOptionsMenu( menu, inflater );
+
         inflater.inflate( R.menu.bluetooth_connection, menu );
+    }
+
+    @Override
+    public void onPrepareOptionsMenu( Menu menu )
+    {
+        super.onPrepareOptionsMenu( menu );
+
         int connectionType = mBluetoothConnection.getConnectionType();
         int state = mBluetoothConnection.getState();
 
@@ -187,54 +185,6 @@ public class BluetoothConnectionFragment extends Fragment
         }
     }
 
-    private Handler mHandler = new Handler()
-    {
-        @Override
-        public void handleMessage( Message msg )
-        {
-            switch( msg.what )
-            {
-                case BluetoothConnection.MESSAGE_STATE_CHANGED:
-                    Log.d( TAG, "MESSAGE_STATE_CHANGED: " + msg.arg1 );
-                    String connectionString = null;
-                    switch( msg.arg1 )
-                    {
-                        case BluetoothConnection.STATE_CONNECTED_LISTENING:
-                        case BluetoothConnection.STATE_CONNECTED:
-                            connectionString = "Connected";
-                            break;
-                        case BluetoothConnection.STATE_CONNECTING:
-                            connectionString = "Connecting...";
-                            break;
-                        case BluetoothConnection.STATE_LISTENING:
-                        case BluetoothConnection.STATE_NONE:
-                            connectionString = "Not connected";
-                            break;
-                    }
-                    mListener.onConnectionStateChange( connectionString );
-                    getActivity().invalidateOptionsMenu();
-                    break;
-                /*
-                case BluetoothConnection.MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    String writeMessage = new String( writeBuf );
-                    break;
-                */
-                case BluetoothConnection.MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    String deviceName = msg.getData().getString( BluetoothConnection.SENDER_DEVICE_NAME );
-                    mListener.onMessageReceive( deviceName, readBuf );
-                    break;
-                case BluetoothConnection.MESSAGE_NEW_DEVICE:
-                    mListener.onDeviceConnect( ( (BluetoothDevice) msg.obj ).getName() );
-                    break;
-                case BluetoothConnection.MESSAGE_NOTIFICATION:
-                    mListener.onNotification( (String) msg.obj );
-                    break;
-            }
-        }
-    };
-
     @Override
     public void onActivityResult( int requestCode, int resultCode, Intent data )
     {
@@ -251,7 +201,7 @@ public class BluetoothConnectionFragment extends Fragment
                 else
                 {
                     Log.d( TAG, "Bluetooth not enabled" );
-                    mListener.onNotification( "Bluetooth was not enabled. Application exiting." );
+                    Toast.makeText( getActivity(), "Bluetooth was not enabled. Application exiting.", Toast.LENGTH_LONG ).show();
                     getActivity().finish();
                 }
                 break;
@@ -267,25 +217,13 @@ public class BluetoothConnectionFragment extends Fragment
         }
     }
 
-    public void sendData( byte[] data )
+    public BluetoothConnectionInterface getBluetoothConnectionInterface()
     {
-        if( !mBluetoothConnection.isConnected() )
-        {
-            mListener.onNotification( "Not connected." );
-            return;
-        }
-
-        if( data.length != 0 )
-        {
-            mBluetoothConnection.write( data );
-        }
+        return mBluetoothConnection;
     }
 
-    public interface BluetoothConnectionListener
+    public void setBluetoothConnectionListener( BluetoothConnectionListener bluetoothConnectionListener )
     {
-        public void onMessageReceive( String sender, byte[] data );
-        public void onDeviceConnect( String deviceName );
-        public void onNotification( String notification );
-        public void onConnectionStateChange( String connectionString );
+        mBluetoothConnection.addBluetoothConnectionListener( bluetoothConnectionListener );
     }
 }

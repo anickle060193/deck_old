@@ -12,7 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.ConnectionInterface;
 import com.adamnickle.deck.spi.BluetoothConnectionListener;
 
 
@@ -217,7 +217,7 @@ public class BluetoothConnectionFragment extends Fragment
         }
     }
 
-    public BluetoothConnectionInterface getBluetoothConnectionInterface()
+    public ConnectionInterface getBluetoothConnectionInterface()
     {
         return mBluetoothConnection;
     }

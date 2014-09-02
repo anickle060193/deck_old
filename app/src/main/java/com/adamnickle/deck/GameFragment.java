@@ -11,7 +11,7 @@ import android.view.WindowManager;
 import com.adamnickle.deck.Game.ClientGame;
 import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.GameConnection;
-import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.ConnectionInterface;
 import com.adamnickle.deck.spi.BluetoothConnectionListener;
 
 public class GameFragment extends Fragment
@@ -44,9 +44,9 @@ public class GameFragment extends Fragment
         return mGameConnection;
     }
 
-    public void setBluetoothConnectionInterface( BluetoothConnectionInterface bluetoothConnectionInterface)
+    public void setBluetoothConnectionInterface( ConnectionInterface connectionInterface )
     {
-        mGameConnection.setBluetoothConnectionInterface( bluetoothConnectionInterface );
+        mGameConnection.setBluetoothConnectionInterface( connectionInterface );
     }
 
     @Override

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_game_button_text"
+        android:id="@+id/create_game_btn"
+        android:layout_above="@+id/join_game_btn"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/join_game_button_text"
+        android:id="@+id/join_game_btn"
+        android:layout_centerVertical="true"
+        android:layout_alignRight="@+id/create_game_btn"
+        android:layout_alignEnd="@+id/create_game_btn"
+        android:layout_alignLeft="@+id/create_game_btn"
+        android:layout_alignStart="@+id/create_game_btn"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_button_text"
+        android:id="@+id/settings_btn"
+        android:layout_below="@+id/join_game_btn"
+        android:layout_alignLeft="@+id/join_game_btn"
+        android:layout_alignStart="@+id/join_game_btn"
+        android:layout_alignRight="@+id/join_game_btn"
+        android:layout_alignEnd="@+id/join_game_btn"/>
+</RelativeLayout>

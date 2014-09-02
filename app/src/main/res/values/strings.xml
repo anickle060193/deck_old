@@ -16,5 +16,8 @@
     <string name="game_activity_title">Game Activity</string>
     <string name="game_settings_menu_item_text">Settings</string>
     <string name="new_card_menu_item_text">New Card</string>
+    <string name="create_game_button_text">Create Game</string>
+    <string name="join_game_button_text">Join Game</string>
+    <string name="settings_button_text">Settings</string>
 
 </resources>

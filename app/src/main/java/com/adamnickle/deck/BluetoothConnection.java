@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.ConnectionInterface;
 import com.adamnickle.deck.spi.BluetoothConnectionListener;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 
-public class BluetoothConnection implements BluetoothConnectionInterface
+public class BluetoothConnection implements ConnectionInterface
 {
     private static final String TAG = BluetoothConnection.class.getSimpleName();
 

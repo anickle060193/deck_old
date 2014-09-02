@@ -1,6 +1,6 @@
 package com.adamnickle.deck.Game;
 
-import com.adamnickle.deck.spi.BluetoothConnectionInterface;
+import com.adamnickle.deck.spi.ConnectionInterface;
 import com.adamnickle.deck.spi.BluetoothConnectionListener;
 import com.adamnickle.deck.spi.GameConnectionInterface;
 import com.adamnickle.deck.spi.GameConnectionListener;
@@ -11,7 +11,7 @@ public class GameConnection implements BluetoothConnectionListener, GameConnecti
     public static final int MESSAGE_CARD_SEND_REQUEST = 2;
 
     private GameConnectionListener mGameConnectionListener;
-    private BluetoothConnectionInterface mBluetoothConnection;
+    private ConnectionInterface mBluetoothConnection;
     /*
     public GameConnection( GameConnectionListener listener, BluetoothConnectionInterface bluetoothConnectionInterface )
     {
@@ -24,9 +24,9 @@ public class GameConnection implements BluetoothConnectionListener, GameConnecti
         mGameConnectionListener = gameConnectionListener;
     }
 
-    public void setBluetoothConnectionInterface( BluetoothConnectionInterface bluetoothConnectionInterface )
+    public void setBluetoothConnectionInterface( ConnectionInterface connectionInterface )
     {
-        mBluetoothConnection = bluetoothConnectionInterface;
+        mBluetoothConnection = connectionInterface;
     }
 
     /*******************************************************************

@@ -19,6 +19,15 @@ public class MainActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         Log.d( TAG, "+++ ON CREATE +++" );
         setContentView( R.layout.activity_main );
+
+        findViewById( R.id.startGame ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View view )
+            {
+                startActivity( new Intent( MainActivity.this, GameActivity.class ) );
+            }
+        } );
     }
 
     @Override
@@ -40,10 +49,5 @@ public class MainActivity extends ActionBarActivity
             default:
                 return super.onOptionsItemSelected( item );
         }
-    }
-
-    public void onClick( View view )
-    {
-        startActivity( new Intent( this, GameActivity.class ) );
     }
 }

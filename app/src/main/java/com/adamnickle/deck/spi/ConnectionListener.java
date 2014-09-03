@@ -1,7 +1,7 @@
 package com.adamnickle.deck.spi;
 
 
-public interface BluetoothConnectionListener
+public interface ConnectionListener
 {
     public void onMessageReceive( int senderID, int bytes, byte[] data );
     public void onDeviceConnect( int senderID, String deviceName );

@@ -2,7 +2,8 @@ package com.adamnickle.deck.Game;
 
 import android.util.SparseArray;
 
-import com.adamnickle.deck.BluetoothConnection;
+import com.adamnickle.deck.spi.ConnectionInterface;
+import com.adamnickle.deck.spi.GameConnectionInterface;
 
 
 public class ServerGame extends Game
@@ -13,11 +14,12 @@ public class ServerGame extends Game
     private final Player mLocalPlayer;
     private int mCanSendCard;
 
-    public ServerGame()
+    public ServerGame( GameConnectionInterface gameConnectionInterface )
     {
+        super( gameConnectionInterface );
         mRemotePlayers = new SparseArray< Player >();
         mDeck = new CardCollection();
-        mLocalPlayer = new Player( BluetoothConnection.LOCAL_DEVICE_ID, "Local Player" );
+        mLocalPlayer = new Player( ConnectionInterface.LOCAL_DEVICE_ID, "Local Player" );
         mCanSendCard = 0;
     }
 

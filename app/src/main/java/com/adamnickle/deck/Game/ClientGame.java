@@ -1,5 +1,7 @@
 package com.adamnickle.deck.Game;
 
+import com.adamnickle.deck.spi.GameConnectionInterface;
+
 public class ClientGame extends Game
 {
     private static final int INVALID_SERVER_ID = -1;
@@ -9,8 +11,9 @@ public class ClientGame extends Game
     private String mServerName;
     private int mCanSendCard;
 
-    public ClientGame()
+    public ClientGame( GameConnectionInterface gameConnectionInterface )
     {
+        super( gameConnectionInterface );
         mPlayer = new Player( 1, "My Name" );
         mCanSendCard = 0;
     }

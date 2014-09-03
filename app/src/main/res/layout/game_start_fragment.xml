@@ -8,29 +8,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/create_game_button_text"
-        android:id="@+id/create_game_btn"
-        android:layout_above="@+id/join_game_btn"
+        android:id="@+id/createGame"
+        android:layout_above="@+id/joinGame"
         android:layout_centerHorizontal="true"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/join_game_button_text"
-        android:id="@+id/join_game_btn"
+        android:id="@+id/joinGame"
         android:layout_centerVertical="true"
-        android:layout_alignRight="@+id/create_game_btn"
-        android:layout_alignEnd="@+id/create_game_btn"
-        android:layout_alignLeft="@+id/create_game_btn"
-        android:layout_alignStart="@+id/create_game_btn"/>
+        android:layout_alignRight="@+id/createGame"
+        android:layout_alignEnd="@+id/createGame"
+        android:layout_alignLeft="@+id/createGame"
+        android:layout_alignStart="@+id/createGame"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/settings_button_text"
-        android:id="@+id/settings_btn"
-        android:layout_below="@+id/join_game_btn"
-        android:layout_alignLeft="@+id/join_game_btn"
-        android:layout_alignStart="@+id/join_game_btn"
-        android:layout_alignRight="@+id/join_game_btn"
-        android:layout_alignEnd="@+id/join_game_btn"/>
+        android:id="@+id/settings"
+        android:layout_below="@+id/joinGame"
+        android:layout_alignLeft="@+id/joinGame"
+        android:layout_alignStart="@+id/joinGame"
+        android:layout_alignRight="@+id/joinGame"
+        android:layout_alignEnd="@+id/joinGame"/>
 </RelativeLayout>

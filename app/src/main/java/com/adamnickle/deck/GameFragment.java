@@ -8,28 +8,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.ClientGame;
 import com.adamnickle.deck.Game.Game;
-import com.adamnickle.deck.Game.GameConnection;
+import com.adamnickle.deck.Game.ServerGame;
 import com.adamnickle.deck.spi.ConnectionInterface;
-import com.adamnickle.deck.spi.BluetoothConnectionListener;
+import com.adamnickle.deck.spi.ConnectionListener;
+import com.adamnickle.deck.spi.GameConnectionInterface;
+import com.adamnickle.deck.spi.GameConnectionListener;
 
-public class GameFragment extends Fragment
+public class GameFragment extends Fragment implements ConnectionListener, GameConnectionInterface
 {
     public static final String FRAGMENT_NAME = GameFragment.class.getSimpleName();
 
+    public static final int MESSAGE_CARD = 1;
+    public static final int MESSAGE_CARD_SEND_REQUEST = 2;
+
     private int mLastOrientation;
-    private GameConnection mGameConnection;
     private Game mGame;
     private GameView mGameView;
 
-    public GameFragment()
-    {
-        mGameConnection = new GameConnection();
-        mGame = new ClientGame();
+    private GameConnectionListener mGameConnectionListener;
+    private ConnectionInterface mConnection;
 
-        mGame.setGameConnectionInterface( mGameConnection );
-        mGameConnection.setGameConnectionListener( mGame );
+    public GameFragment( int connectionType, ConnectionInterface connectionInterface )
+    {
+        if( connectionType == ConnectionInterface.CONNECTION_TYPE_CLIENT )
+        {
+            mGame = new ClientGame( this );
+        }
+        else
+        {
+            mGame = new ServerGame( this );
+        }
+        mConnection = connectionInterface;
+        mGameConnectionListener = mGame;
     }
 
     @Override
@@ -37,16 +50,6 @@ public class GameFragment extends Fragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
-    }
-
-    public BluetoothConnectionListener getBluetoothConnectionListener()
-    {
-        return mGameConnection;
-    }
-
-    public void setBluetoothConnectionInterface( ConnectionInterface connectionInterface )
-    {
-        mGameConnection.setBluetoothConnectionInterface( connectionInterface );
     }
 
     @Override
@@ -77,5 +80,66 @@ public class GameFragment extends Fragment
         }
 
         return mGameView;
+    }
+
+    /*******************************************************************
+     * BluetoothConnectionListener Methods
+     *******************************************************************/
+    @Override
+    public void onMessageReceive( int senderID, int bytes, byte[] data )
+    {
+        int messageType = (int) data[ 0 ];
+        switch( messageType )
+        {
+            case MESSAGE_CARD:
+                final int cardNumber = data[ 1 ];
+                mGameConnectionListener.onCardReceive( senderID, new Card( cardNumber ) );
+                break;
+
+            case MESSAGE_CARD_SEND_REQUEST:
+                mGameConnectionListener.onCardSendRequested( senderID ); //TODO Add something about valid cards
+                break;
+        }
+    }
+
+    @Override
+    public void onDeviceConnect( int senderID, String deviceName )
+    {
+        mGameConnectionListener.onPlayerConnect( senderID, deviceName );
+    }
+
+    @Override
+    public void onNotification( String notification )
+    {
+        mGameConnectionListener.onNotification( notification );
+    }
+
+    @Override
+    public void onConnectionStateChange( int newState )
+    {
+        mGameConnectionListener.onConnectionStateChange( newState );
+    }
+
+    @Override
+    public void onConnectionLost( int deviceID )
+    {
+        mGameConnectionListener.onPlayerDisconnect( deviceID );
+    }
+
+    /*******************************************************************
+     * GameConnectionInterface Methods
+     *******************************************************************/
+    @Override
+    public void sendCard( int toDeviceID, Card card )
+    {
+        byte[] data = { MESSAGE_CARD, (byte) card.getCardNumber() };
+        mConnection.sendDataToDevice( toDeviceID, data );
+    }
+
+    @Override
+    public void requestCard( int fromDeviceID )
+    {
+        byte[] data = { MESSAGE_CARD_SEND_REQUEST };
+        mConnection.sendDataToDevice( fromDeviceID, data );
     }
 }

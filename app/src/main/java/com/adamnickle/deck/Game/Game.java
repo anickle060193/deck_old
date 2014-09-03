@@ -1,7 +1,7 @@
 package com.adamnickle.deck.Game;
 
 
-import com.adamnickle.deck.BluetoothConnection;
+import com.adamnickle.deck.spi.ConnectionInterface;
 import com.adamnickle.deck.spi.GameConnectionInterface;
 import com.adamnickle.deck.spi.GameConnectionListener;
 import com.adamnickle.deck.spi.GameUiInterface;
@@ -11,14 +11,8 @@ public abstract class Game implements GameConnectionListener, GameUiListener
 {
     protected GameConnectionInterface mGameConnection;
     protected GameUiInterface mGameUI;
-    /*
-    public Game( GameConnectionInterface gameConnectionInterface, GameUiInterface gameUiInterface )
-    {
-        mGameConnection = gameConnectionInterface;
-        mGameUI = gameUiInterface;
-    }
-    */
-    public void setGameConnectionInterface( GameConnectionInterface gameConnectionInterface )
+
+    public Game( GameConnectionInterface gameConnectionInterface )
     {
         mGameConnection = gameConnectionInterface;
     }
@@ -48,19 +42,19 @@ public abstract class Game implements GameConnectionListener, GameUiListener
     {
         switch( newState )
         {
-            case BluetoothConnection.STATE_NONE:
+            case ConnectionInterface.STATE_NONE:
                 break;
 
-            case BluetoothConnection.STATE_LISTENING:
-            case BluetoothConnection.STATE_CONNECTED_LISTENING:
+            case ConnectionInterface.STATE_LISTENING:
+            case ConnectionInterface.STATE_CONNECTED_LISTENING:
                 mGameUI.displayNotification( "Waiting for more players..." );
                 break;
 
-            case BluetoothConnection.STATE_CONNECTING:
+            case ConnectionInterface.STATE_CONNECTING:
                 mGameUI.displayNotification( "Connecting..." );
                 break;
 
-            case BluetoothConnection.STATE_CONNECTED:
+            case ConnectionInterface.STATE_CONNECTED:
                 mGameUI.displayNotification( "Connected" );
                 break;
         }

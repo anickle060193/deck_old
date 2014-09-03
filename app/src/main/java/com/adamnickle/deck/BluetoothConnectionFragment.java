@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.adamnickle.deck.spi.ConnectionInterface;
-import com.adamnickle.deck.spi.BluetoothConnectionListener;
+import com.adamnickle.deck.spi.ConnectionListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,24 +34,13 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
     private static final String SERVICE_NAME = "Deck Server";
 
-    public static final int CONNECTION_TYPE_NONE = 0;
-    public static final int CONNECTION_TYPE_SERVER = 1;
-    public static final int CONNECTION_TYPE_CLIENT = 2;
-
-    public static final int STATE_NONE = 0;
-    public static final int STATE_LISTENING = 1;
-    public static final int STATE_CONNECTING = 2;
-    public static final int STATE_CONNECTED = 3;
-    public static final int STATE_CONNECTED_LISTENING = 4;
-
-    public static final int LOCAL_DEVICE_ID = -1;
-    private static int NEXT_DEVICE_ID = 0;
-
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
     private static final int REQUEST_CONNECT_DEVICE = 2;
 
+    private static int NEXT_DEVICE_ID = 0;
+
     private final BluetoothAdapter mBluetoothAdapter;
-    private BluetoothConnectionListener mListener;
+    private ConnectionListener mListener;
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ArrayList< ConnectedThread > mConnectedThreads;
@@ -91,7 +80,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     @Override
     public void onDestroy()
     {
-        this.stop();
+        this.stopConnection();
         super.onDestroy();
     }
 
@@ -161,14 +150,11 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     @Override
     public boolean onOptionsItemSelected( MenuItem item )
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch( item.getItemId() )
         {
             case R.id.actionCreateServer:
                 this.ensureDiscoverable( this.getActivity() );
-                startBluetoothConnection( CONNECTION_TYPE_SERVER );
+                startConnection( CONNECTION_TYPE_SERVER );
                 return true;
 
             case R.id.actionFinishConnecting:
@@ -176,11 +162,11 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
                 return true;
 
             case R.id.actionRestartConnecting:
-                this.restart();
+                this.restartConnection();
                 return true;
 
             case R.id.actionCloseServer:
-                this.stop();
+                this.stopConnection();
                 return true;
 
             case R.id.actionFindServer:
@@ -189,16 +175,17 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
                 return true;
 
             case R.id.actionLeaveServer:
-                this.stop();
+                this.stopConnection();
                 return true;
         }
 
         return super.onOptionsItemSelected( item );
     }
 
-    private void startBluetoothConnection( int connectionType )
+    @Override
+    public void startConnection( int connectionType )
     {
-        Log.d( TAG, "startBluetoothConnection" );
+        Log.d( TAG, "startConnection" );
 
         if( !mBluetoothAdapter.isEnabled() )
         {
@@ -221,7 +208,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             case REQUEST_ENABLE_BLUETOOTH:
                 if( resultCode == Activity.RESULT_OK )
                 {
-                    startBluetoothConnection( mSavedConnectionType );
+                    startConnection( mSavedConnectionType );
                     mSavedConnectionType = -1;
                 }
                 else
@@ -243,11 +230,13 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         }
     }
 
-    public void setBluetoothConnectionListener( BluetoothConnectionListener bluetoothConnectionListener )
+    @Override
+    public void setConnectionListener( ConnectionListener connectionListener )
     {
-        mListener = bluetoothConnectionListener;
+        mListener = connectionListener;
     }
 
+    @Override
     public synchronized int getConnectionType()
     {
         return mConnectionType;
@@ -258,6 +247,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         mConnectionType = connectionType;
     }
 
+    @Override
     public synchronized int getState()
     {
         return mState;
@@ -271,6 +261,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         mListener.onConnectionStateChange( mState );
     }
 
+    @Override
     public boolean isConnected()
     {
         return ( mState == STATE_CONNECTED ) || ( mState == STATE_CONNECTED_LISTENING );
@@ -324,9 +315,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         }
     }
 
-    public synchronized void restart()
+    @Override
+    public synchronized void restartConnection()
     {
-        Log.d( TAG, "BEGIN restart()" );
+        Log.d( TAG, "BEGIN restartConnection()" );
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
@@ -356,6 +348,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         }
     }
 
+    @Override
     public synchronized void finishConnecting()
     {
         Log.d( TAG, "BEGIN finishedConnecting" );
@@ -375,9 +368,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         setState( STATE_CONNECTED );
     }
 
-    public synchronized void stop()
+    @Override
+    public synchronized void stopConnection()
     {
-        Log.d( TAG, "BEGIN stop" );
+        Log.d( TAG, "BEGIN stopConnection" );
         setConnectionType( CONNECTION_TYPE_NONE );
 
         if( mConnectThread != null )
@@ -485,7 +479,16 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     private void connectionFailed()
     {
         mListener.onNotification( "Unable to connect to device." );
-        restart();
+
+        switch( getConnectionType() )
+        {
+            case CONNECTION_TYPE_CLIENT:
+                stopConnection();
+                break;
+            case CONNECTION_TYPE_SERVER:
+                restartConnection();
+                break;
+        }
     }
 
     private void connectionLost( ConnectedThread connectedThread )
@@ -493,7 +496,30 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         mListener.onConnectionLost( connectedThread.getID() );
         mConnectedThreads.remove( connectedThread );
 
-        restart();
+        switch( getConnectionType() )
+        {
+            case CONNECTION_TYPE_CLIENT:
+                stopConnection();
+                break;
+            case CONNECTION_TYPE_SERVER:
+                restartConnection();
+                break;
+        }
+    }
+
+    @Override
+    public void sendDataToDevice( int deviceID, byte[] data )
+    {
+        if( !isConnected() )
+        {
+            mListener.onNotification( "Not connected" );
+            return;
+        }
+
+        if( data.length > 0 )
+        {
+            write( deviceID, data );
+        }
     }
 
     private class AcceptThread extends Thread
@@ -720,21 +746,6 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             {
                 Log.e( TAG, "close() of connected socket failed", io );
             }
-        }
-    }
-
-    @Override
-    public void sendDataToDevice( int deviceID, byte[] data )
-    {
-        if( !isConnected() )
-        {
-            mListener.onNotification( "Not connected" );
-            return;
-        }
-
-        if( data.length > 0 )
-        {
-            write( deviceID, data );
         }
     }
 }

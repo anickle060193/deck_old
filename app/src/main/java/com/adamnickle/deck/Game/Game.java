@@ -34,7 +34,10 @@ public abstract class Game implements GameConnectionListener, GameUiListener
     @Override
     public void onNotification( String notification )
     {
-        mGameUI.displayNotification( notification );
+        if( mGameUI != null )
+        {
+            mGameUI.displayNotification( notification );
+        }
     }
 
     @Override
@@ -47,15 +50,24 @@ public abstract class Game implements GameConnectionListener, GameUiListener
 
             case ConnectionInterface.STATE_LISTENING:
             case ConnectionInterface.STATE_CONNECTED_LISTENING:
-                mGameUI.displayNotification( "Waiting for more players..." );
+                if( mGameUI != null )
+                {
+                    mGameUI.displayNotification( "Waiting for more players..." );
+                }
                 break;
 
             case ConnectionInterface.STATE_CONNECTING:
-                mGameUI.displayNotification( "Connecting..." );
+                if( mGameUI != null )
+                {
+                    mGameUI.displayNotification( "Connecting..." );
+                }
                 break;
 
             case ConnectionInterface.STATE_CONNECTED:
-                mGameUI.displayNotification( "Connected" );
+                if( mGameUI != null )
+                {
+                    mGameUI.displayNotification( "Connected" );
+                }
                 break;
         }
     }

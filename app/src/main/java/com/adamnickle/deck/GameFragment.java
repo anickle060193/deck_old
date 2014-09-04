@@ -4,6 +4,9 @@ package com.adamnickle.deck;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,19 +28,20 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     public static final int MESSAGE_CARD_SEND_REQUEST = 2;
 
     private int mLastOrientation;
+    private int mSavedConnectionType;
     private Game mGame;
     private GameView mGameView;
-
     private GameConnectionListener mGameConnectionListener;
     private ConnectionInterface mConnection;
 
     public GameFragment( int connectionType, ConnectionInterface connectionInterface )
     {
-        if( connectionType == ConnectionInterface.CONNECTION_TYPE_CLIENT )
+        mSavedConnectionType = connectionType;
+        if( mSavedConnectionType == ConnectionInterface.CONNECTION_TYPE_CLIENT )
         {
             mGame = new ClientGame( this );
         }
-        else
+        else if( mSavedConnectionType == ConnectionInterface.CONNECTION_TYPE_SERVER )
         {
             mGame = new ServerGame( this );
         }
@@ -50,6 +54,7 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
+        setHasOptionsMenu( true );
     }
 
     @Override
@@ -81,9 +86,122 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
 
         return mGameView;
     }
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        mConnection.startConnection( mSavedConnectionType );
+
+        if( mConnection.getConnectionType() == ConnectionInterface.CONNECTION_TYPE_CLIENT )
+        {
+            if( mConnection.getState() == ConnectionInterface.STATE_NONE )
+            {
+                mConnection.findServer();
+            }
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        super.onCreateOptionsMenu( menu, inflater );
+
+        inflater.inflate( R.menu.connection, menu );
+    }
+
+    @Override
+    public void onPrepareOptionsMenu( Menu menu )
+    {
+        super.onPrepareOptionsMenu( menu );
+
+        int connectionType = mConnection.getConnectionType();
+        int state = mConnection.getState();
+
+        if( connectionType == ConnectionInterface.CONNECTION_TYPE_NONE )
+        {
+            menu.findItem( R.id.actionCreateServer ).setVisible( true );
+            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+            menu.findItem( R.id.actionFindServer ).setVisible( true );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+        } else if( connectionType == ConnectionInterface.CONNECTION_TYPE_CLIENT )
+        {
+            menu.findItem( R.id.actionCreateServer ).setVisible( false );
+            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+
+            if( state == ConnectionInterface.STATE_CONNECTED )
+            {
+                menu.findItem( R.id.actionFindServer ).setVisible( false );
+                menu.findItem( R.id.actionLeaveServer ).setVisible( true );
+            } else
+            {
+                menu.findItem( R.id.actionFindServer ).setVisible( true );
+                menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+            }
+        } else if( connectionType == ConnectionInterface.CONNECTION_TYPE_SERVER )
+        {
+            menu.findItem( R.id.actionCreateServer ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( true );
+            menu.findItem( R.id.actionFindServer ).setVisible( false );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+
+            if( state == ConnectionInterface.STATE_LISTENING )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            } else if( state == ConnectionInterface.STATE_CONNECTED_LISTENING )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            } else if( state == ConnectionInterface.STATE_CONNECTED )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.actionCreateServer:
+                mConnection.startConnection( ConnectionInterface.CONNECTION_TYPE_SERVER );
+                return true;
+
+            case R.id.actionFinishConnecting:
+                mConnection.finishConnecting();
+                return true;
+
+            case R.id.actionRestartConnecting:
+                mConnection.restartConnection();
+                return true;
+
+            case R.id.actionCloseServer:
+                mConnection.stopConnection();
+                getActivity().finish();
+                return true;
+
+            case R.id.actionFindServer:
+                mConnection.findServer();
+                return true;
+
+            case R.id.actionLeaveServer:
+                mConnection.stopConnection();
+                getActivity().finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected( item );
+    }
 
     /*******************************************************************
-     * BluetoothConnectionListener Methods
+     * ConnectionListener Methods
      *******************************************************************/
     @Override
     public void onMessageReceive( int senderID, int bytes, byte[] data )

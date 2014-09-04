@@ -15,12 +15,13 @@ public interface ConnectionInterface
 
     public static final int LOCAL_DEVICE_ID = -1;
 
-    public void sendDataToDevice( int deviceID, byte[] data );
-    public void startConnection( int connectionType );
-    public int getConnectionType();
     public void setConnectionListener( ConnectionListener connectionListener );
+    public void sendDataToDevice( int deviceID, byte[] data );
+    public int getConnectionType();
     public int getState();
-    public boolean isConnected();
+    public void findServer();
+    public void connect( Object device );
+    public void startConnection( int connectionType );
     public void restartConnection();
     public void finishConnecting();
     public void stopConnection();

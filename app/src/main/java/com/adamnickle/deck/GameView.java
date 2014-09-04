@@ -268,9 +268,12 @@ public class GameView extends View implements GameUiInterface
             final int pointerIndex = MotionEventCompat.getActionIndex( event );
             final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
             final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
-            if( mListener.onAttemptSendCard( cardDrawable.getCard() ) )
+            if( mListener != null )
             {
-                mCardDrawables.remove( cardDrawable );
+                if( mListener.onAttemptSendCard( cardDrawable.getCard() ) )
+                {
+                    mCardDrawables.remove( cardDrawable );
+                }
             }
             return true;
         }

@@ -72,11 +72,13 @@ public class GameActivity extends Activity
             final GameFragment gameFragment = new GameFragment( connectionType, bluetoothConnectionFragment );
 
             bluetoothConnectionFragment.setConnectionListener( gameFragment );
-            bluetoothConnectionFragment.startConnection( connectionType );
 
             getActivity().getFragmentManager()
                     .beginTransaction()
                     .add( bluetoothConnectionFragment, BluetoothConnectionFragment.FRAGMENT_NAME )
+                    .commit();
+            getActivity().getFragmentManager()
+                    .beginTransaction()
                     .replace( android.R.id.content, gameFragment, GameFragment.FRAGMENT_NAME )
                     .commit();
         }

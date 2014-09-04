@@ -6,13 +6,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.adamnickle.deck.spi.ConnectionInterface;
@@ -61,7 +57,6 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
-        setHasOptionsMenu( true );
         setRetainInstance( true );
     }
 
@@ -82,104 +77,6 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     {
         this.stopConnection();
         super.onDestroy();
-    }
-
-    @Override
-    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
-    {
-        super.onCreateOptionsMenu( menu, inflater );
-
-        inflater.inflate( R.menu.bluetooth_connection, menu );
-    }
-
-    @Override
-    public void onPrepareOptionsMenu( Menu menu )
-    {
-        super.onPrepareOptionsMenu( menu );
-
-        int connectionType = getConnectionType();
-        int state = getState();
-
-        if( connectionType == CONNECTION_TYPE_NONE )
-        {
-            menu.findItem( R.id.actionCreateServer ).setVisible( true );
-            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            menu.findItem( R.id.actionCloseServer ).setVisible( false );
-            menu.findItem( R.id.actionFindServer ).setVisible( true );
-            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-        } else if( connectionType == CONNECTION_TYPE_CLIENT )
-        {
-            menu.findItem( R.id.actionCreateServer ).setVisible( false );
-            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            menu.findItem( R.id.actionCloseServer ).setVisible( false );
-
-            if( state == STATE_CONNECTED )
-            {
-                menu.findItem( R.id.actionFindServer ).setVisible( false );
-                menu.findItem( R.id.actionLeaveServer ).setVisible( true );
-            } else
-            {
-                menu.findItem( R.id.actionFindServer ).setVisible( true );
-                menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-            }
-        } else if( connectionType == CONNECTION_TYPE_SERVER )
-        {
-            menu.findItem( R.id.actionCreateServer ).setVisible( false );
-            menu.findItem( R.id.actionCloseServer ).setVisible( true );
-            menu.findItem( R.id.actionFindServer ).setVisible( false );
-            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-
-            if( state == STATE_LISTENING )
-            {
-                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            } else if( state == STATE_CONNECTED_LISTENING )
-            {
-                menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
-                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            } else if( state == STATE_CONNECTED )
-            {
-                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-                menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
-            }
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item )
-    {
-        switch( item.getItemId() )
-        {
-            case R.id.actionCreateServer:
-                this.ensureDiscoverable( this.getActivity() );
-                startConnection( CONNECTION_TYPE_SERVER );
-                return true;
-
-            case R.id.actionFinishConnecting:
-                this.finishConnecting();
-                return true;
-
-            case R.id.actionRestartConnecting:
-                this.restartConnection();
-                return true;
-
-            case R.id.actionCloseServer:
-                this.stopConnection();
-                return true;
-
-            case R.id.actionFindServer:
-                Intent devicesIntent = new Intent( this.getActivity(), DeviceListActivity.class );
-                startActivityForResult( devicesIntent, REQUEST_CONNECT_DEVICE );
-                return true;
-
-            case R.id.actionLeaveServer:
-                this.stopConnection();
-                return true;
-        }
-
-        return super.onOptionsItemSelected( item );
     }
 
     @Override
@@ -258,16 +155,18 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         Log.d( TAG, "setState() " + mState + " -> " + state );
         mState = state;
 
-        mListener.onConnectionStateChange( mState );
+        if( mListener != null )
+        {
+            mListener.onConnectionStateChange( mState );
+        }
     }
 
-    @Override
     public boolean isConnected()
     {
         return ( mState == STATE_CONNECTED ) || ( mState == STATE_CONNECTED_LISTENING );
     }
 
-    public void ensureDiscoverable( Context context )
+    private void ensureDiscoverable()
     {
         Log.d( TAG, "ensureDiscoverable" );
 
@@ -275,7 +174,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         {
             Intent discoverableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
             discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
-            context.startActivity( discoverableIntent );
+            startActivity( discoverableIntent );
         }
     }
 
@@ -283,6 +182,11 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     {
         Log.d( TAG, "BEGIN start()" );
         setConnectionType( connectionType );
+
+        if( connectionType == CONNECTION_TYPE_SERVER )
+        {
+            ensureDiscoverable();
+        }
 
         if( mConnectThread != null )
         {
@@ -398,9 +302,22 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         setState( STATE_NONE );
     }
 
-    public synchronized void connect( BluetoothDevice device )
+    @Override
+    public void findServer()
+    {
+        Intent devicesIntent = new Intent( getActivity(), DeviceListActivity.class );
+        startActivityForResult( devicesIntent, REQUEST_CONNECT_DEVICE );
+    }
+
+    @Override
+    public synchronized void connect( Object device )
     {
         Log.d( TAG, "connect to: " + device );
+
+        if( !( device instanceof BluetoothDevice ) )
+        {
+            return;
+        }
 
         if( mConnectThread != null )
         {
@@ -408,7 +325,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             mConnectThread = null;
         }
 
-        mConnectThread = new ConnectThread( device );
+        mConnectThread = new ConnectThread( (BluetoothDevice) device );
         mConnectThread.start();
 
         setConnectionType( CONNECTION_TYPE_CLIENT );
@@ -447,7 +364,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         mConnectedThreads.add( connectedThread );
         connectedThread.start();
 
-        mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
+        if( mListener != null )
+        {
+            mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
+        }
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
@@ -478,7 +398,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
 
     private void connectionFailed()
     {
-        mListener.onNotification( "Unable to connect to device." );
+        if( mListener != null )
+        {
+            mListener.onNotification( "Unable to connect to device." );
+        }
 
         switch( getConnectionType() )
         {
@@ -493,7 +416,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
 
     private void connectionLost( ConnectedThread connectedThread )
     {
-        mListener.onConnectionLost( connectedThread.getID() );
+        if( mListener != null )
+        {
+            mListener.onConnectionLost( connectedThread.getID() );
+        }
         mConnectedThreads.remove( connectedThread );
 
         switch( getConnectionType() )
@@ -512,7 +438,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     {
         if( !isConnected() )
         {
-            mListener.onNotification( "Not connected" );
+            if( mListener != null )
+            {
+                mListener.onNotification( "Not connected" );
+            }
             return;
         }
 
@@ -715,7 +644,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
                     bytes = mInputStream.read( buffer );
                     if( bytes > 0 )
                     {
-                        mListener.onMessageReceive( mID, bytes, buffer );
+                        if( mListener != null )
+                        {
+                            mListener.onMessageReceive( mID, bytes, buffer );
+                        }
                     }
                 } catch( IOException io )
                 {

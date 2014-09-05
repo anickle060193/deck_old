@@ -1,7 +1,8 @@
 package com.adamnickle.deck.Game;
 
 
-import com.adamnickle.deck.spi.ConnectionInterface;
+import android.app.Activity;
+
 import com.adamnickle.deck.spi.GameConnectionInterface;
 import com.adamnickle.deck.spi.GameConnectionListener;
 import com.adamnickle.deck.spi.GameUiInterface;
@@ -11,9 +12,11 @@ public abstract class Game implements GameConnectionListener, GameUiListener
 {
     protected GameConnectionInterface mGameConnection;
     protected GameUiInterface mGameUI;
+    protected Activity mParentActivity;
 
-    public Game( GameConnectionInterface gameConnectionInterface )
+    public Game( Activity parentActivity, GameConnectionInterface gameConnectionInterface )
     {
+        mParentActivity = parentActivity;
         mGameConnection = gameConnectionInterface;
     }
 
@@ -26,10 +29,10 @@ public abstract class Game implements GameConnectionListener, GameUiListener
      * GameConnectionListener Methods
      *******************************************************************/
     @Override
-    public abstract void onPlayerConnect( int deviceID, String deviceName );
+    public abstract void onPlayerConnect( String deviceAddress, String deviceName );
 
     @Override
-    public abstract void onPlayerDisconnect( int deviceID );
+    public abstract void onPlayerDisconnect( String senderAddress );
 
     @Override
     public void onNotification( String notification )
@@ -41,42 +44,13 @@ public abstract class Game implements GameConnectionListener, GameUiListener
     }
 
     @Override
-    public void onConnectionStateChange( int newState )
-    {
-        switch( newState )
-        {
-            case ConnectionInterface.STATE_NONE:
-                break;
-
-            case ConnectionInterface.STATE_LISTENING:
-            case ConnectionInterface.STATE_CONNECTED_LISTENING:
-                if( mGameUI != null )
-                {
-                    mGameUI.displayNotification( "Waiting for more players..." );
-                }
-                break;
-
-            case ConnectionInterface.STATE_CONNECTING:
-                if( mGameUI != null )
-                {
-                    mGameUI.displayNotification( "Connecting..." );
-                }
-                break;
-
-            case ConnectionInterface.STATE_CONNECTED:
-                if( mGameUI != null )
-                {
-                    mGameUI.displayNotification( "Connected" );
-                }
-                break;
-        }
-    }
+    public abstract void onConnectionStateChange( int newState );
 
     @Override
-    public abstract void onCardReceive( int senderID, Card card );
+    public abstract void onCardReceive( String senderAddress, Card card );
 
     @Override
-    public abstract void onCardSendRequested( int requesterID );
+    public abstract void onCardSendRequested( String requesterAddress );
 
     /*******************************************************************
      * GameUiListener Methods

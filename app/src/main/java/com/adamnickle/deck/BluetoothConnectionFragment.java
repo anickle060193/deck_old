@@ -1,17 +1,21 @@
 package com.adamnickle.deck;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
-import com.adamnickle.deck.spi.ConnectionInterface;
+import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
 import com.adamnickle.deck.spi.ConnectionListener;
 
 import java.io.IOException;
@@ -21,19 +25,15 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 
-public class BluetoothConnectionFragment extends Fragment implements ConnectionInterface
+public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 {
     private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
-
-    public static final String FRAGMENT_NAME = BluetoothConnectionFragment.class.getSimpleName();
 
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
     private static final String SERVICE_NAME = "Deck Server";
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
     private static final int REQUEST_CONNECT_DEVICE = 2;
-
-    private static int NEXT_DEVICE_ID = 0;
 
     private final BluetoothAdapter mBluetoothAdapter;
     private ConnectionListener mListener;
@@ -42,7 +42,6 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     private ArrayList< ConnectedThread > mConnectedThreads;
     private int mState;
     private int mConnectionType;
-    private int mSavedConnectionType;
 
     public BluetoothConnectionFragment()
     {
@@ -67,31 +66,43 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
 
         if( mBluetoothAdapter == null )
         {
-            Toast.makeText( getActivity(), "Bluetooth not supported by device. Application exiting.", Toast.LENGTH_LONG ).show();
-            this.getActivity().finish();
+            if( mListener != null )
+            {
+                mListener.onNotification( "Bluetooth not supported by device. Bluetooth must be enabled to use application." );
+            }
+            getActivity().finish();
         }
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        final IntentFilter filter = new IntentFilter( BluetoothAdapter.ACTION_STATE_CHANGED );
+        getActivity().registerReceiver( mReceiver, filter );
     }
 
     @Override
     public void onDestroy()
     {
+        getActivity().unregisterReceiver( mReceiver );
         this.stopConnection();
         super.onDestroy();
     }
 
     @Override
-    public void startConnection( int connectionType )
+    public void startConnection()
     {
         Log.d( TAG, "startConnection" );
 
         if( !mBluetoothAdapter.isEnabled() )
         {
-            mSavedConnectionType = connectionType;
             Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
             startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
-        } else
+        }
+        else
         {
-            this.start( connectionType );
+            start();
         }
     }
 
@@ -105,13 +116,25 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             case REQUEST_ENABLE_BLUETOOTH:
                 if( resultCode == Activity.RESULT_OK )
                 {
-                    startConnection( mSavedConnectionType );
-                    mSavedConnectionType = -1;
+                    if( mConnectionType == CONNECTION_TYPE_SERVER )
+                    {
+                        start();
+                    }
+                    else if( mConnectionType == CONNECTION_TYPE_CLIENT )
+                    {
+                        if( mState == STATE_NONE )
+                        {
+                            findServer();
+                        }
+                    }
                 }
                 else
                 {
                     Log.d( TAG, "Bluetooth not enabled" );
-                    Toast.makeText( getActivity(), "Bluetooth was not enabled. Application exiting.", Toast.LENGTH_LONG ).show();
+                    if( mListener != null )
+                    {
+                        mListener.onNotification( "Bluetooth was not enabled. Bluetooth must be enabled to use application." );
+                    }
                     getActivity().finish();
                 }
                 break;
@@ -128,6 +151,86 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     }
 
     @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        super.onCreateOptionsMenu( menu, inflater );
+
+        inflater.inflate( R.menu.connection, menu );
+    }
+
+    @Override
+    public void onPrepareOptionsMenu( Menu menu )
+    {
+        super.onPrepareOptionsMenu( menu );
+
+        if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_NONE )
+        {
+            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+        } else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
+        {
+            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+
+            if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
+            {
+                menu.findItem( R.id.actionLeaveServer ).setVisible( true );
+            } else
+            {
+                menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+            }
+        } else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER )
+        {
+            menu.findItem( R.id.actionCloseServer ).setVisible( true );
+            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+
+            if( mState == ConnectionInterfaceFragment.STATE_LISTENING )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            } else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED_LISTENING )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+            } else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
+            {
+                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.actionFinishConnecting:
+                finishConnecting();
+                return true;
+
+            case R.id.actionRestartConnecting:
+                restartConnection();
+                return true;
+
+            case R.id.actionCloseServer:
+                stopConnection();
+                getActivity().finish();
+                return true;
+
+            case R.id.actionLeaveServer:
+                stopConnection();
+                getActivity().finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected( item );
+    }
+
+    @Override
     public void setConnectionListener( ConnectionListener connectionListener )
     {
         mListener = connectionListener;
@@ -139,9 +242,17 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         return mConnectionType;
     }
 
-    private synchronized void setConnectionType( int connectionType )
+    @Override
+    public synchronized void setConnectionType( int connectionType )
     {
-        mConnectionType = connectionType;
+        if( mConnectionType != connectionType )
+        {
+            if( connectionType != CONNECTION_TYPE_NONE )
+            {
+                stopConnection();
+            }
+            mConnectionType = connectionType;
+        }
     }
 
     @Override
@@ -153,14 +264,17 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     private synchronized void setState( int state )
     {
         Log.d( TAG, "setState() " + mState + " -> " + state );
-        mState = state;
-
-        if( mListener != null )
+        if( state != mState )
         {
-            mListener.onConnectionStateChange( mState );
+            mState = state;
+            if( mListener != null )
+            {
+                mListener.onConnectionStateChange( mState );
+            }
         }
     }
 
+    @Override
     public boolean isConnected()
     {
         return ( mState == STATE_CONNECTED ) || ( mState == STATE_CONNECTED_LISTENING );
@@ -178,12 +292,10 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         }
     }
 
-    public synchronized void start( int connectionType )
+    public synchronized void start()
     {
         Log.d( TAG, "BEGIN start()" );
-        setConnectionType( connectionType );
-
-        if( connectionType == CONNECTION_TYPE_SERVER )
+        if( getConnectionType() == CONNECTION_TYPE_SERVER )
         {
             ensureDiscoverable();
         }
@@ -226,7 +338,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
-            start( CONNECTION_TYPE_CLIENT );
+            start();
             return;
         }
 
@@ -305,8 +417,16 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     @Override
     public void findServer()
     {
-        Intent devicesIntent = new Intent( getActivity(), DeviceListActivity.class );
-        startActivityForResult( devicesIntent, REQUEST_CONNECT_DEVICE );
+        if( !mBluetoothAdapter.isEnabled() )
+        {
+            Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
+            startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
+        }
+        else
+        {
+            Intent devicesIntent = new Intent( getActivity(), DeviceListActivity.class );
+            startActivityForResult( devicesIntent, REQUEST_CONNECT_DEVICE );
+        }
     }
 
     @Override
@@ -366,7 +486,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
 
         if( mListener != null )
         {
-            mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
+            mListener.onDeviceConnect( connectedThread.getAddress(), device.getName() );
         }
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
@@ -379,7 +499,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         }
     }
 
-    private void write( int deviceID, byte[] out )
+    private void write( String deviceAddress, byte[] out )
     {
         if( isConnected() )
         {
@@ -387,7 +507,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             {
                 for( ConnectedThread connectedThread : mConnectedThreads )
                 {
-                    if( connectedThread.getID() == deviceID )
+                    if( connectedThread.getAddress().equals( deviceAddress ) )
                     {
                         connectedThread.write( out );
                     }
@@ -400,7 +520,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     {
         if( mListener != null )
         {
-            mListener.onNotification( "Unable to connect to device." );
+            mListener.onConnectionFailed();
         }
 
         switch( getConnectionType() )
@@ -418,7 +538,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     {
         if( mListener != null )
         {
-            mListener.onConnectionLost( connectedThread.getID() );
+            mListener.onConnectionLost( connectedThread.getAddress() );
         }
         mConnectedThreads.remove( connectedThread );
 
@@ -434,7 +554,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
     }
 
     @Override
-    public void sendDataToDevice( int deviceID, byte[] data )
+    public void sendDataToDevice( String deviceAddress, byte[] data )
     {
         if( !isConnected() )
         {
@@ -447,7 +567,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
 
         if( data.length > 0 )
         {
-            write( deviceID, data );
+            write( deviceAddress, data );
         }
     }
 
@@ -599,7 +719,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
         private final BluetoothSocket mSocket;
         private final InputStream mInputStream;
         private final OutputStream mOutputStream;
-        private final int mID;
+        private final String mAddress;
 
         public ConnectedThread( BluetoothSocket socket )
         {
@@ -607,7 +727,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             mSocket = socket;
             synchronized( BluetoothConnectionFragment.this )
             {
-                mID = NEXT_DEVICE_ID++;
+                mAddress = socket.getRemoteDevice().getAddress();
             }
 
             InputStream tmpIn = null;
@@ -625,9 +745,9 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             mOutputStream = tmpOut;
         }
 
-        public int getID()
+        public String getAddress()
         {
-            return mID;
+            return mAddress;
         }
 
         public void run()
@@ -646,7 +766,7 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
                     {
                         if( mListener != null )
                         {
-                            mListener.onMessageReceive( mID, bytes, buffer );
+                            mListener.onMessageReceive( mAddress, bytes, buffer );
                         }
                     }
                 } catch( IOException io )
@@ -680,4 +800,27 @@ public class BluetoothConnectionFragment extends Fragment implements ConnectionI
             }
         }
     }
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive( Context context, Intent intent )
+        {
+            final String action = intent.getAction();
+
+            if( BluetoothAdapter.ACTION_STATE_CHANGED.equals( action ) )
+            {
+                final int state = intent.getIntExtra( BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR );
+                switch( state )
+                {
+                    case BluetoothAdapter.STATE_OFF:
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        mListener.onNotification( "Bluetooth was disabled." );
+                        stopConnection();
+                        getActivity().finish();
+                        break;
+                }
+            }
+        }
+    };
 }

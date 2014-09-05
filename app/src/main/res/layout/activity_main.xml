@@ -9,12 +9,45 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Main" >
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="45pt"
+        android:text="Deck"
+        android:id="@+id/deckTitle"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"/>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start Game"
-        android:id="@+id/startGame"
+        android:id="@+id/startGameButton"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Join Game"
+        android:id="@+id/joinGameButton"
+        android:layout_below="@+id/startGameButton"
+        android:layout_alignLeft="@+id/startGameButton"
+        android:layout_alignStart="@+id/startGameButton"
+        android:layout_alignRight="@+id/startGameButton"
+        android:layout_alignEnd="@+id/startGameButton" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:id="@+id/settingsButton"
+        android:layout_below="@+id/joinGameButton"
+        android:layout_alignRight="@+id/joinGameButton"
+        android:layout_alignEnd="@+id/joinGameButton"
+        android:layout_alignLeft="@+id/joinGameButton"
+        android:layout_alignStart="@+id/joinGameButton"/>
 
 </RelativeLayout>

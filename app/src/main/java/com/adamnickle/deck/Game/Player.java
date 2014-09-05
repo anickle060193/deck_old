@@ -1,25 +1,24 @@
 package com.adamnickle.deck.Game;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 
 public class Player
 {
     private final String mName;
-    private final int mDeviceID;
+    private final String mDeviceAddress;
     private final ArrayList<Card> mHand;
 
-    public Player( int deviceID, String name )
+    public Player( String deviceAddress, String name )
     {
         mName = name;
-        mDeviceID = deviceID;
+        mDeviceAddress = deviceAddress;
         mHand = new ArrayList< Card >();
     }
 
-    public int getID()
+    public String getAddress()
     {
-        return mDeviceID;
+        return mDeviceAddress;
     }
 
     public String getName()
@@ -42,8 +41,8 @@ public class Player
         mHand.add( card );
     }
 
-    public void addCards( Collection<Card> cards )
+    public Card[] getAllCards()
     {
-        mHand.addAll( cards );
+        return (Card[]) mHand.toArray();
     }
 }

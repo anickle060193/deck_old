@@ -19,5 +19,7 @@
     <string name="create_game_button_text">Create Game</string>
     <string name="join_game_button_text">Join Game</string>
     <string name="settings_button_text">Settings</string>
+    <string name="title_activity_server_game">Server Game</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

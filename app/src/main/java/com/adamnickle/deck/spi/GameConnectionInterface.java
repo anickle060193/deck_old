@@ -5,6 +5,8 @@ import com.adamnickle.deck.Game.Card;
 
 public interface GameConnectionInterface
 {
-    public void requestCard( int fromDeviceID );
-    public void sendCard( int toDeviceID, Card card );
+    public void setConnectionType( int connectionType );
+    public void setConnectionInterface( ConnectionInterfaceFragment connectionInterfaceFragment );
+    public void requestCard( String fromDeviceAddress );
+    public void sendCard( String toDeviceAddress, Card card );
 }

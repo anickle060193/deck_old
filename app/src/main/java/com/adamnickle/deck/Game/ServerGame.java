@@ -1,49 +1,58 @@
 package com.adamnickle.deck.Game;
 
-import android.util.SparseArray;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 
-import com.adamnickle.deck.spi.ConnectionInterface;
+import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
 import com.adamnickle.deck.spi.GameConnectionInterface;
+
+import java.security.InvalidParameterException;
+import java.util.HashMap;
 
 
 public class ServerGame extends Game
 {
-    private final SparseArray<Player> mRemotePlayers;
+    private static final String LOCAL_PLAYER_ADDRESS = BluetoothAdapter.getDefaultAdapter().getAddress();
+
+    private final HashMap<String, Player> mPlayers;
+    private final HashMap<String, Player> mDisconnectedPlayers;
     private final CardCollection mDeck;
 
     private final Player mLocalPlayer;
     private int mCanSendCard;
 
-    public ServerGame( GameConnectionInterface gameConnectionInterface )
+    public ServerGame( Activity parentActivity, GameConnectionInterface gameConnectionInterface )
     {
-        super( gameConnectionInterface );
-        mRemotePlayers = new SparseArray< Player >();
+        super( parentActivity, gameConnectionInterface );
+        mPlayers = new HashMap< String, Player >();
+        mDisconnectedPlayers = new HashMap< String, Player >();
         mDeck = new CardCollection();
-        mLocalPlayer = new Player( ConnectionInterface.LOCAL_DEVICE_ID, "Local Player" );
+        mLocalPlayer = new Player( LOCAL_PLAYER_ADDRESS, "Local Player" );
+        mPlayers.put( mLocalPlayer.getAddress(), mLocalPlayer );
         mCanSendCard = 0;
     }
 
-    private void requestCardFromPlayer( int ID )
+    private void requestCardFromPlayer( String address )
     {
-        if( ID == mLocalPlayer.getID() )
+        if( address.equals( mLocalPlayer.getAddress() ) )
         {
             mCanSendCard++;
         }
         else
         {
-            mGameConnection.requestCard( ID );
+            mGameConnection.requestCard( address );
         }
     }
 
-    private void sendCardToPlayer( int ID, Card card )
+    private void sendCardToPlayer( String address, Card card )
     {
-        if( ID == mLocalPlayer.getID() )
+        if( address.equals( mLocalPlayer.getAddress() ) )
         {
             mLocalPlayer.addCard( card );
         }
         else
         {
-            mGameConnection.sendCard( ID, card );
+            mGameConnection.sendCard( address, card );
         }
     }
 
@@ -51,29 +60,67 @@ public class ServerGame extends Game
      * GameConnectionListener Methods
      *******************************************************************/
     @Override
-    public void onPlayerConnect( int deviceID, String deviceName )
+    public void onConnectionStateChange( int newState )
     {
-        mRemotePlayers.put( deviceID, new Player( deviceID, deviceName ) );
-    }
-
-    @Override
-    public void onPlayerDisconnect( int deviceID )
-    {
-        Player removePlayer = mRemotePlayers.get( deviceID );
-        if( removePlayer != null )
+        switch( newState )
         {
-            mGameUI.displayNotification( removePlayer.getName() + " has disconnected." );
+            case ConnectionInterfaceFragment.STATE_NONE:
+                break;
+
+            case ConnectionInterfaceFragment.STATE_LISTENING:
+                if( mGameUI != null )
+                {
+                    mGameUI.displayNotification( "Waiting for more players..." );
+                }
+                break;
+
+            case ConnectionInterfaceFragment.STATE_CONNECTED_LISTENING:
+                break;
+
+            case ConnectionInterfaceFragment.STATE_CONNECTING:
+                throw new InvalidParameterException( "ServerGames should not receive state change to \"STATE_CONNECTING\"" );
         }
     }
 
     @Override
-    public void onCardReceive( int senderID, Card card )
+    public void onPlayerConnect( String deviceAddress, String deviceName )
+    {
+        final Player player = mDisconnectedPlayers.remove( deviceAddress );
+        if( player == null )
+        {
+            mPlayers.put( deviceAddress, new Player( deviceAddress, deviceName ) );
+            mGameUI.displayNotification( "Player connected: " + deviceName + " - " + deviceAddress );
+        }
+        else
+        {
+            mPlayers.put( player.getAddress(), player );
+            mGameUI.displayNotification( "Player reconnected: " + player.getName() + " - " + player.getAddress() );
+            for( Card card : player.getAllCards() )
+            {
+                mGameConnection.sendCard( player.getAddress(), card );
+            }
+        }
+    }
+
+    @Override
+    public void onPlayerDisconnect( String senderAddress )
+    {
+        Player removedPlayer = mPlayers.get( senderAddress );
+        if( removedPlayer != null )
+        {
+            mDisconnectedPlayers.put( removedPlayer.getAddress(), removedPlayer );
+            mGameUI.displayNotification( removedPlayer.getName() + " has disconnected." );
+        }
+    }
+
+    @Override
+    public void onCardReceive( String senderAddress, Card card )
     {
         mDeck.addCard( card );
     }
 
     @Override
-    public void onCardSendRequested( int requesterID )
+    public void onCardSendRequested( String requesterAddress )
     {
         // Why is player asking server for card?
     }
@@ -86,7 +133,7 @@ public class ServerGame extends Game
     {
         if( mCanSendCard > 0 )
         {
-            this.onCardReceive( mLocalPlayer.getID(), card );
+            this.onCardReceive( mLocalPlayer.getAddress(), card );
             mCanSendCard--;
             return true;
         }

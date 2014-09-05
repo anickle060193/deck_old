@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Set;
 
@@ -63,10 +64,10 @@ public class DeviceListActivity extends ActionBarActivity
         newDevicesListView.setAdapter( mNewDevicesArrayAdapter );
         newDevicesListView.setOnItemClickListener( mDeviceClickListener );
 
-        IntentFilter filter = new IntentFilter( BluetoothDevice.ACTION_FOUND );
-        this.registerReceiver( mReceiver, filter );
-
-        filter = new IntentFilter( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
+        IntentFilter filter = new IntentFilter();
+        filter.addAction( BluetoothDevice.ACTION_FOUND );
+        filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
+        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
         this.registerReceiver( mReceiver, filter );
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -122,12 +123,16 @@ public class DeviceListActivity extends ActionBarActivity
         @Override
         public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
         {
+            final String info = (( TextView)view).getText().toString();
+            if( info.startsWith( "No" ) )
+            {
+                return;
+            }
             mBluetoothAdapter.cancelDiscovery();
 
-            String info = (( TextView)view).getText().toString();
-            String address = info.substring( info.length() - 17 );
+            final String address = info.substring( info.length() - 17 );
 
-            Intent intent = new Intent();
+            final Intent intent = new Intent();
             intent.putExtra( EXTRA_DEVICE_ADDRESS, address );
 
             setResult( RESULT_OK, intent );
@@ -140,7 +145,7 @@ public class DeviceListActivity extends ActionBarActivity
         @Override
         public void onReceive( Context context, Intent intent )
         {
-            String action = intent.getAction();
+            final String action = intent.getAction();
 
             if( BluetoothDevice.ACTION_FOUND.equals( action ) )
             {
@@ -150,7 +155,7 @@ public class DeviceListActivity extends ActionBarActivity
                     mNewDevicesArrayAdapter.add( device.getName() + "\n" + device.getAddress() );
                 }
             }
-            else
+            else if( BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals( action ) )
             {
                 setSupportProgressBarIndeterminateVisibility( false );
                 setTitle( "Select device..." );
@@ -158,6 +163,15 @@ public class DeviceListActivity extends ActionBarActivity
                 {
                     String noDevices = "No devices found.";
                     mNewDevicesArrayAdapter.add( noDevices );
+                }
+            }
+            else if( BluetoothAdapter.ACTION_STATE_CHANGED.equals( action ) )
+            {
+                final int state = intent.getIntExtra( BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR );
+                if( state == BluetoothAdapter.STATE_OFF )
+                {
+                    Toast.makeText( DeviceListActivity.this, "Bluetooth has been disabled.", Toast.LENGTH_SHORT ).show();
+                    finish();
                 }
             }
         }

@@ -18,49 +18,22 @@ import com.adamnickle.deck.spi.GameUiListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-/**
- * Displays game related items such as cards, points, etc.
- */
 public class GameView extends View implements GameUiInterface
 {
-    /**
-     * Log TAG for {@link com.adamnickle.deck.GameView}.
-     */
     private static final String TAG = "GameView";
 
     private static final int CARD_WIDTH = (int)( CardDrawable.DEFAULT_WIDTH / 2.0f );
     private static final int CARD_HEIGHT = (int)( CardDrawable.DEFAULT_HEIGHT / 2.0f );
 
-    /**
-     * The minimum velocity required for a series of {@link android.view.MotionEvent}s to be considered a Fling gesture.
-     */
     private static final float MINIMUM_VELOCITY = 400.0f;
 
-    /**
-     * The {@link android.support.v4.view.GestureDetectorCompat} to process the MotionEvents for this view.
-     */
     private GestureDetectorCompat mDetector;
-    /**
-     * A {@link java.util.LinkedList} of {@link com.adamnickle.deck.CardDrawable}s that represent all cards currently being drawn on the {@link com.adamnickle.deck.GameView}.
-     * The {@link com.adamnickle.deck.CardDrawable}s are drawn in reverse order, such that the first {@link com.adamnickle.deck.CardDrawable} in the list will
-     * be drawn on top and the last {@link com.adamnickle.deck.CardDrawable} will be drawn underneath all others.
-     */
     private final LinkedList<CardDrawable> mCardDrawables;
-    /**
-     * A {@link android.util.SparseArray} of {@link com.adamnickle.deck.CardDrawable}s that are currently
-     * being moved by the user.
-     * The {@link android.util.SparseArray} is setup such that the index for a specific {@link com.adamnickle.deck.CardDrawable}
-     * is the ID of the pointer currently moving the {@link com.adamnickle.deck.CardDrawable}.
-     */
     private SparseArray<CardDrawable> mMovingCardDrawables;
 
     private final Activity mParentActivity;
     private GameUiListener mListener;
 
-    /**
-     * Constructs a {@link com.adamnickle.deck.GameView} object with the given {@link com.adamnickle.deck.GameActivity} as the {@link android.view.View}'s context.
-     * @param activity A {@link com.adamnickle.deck.GameActivity} that will display the constructed {@link com.adamnickle.deck.GameView}.
-     */
     public GameView( Activity activity )
     {
         super( activity );
@@ -77,18 +50,12 @@ public class GameView extends View implements GameUiInterface
         mListener = gameUiListener;
     }
 
-    /**
-     * Called when {@link com.adamnickle.deck.GameView} is attached to the {@link com.adamnickle.deck.GameActivity}'s {@link android.view.Window}.
-     */
     @Override
     protected void onAttachedToWindow()
     {
         postDelayed( mUpdateScreen, 10 );
     }
 
-    /**
-     * A {@link java.lang.Runnable} that continuously runs to re-draw the {@link com.adamnickle.deck.GameView}.
-     */
     private Runnable mUpdateScreen = new Runnable()
     {
         @Override
@@ -100,10 +67,6 @@ public class GameView extends View implements GameUiInterface
         }
     };
 
-    /**
-     * Draws the current state of the {@link com.adamnickle.deck.GameView} to the screen.
-     * @param canvas The {@link android.graphics.Canvas} to draw to.
-     */
     @Override
     public void onDraw( Canvas canvas )
     {
@@ -122,11 +85,6 @@ public class GameView extends View implements GameUiInterface
         }
     }
 
-    /**
-     * Handles a {@link android.view.MotionEvent} corresponding to a user touch input for this {@link com.adamnickle.deck.GameView}.
-     * @param event The generated {@link android.view.MotionEvent}.
-     * @return Returns whether to continue tracking {@link android.view.MotionEvent}s related to the given {@link android.view.MotionEvent}.
-     */
     @Override
     public boolean onTouchEvent( MotionEvent event )
     {
@@ -222,9 +180,6 @@ public class GameView extends View implements GameUiInterface
         return true;
     }
 
-    /**
-     * Handles a screen orientation change.
-     */
     public void onOrientationChange()
     {
         Log.d( TAG, "__ ORIENTATION CHANGE __" );
@@ -234,9 +189,6 @@ public class GameView extends View implements GameUiInterface
         }
     }
 
-    /**
-     * The {@link android.view.GestureDetector.SimpleOnGestureListener} that receives gesture callbacks.
-     */
     private GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener()
     {
         @Override
@@ -268,7 +220,7 @@ public class GameView extends View implements GameUiInterface
             final int pointerIndex = MotionEventCompat.getActionIndex( event );
             final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
             final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
-            if( mListener != null )
+            if( mListener != null && cardDrawable != null )
             {
                 if( mListener.onAttemptSendCard( cardDrawable.getCard() ) )
                 {
@@ -279,9 +231,6 @@ public class GameView extends View implements GameUiInterface
         }
     };
 
-    /*******************************************************************
-     * GameUiInterface Methods
-     *******************************************************************/
     @Override
     public void addCard( Card card )
     {
@@ -310,7 +259,7 @@ public class GameView extends View implements GameUiInterface
             @Override
             public void run()
             {
-                Toast.makeText( mParentActivity, notification, Toast.LENGTH_SHORT ).show();
+                Toast.makeText( mParentActivity, notification, Toast.LENGTH_LONG ).show();
             }
         } );
     }

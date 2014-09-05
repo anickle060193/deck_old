@@ -1,20 +1,23 @@
 package com.adamnickle.deck.Game;
 
+import android.app.Activity;
+
+import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
 import com.adamnickle.deck.spi.GameConnectionInterface;
+
+import java.security.InvalidParameterException;
 
 public class ClientGame extends Game
 {
-    private static final int INVALID_SERVER_ID = -1;
-
     private final Player mPlayer;
-    private int mServerID;
+    private String mServerAddress;
     private String mServerName;
     private int mCanSendCard;
 
-    public ClientGame( GameConnectionInterface gameConnectionInterface )
+    public ClientGame( Activity parentActivity, GameConnectionInterface gameConnectionInterface )
     {
-        super( gameConnectionInterface );
-        mPlayer = new Player( 1, "My Name" );
+        super( parentActivity, gameConnectionInterface );
+        mPlayer = new Player( "", "My Name" );
         mCanSendCard = 0;
     }
 
@@ -22,28 +25,51 @@ public class ClientGame extends Game
      * GameConnectionListener Methods
      *******************************************************************/
     @Override
-    public void onPlayerConnect( int deviceID, String deviceName )
+    public void onConnectionStateChange( int newState )
     {
-        mServerID = deviceID;
-        mServerName = deviceName;
-        mGameUI.displayNotification( "Connected to game server: " + mServerName + "." );
-    }
-
-    @Override
-    public void onPlayerDisconnect( int deviceID )
-    {
-        if( deviceID == mServerID )
+        switch( newState )
         {
-            mServerID = INVALID_SERVER_ID;
-            mServerName = "";
-            mGameUI.displayNotification( "Disconnected from game server: " + mServerName + "." );
+            case ConnectionInterfaceFragment.STATE_NONE:
+                break;
+
+            case ConnectionInterfaceFragment.STATE_LISTENING:
+                throw new InvalidParameterException( "ClientGame should never enter state \"STATE_LISTENING\"" );
+
+            case ConnectionInterfaceFragment.STATE_CONNECTED_LISTENING:
+                throw new InvalidParameterException( "ClientGame should never enter state \"STATE_CONNECTED_LISTENING\"" );
+
+            case ConnectionInterfaceFragment.STATE_CONNECTING:
+                if( mGameUI != null )
+                {
+                    mGameUI.displayNotification( "Connecting..." );
+                }
+                break;
         }
     }
 
     @Override
-    public void onCardReceive( int senderID, Card card )
+    public void onPlayerConnect( String deviceAddress, String deviceName )
     {
-        if( senderID == mServerID )
+        mServerAddress = deviceAddress;
+        mServerName = deviceName;
+        mGameUI.displayNotification( "Connected to game server: " + mServerName + " - " + mServerAddress );
+    }
+
+    @Override
+    public void onPlayerDisconnect( String senderAddress )
+    {
+        if( senderAddress == mServerAddress )
+        {
+            mGameUI.displayNotification( "Disconnected from game server: " + mServerName + " - " + mServerAddress );
+            mServerAddress = "";
+            mServerName = "";
+        }
+    }
+
+    @Override
+    public void onCardReceive( String senderAddress, Card card )
+    {
+        if( senderAddress == mServerAddress )
         {
             mPlayer.addCard( card );
             mGameUI.addCard( card );
@@ -51,9 +77,9 @@ public class ClientGame extends Game
     }
 
     @Override
-    public void onCardSendRequested( int requesterID )
+    public void onCardSendRequested( String requesterAddress )
     {
-        if( requesterID == mServerID )
+        if( requesterAddress == mServerAddress )
         {
             mCanSendCard++;
         }
@@ -67,7 +93,7 @@ public class ClientGame extends Game
     {
         if( mCanSendCard > 0 )
         {
-            mGameConnection.sendCard( mServerID, card );
+            mGameConnection.sendCard( mServerAddress, card );
             mCanSendCard--;
             return true;
         }

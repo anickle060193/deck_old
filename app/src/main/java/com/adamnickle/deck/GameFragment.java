@@ -1,9 +1,14 @@
 package com.adamnickle.deck;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -21,9 +26,6 @@ import com.adamnickle.deck.spi.GameUiInterface;
 public class GameFragment extends Fragment implements ConnectionListener, GameConnectionInterface
 {
     public static final String FRAGMENT_NAME = GameFragment.class.getSimpleName();
-
-    public static final int MESSAGE_CARD = 1;
-    public static final int MESSAGE_CARD_SEND_REQUEST = 2;
 
     private int mLastOrientation;
     private Game mGame;
@@ -73,20 +75,97 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     {
         super.onResume();
 
-        final int connectionType = mConnection.getConnectionType();
-        if( connectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
+        switch( mConnection.getConnectionType() )
         {
-            if( mConnection.getState() == ConnectionInterfaceFragment.STATE_NONE )
-            {
-                mConnection.findServer();
-            }
+            case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
+                if( mConnection.getState() == ConnectionInterfaceFragment.STATE_NONE )
+                {
+                    mConnection.findServer();
+                }
+                break;
+
+            case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
+                if( mConnection.getState() == ConnectionInterfaceFragment.STATE_NONE )
+                {
+                    mConnection.startConnection();
+                }
+                break;
         }
-        else if( connectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER )
+    }
+
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        super.onCreateOptionsMenu( menu, inflater );
+        inflater.inflate( R.menu.game, menu );
+    }
+
+    @Override
+    public void onPrepareOptionsMenu( Menu menu )
+    {
+        super.onPrepareOptionsMenu( menu );
+
+        final int connectionType = mConnection.getConnectionType();
+
+        switch( connectionType )
         {
-            if( mConnection.getState() == ConnectionInterfaceFragment.STATE_NONE )
-            {
-                mConnection.startConnection();
-            }
+            case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
+                menu.findItem( R.id.actionDealCards ).setVisible( false );
+                menu.findItem( R.id.actionClearPlayerHands ).setVisible( false );
+                menu.findItem( R.id.actionDealSingleCard ).setVisible( false );
+                menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( false );
+                break;
+
+            case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
+                menu.findItem( R.id.actionDealCards ).setVisible( true );
+                menu.findItem( R.id.actionClearPlayerHands ).setVisible( true );
+                menu.findItem( R.id.actionDealSingleCard ).setVisible( true );
+                menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( true );
+                break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.actionDealCards:
+                return true;
+
+            case R.id.actionClearPlayerHands:
+                mGame.clearPlayerHands();
+                return true;
+
+            case R.id.actionDealSingleCard:
+                return true;
+
+            case R.id.actionRequestCardFromPlayer:
+                if( mGame.getPlayerCount() == 0 )
+                {
+                    new AlertDialog.Builder( getActivity() )
+                            .setTitle( "No Players Connected" )
+                            .setMessage( "There are not players connected to the current game to select from." )
+                            .setPositiveButton( "OK", null )
+                            .show();
+                }
+                else
+                {
+                    selectItem( "Select player:", mGame.getPlayerNames(), new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int index )
+                        {
+                            //TODO Do something
+                            final String key = mGame.getPlayerIDs()[ index ];
+                            dialogInterface.dismiss();
+                        }
+                    } );
+                }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
         }
     }
 
@@ -94,33 +173,51 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     public void onDestroy()
     {
         mConnection.stopConnection();
+
         super.onDestroy();
+    }
+
+    public void selectItem( String title, final String items[], DialogInterface.OnClickListener listener )
+    {
+        new AlertDialog.Builder( getActivity() )
+                .setTitle( title )
+                .setItems( items, listener )
+                .show();
     }
 
     /*******************************************************************
      * ConnectionListener Methods
      *******************************************************************/
     @Override
-    public void onMessageReceive( String senderAddress, int bytes, byte[] data )
+    public void onMessageReceive( String senderID, int bytes, byte[] data )
     {
         int messageType = (int) data[ 0 ];
         switch( messageType )
         {
-            case MESSAGE_CARD:
-                final int cardNumber = data[ 1 ];
-                mGameConnectionListener.onCardReceive( senderAddress, new Card( cardNumber ) );
+            case GameMessageParser.MESSAGE_CARD:
+                final Card card = GameMessageParser.parseCardMessage( data );
+                mGameConnectionListener.onCardReceive( senderID, card );
                 break;
 
-            case MESSAGE_CARD_SEND_REQUEST:
-                mGameConnectionListener.onCardSendRequested( senderAddress ); //TODO Add something about valid cards
+            case GameMessageParser.MESSAGE_CARD_SEND_REQUEST:
+                mGameConnectionListener.onCardSendRequested( senderID ); //TODO Add something about valid cards
+                break;
+
+            case GameMessageParser.MESSAGE_PLAYER_NAME:
+                final String name = GameMessageParser.parsePlayerNameMessage( data );
+                mGameConnectionListener.onReceivePlayerName( senderID, name );
+                break;
+
+            case GameMessageParser.MESSAGE_CLEAR_HAND:
+                mGameConnectionListener.onClearPlayerHand( senderID );
                 break;
         }
     }
 
     @Override
-    public void onDeviceConnect( String deviceAddress, String deviceName )
+    public void onDeviceConnect( String deviceID, String deviceName )
     {
-        mGameConnectionListener.onPlayerConnect( deviceAddress, deviceName );
+        mGameConnectionListener.onPlayerConnect( deviceID, deviceName );
     }
 
     @Override
@@ -136,9 +233,9 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     }
 
     @Override
-    public void onConnectionLost( String deviceAddress )
+    public void onConnectionLost( String deviceID )
     {
-        mGameConnectionListener.onPlayerDisconnect( deviceAddress );
+        mGameConnectionListener.onPlayerDisconnect( deviceID );
         if( mConnection.getConnectionType() == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
         {
             getActivity().finish();
@@ -186,16 +283,32 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     }
 
     @Override
-    public void sendCard( String toDeviceAddress, Card card )
+    public void sendCard( String toDeviceID, Card card )
     {
-        byte[] data = { MESSAGE_CARD, (byte) card.getCardNumber() };
-        mConnection.sendDataToDevice( toDeviceAddress, data );
+        mConnection.sendDataToDevice( toDeviceID, GameMessageParser.createCardMessage( card ) );
     }
 
     @Override
-    public void requestCard( String fromDeviceAddress )
+    public void requestCard( String fromDeviceID )
     {
-        byte[] data = { MESSAGE_CARD_SEND_REQUEST };
-        mConnection.sendDataToDevice( fromDeviceAddress, data );
+        mConnection.sendDataToDevice( fromDeviceID, GameMessageParser.createCardRequestMessage() );
+    }
+
+    @Override
+    public void clearPlayerHand( String deviceID )
+    {
+        mConnection.sendDataToDevice( deviceID, GameMessageParser.createClearHandMessage() );
+    }
+
+    @Override
+    public String getDefaultLocalPlayerID()
+    {
+        return mConnection.getDefaultLocalDeviceID();
+    }
+
+    @Override
+    public String getDefaultLocalPlayerName()
+    {
+        return mConnection.getDefaultLocalDeviceName();
     }
 }

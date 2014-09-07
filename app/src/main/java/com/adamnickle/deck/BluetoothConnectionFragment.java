@@ -29,11 +29,12 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 {
     private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
 
+    public static final String FRAGMENT_NAME = BluetoothConnectionFragment.class.getSimpleName();
+
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
     private static final String SERVICE_NAME = "Deck Server";
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
-    private static final int REQUEST_CONNECT_DEVICE = 2;
 
     private final BluetoothAdapter mBluetoothAdapter;
     private ConnectionListener mListener;
@@ -57,6 +58,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
+        setHasOptionsMenu( true );
     }
 
     @Override
@@ -136,15 +138,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                         mListener.onNotification( "Bluetooth was not enabled. Bluetooth must be enabled to use application." );
                     }
                     getActivity().finish();
-                }
-                break;
-
-            case REQUEST_CONNECT_DEVICE:
-                if( resultCode == Activity.RESULT_OK )
-                {
-                    String address = data.getStringExtra( DeviceListActivity.EXTRA_DEVICE_ADDRESS );
-                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice( address );
-                    this.connect( device );
                 }
                 break;
         }
@@ -278,6 +271,18 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     public boolean isConnected()
     {
         return ( mState == STATE_CONNECTED ) || ( mState == STATE_CONNECTED_LISTENING );
+    }
+
+    @Override
+    public String getDefaultLocalDeviceID()
+    {
+        return mBluetoothAdapter.getAddress();
+    }
+
+    @Override
+    public String getDefaultLocalDeviceName()
+    {
+        return mBluetoothAdapter.getName();
     }
 
     private void ensureDiscoverable()
@@ -417,16 +422,17 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     @Override
     public void findServer()
     {
-        if( !mBluetoothAdapter.isEnabled() )
-        {
-            Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
-            startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
-        }
-        else
-        {
-            Intent devicesIntent = new Intent( getActivity(), DeviceListActivity.class );
-            startActivityForResult( devicesIntent, REQUEST_CONNECT_DEVICE );
-        }
+        getFragmentManager().beginTransaction()
+                .addToBackStack( FRAGMENT_NAME )
+                .replace( android.R.id.content, new DeviceListFragment( new DeviceListFragment.DeviceListFragmentListener()
+                {
+                    @Override
+                    public void onDeviceSelected( String address )
+                    {
+                        connect( mBluetoothAdapter.getRemoteDevice( address ) );
+                    }
+                }) )
+                .commit();
     }
 
     @Override
@@ -486,7 +492,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         if( mListener != null )
         {
-            mListener.onDeviceConnect( connectedThread.getAddress(), device.getName() );
+            mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
         }
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
@@ -499,7 +505,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         }
     }
 
-    private void write( String deviceAddress, byte[] out )
+    private void write( String deviceID, byte[] out )
     {
         if( isConnected() )
         {
@@ -507,7 +513,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             {
                 for( ConnectedThread connectedThread : mConnectedThreads )
                 {
-                    if( connectedThread.getAddress().equals( deviceAddress ) )
+                    if( connectedThread.getID().equals( deviceID ) )
                     {
                         connectedThread.write( out );
                     }
@@ -538,7 +544,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         if( mListener != null )
         {
-            mListener.onConnectionLost( connectedThread.getAddress() );
+            mListener.onConnectionLost( connectedThread.getID() );
         }
         mConnectedThreads.remove( connectedThread );
 
@@ -554,7 +560,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     }
 
     @Override
-    public void sendDataToDevice( String deviceAddress, byte[] data )
+    public void sendDataToDevice( String deviceID, byte[] data )
     {
         if( !isConnected() )
         {
@@ -567,7 +573,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         if( data.length > 0 )
         {
-            write( deviceAddress, data );
+            write( deviceID, data );
         }
     }
 
@@ -719,7 +725,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         private final BluetoothSocket mSocket;
         private final InputStream mInputStream;
         private final OutputStream mOutputStream;
-        private final String mAddress;
+        private final String mID;
 
         public ConnectedThread( BluetoothSocket socket )
         {
@@ -727,7 +733,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             mSocket = socket;
             synchronized( BluetoothConnectionFragment.this )
             {
-                mAddress = socket.getRemoteDevice().getAddress();
+                mID = socket.getRemoteDevice().getAddress();
             }
 
             InputStream tmpIn = null;
@@ -745,9 +751,9 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             mOutputStream = tmpOut;
         }
 
-        public String getAddress()
+        public String getID()
         {
-            return mAddress;
+            return mID;
         }
 
         public void run()
@@ -766,7 +772,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                     {
                         if( mListener != null )
                         {
-                            mListener.onMessageReceive( mAddress, bytes, buffer );
+                            mListener.onMessageReceive( mID, bytes, buffer );
                         }
                     }
                 } catch( IOException io )

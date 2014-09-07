@@ -1,7 +1,6 @@
 package com.adamnickle.deck.Game;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 
 import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
 import com.adamnickle.deck.spi.GameConnectionInterface;
@@ -12,9 +11,6 @@ import java.util.HashMap;
 
 public class ServerGame extends Game
 {
-    private static final String LOCAL_PLAYER_ADDRESS = BluetoothAdapter.getDefaultAdapter().getAddress();
-
-    private final HashMap<String, Player> mPlayers;
     private final HashMap<String, Player> mDisconnectedPlayers;
     private final CardCollection mDeck;
 
@@ -24,35 +20,51 @@ public class ServerGame extends Game
     public ServerGame( Activity parentActivity, GameConnectionInterface gameConnectionInterface )
     {
         super( parentActivity, gameConnectionInterface );
-        mPlayers = new HashMap< String, Player >();
+
         mDisconnectedPlayers = new HashMap< String, Player >();
         mDeck = new CardCollection();
-        mLocalPlayer = new Player( LOCAL_PLAYER_ADDRESS, "Local Player" );
-        mPlayers.put( mLocalPlayer.getAddress(), mLocalPlayer );
+        mLocalPlayer = new Player( mGameConnection.getDefaultLocalPlayerID(), mGameConnection.getDefaultLocalPlayerName() );
+        mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
         mCanSendCard = 0;
     }
 
-    private void requestCardFromPlayer( String address )
+    private void requestCardFromPlayer( String ID )
     {
-        if( address.equals( mLocalPlayer.getAddress() ) )
+        if( ID.equals( mLocalPlayer.getID() ) )
         {
             mCanSendCard++;
         }
         else
         {
-            mGameConnection.requestCard( address );
+            mGameConnection.requestCard( ID );
         }
     }
 
-    private void sendCardToPlayer( String address, Card card )
+    private void sendCardToPlayer( String ID, Card card )
     {
-        if( address.equals( mLocalPlayer.getAddress() ) )
+        if( ID.equals( mLocalPlayer.getID() ) )
         {
             mLocalPlayer.addCard( card );
         }
         else
         {
-            mGameConnection.sendCard( address, card );
+            mGameConnection.sendCard( ID, card );
+        }
+    }
+
+    @Override
+    public void clearPlayerHands()
+    {
+        for( Player player : mPlayers.values() )
+        {
+            if( player == mLocalPlayer )
+            {
+                mLocalPlayer.clearHand();
+            }
+            else
+            {
+                mGameConnection.clearPlayerHand( player.getID() );
+            }
         }
     }
 
@@ -83,46 +95,58 @@ public class ServerGame extends Game
     }
 
     @Override
-    public void onPlayerConnect( String deviceAddress, String deviceName )
+    public void onPlayerConnect( String deviceID, String deviceName )
     {
-        final Player player = mDisconnectedPlayers.remove( deviceAddress );
+        final Player player = mDisconnectedPlayers.remove( deviceID );
         if( player == null )
         {
-            mPlayers.put( deviceAddress, new Player( deviceAddress, deviceName ) );
-            mGameUI.displayNotification( "Player connected: " + deviceName + " - " + deviceAddress );
+            mPlayers.put( deviceID, new Player( deviceID, deviceName ) );
+            mGameUI.displayNotification( "Player connected: " + deviceName + " - " + deviceID );
         }
         else
         {
-            mPlayers.put( player.getAddress(), player );
-            mGameUI.displayNotification( "Player reconnected: " + player.getName() + " - " + player.getAddress() );
+            mPlayers.put( player.getID(), player );
+            mGameUI.displayNotification( "Player reconnected: " + player.getName() + " - " + player.getID() );
             for( Card card : player.getAllCards() )
             {
-                mGameConnection.sendCard( player.getAddress(), card );
+                mGameConnection.sendCard( player.getID(), card );
             }
         }
     }
 
     @Override
-    public void onPlayerDisconnect( String senderAddress )
+    public void onPlayerDisconnect( String playerID )
     {
-        Player removedPlayer = mPlayers.get( senderAddress );
+        Player removedPlayer = mPlayers.remove( playerID );
         if( removedPlayer != null )
         {
-            mDisconnectedPlayers.put( removedPlayer.getAddress(), removedPlayer );
+            mDisconnectedPlayers.put( removedPlayer.getID(), removedPlayer );
             mGameUI.displayNotification( removedPlayer.getName() + " has disconnected." );
         }
     }
 
     @Override
-    public void onCardReceive( String senderAddress, Card card )
+    public void onCardReceive( String senderID, Card card )
     {
         mDeck.addCard( card );
     }
 
     @Override
-    public void onCardSendRequested( String requesterAddress )
+    public void onCardSendRequested( String requesterID )
     {
         // Why is player asking server for card?
+    }
+
+    @Override
+    public void onReceivePlayerName( String senderID, String name )
+    {
+        mPlayers.get( senderID ).setName( name );
+    }
+
+    @Override
+    public void onClearPlayerHand( String senderID )
+    {
+        // Why is player asking server to clear hand?
     }
 
     /*******************************************************************
@@ -133,7 +157,7 @@ public class ServerGame extends Game
     {
         if( mCanSendCard > 0 )
         {
-            this.onCardReceive( mLocalPlayer.getAddress(), card );
+            this.onCardReceive( mLocalPlayer.getID(), card );
             mCanSendCard--;
             return true;
         }

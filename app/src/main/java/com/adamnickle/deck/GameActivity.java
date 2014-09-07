@@ -1,8 +1,11 @@
 package com.adamnickle.deck;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
 
 import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
 
@@ -11,34 +14,37 @@ public class GameActivity extends Activity
 {
     private static final String TAG = GameActivity.class.getSimpleName();
 
+    private ConnectionInterfaceFragment mGameConnection;
+
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+
+        requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
 
         if( savedInstanceState == null )
         {
             final Intent intent = getIntent();
             final int connectionType = intent.getIntExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_TYPE, ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT );
             final String className = intent.getStringExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME );
-            final ConnectionInterfaceFragment connectionInterfaceFragment;
             try
             {
-                    connectionInterfaceFragment = (ConnectionInterfaceFragment)Class.forName( className ).newInstance();
-                    getFragmentManager()
-                            .beginTransaction()
-                            .add( connectionInterfaceFragment, connectionInterfaceFragment.getClass().getName() )
-                            .commit();
+                mGameConnection = (ConnectionInterfaceFragment)Class.forName( className ).newInstance();
+                getFragmentManager()
+                        .beginTransaction()
+                        .add( mGameConnection, mGameConnection.getClass().getName() )
+                        .commit();
 
-                    final GameFragment gameFragment = new GameFragment();
-                    gameFragment.setConnectionInterface( connectionInterfaceFragment );
-                    gameFragment.setConnectionType( connectionType );
-                    connectionInterfaceFragment.setConnectionListener( gameFragment );
+                final GameFragment gameFragment = new GameFragment();
+                gameFragment.setConnectionInterface( mGameConnection );
+                gameFragment.setConnectionType( connectionType );
+                mGameConnection.setConnectionListener( gameFragment );
 
-                    getFragmentManager()
-                            .beginTransaction()
-                            .replace( android.R.id.content, gameFragment )
-                            .commit();
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace( android.R.id.content, gameFragment )
+                        .commit();
             }
             catch( ClassCastException e )
             {
@@ -57,5 +63,35 @@ public class GameActivity extends Activity
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        String message = null;
+        switch( mGameConnection.getConnectionType() )
+        {
+            case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
+                message = "Close current Game? This will disconnect you from server.";
+                break;
+
+            case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
+                message = "Close current Game? This will disconnect all players.";
+                break;
+        }
+
+        new AlertDialog.Builder( this )
+                .setTitle( "Close Game" )
+                .setMessage( message )
+                .setPositiveButton( "OK", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int i )
+                    {
+                        GameActivity.this.finish();
+                    }
+                } )
+                .setNegativeButton( "Cancel", null )
+                .show();
     }
 }

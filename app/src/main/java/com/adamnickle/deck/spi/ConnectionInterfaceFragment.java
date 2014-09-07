@@ -19,8 +19,10 @@ public abstract class ConnectionInterfaceFragment extends Fragment
     public static final int STATE_CONNECTED_LISTENING = 4;
 
     public abstract void setConnectionListener( ConnectionListener connectionListener );
-    public abstract void sendDataToDevice( String deviceAddress, byte[] data );
+    public abstract void sendDataToDevice( String deviceID, byte[] data );
     public abstract boolean isConnected();
+    public abstract String getDefaultLocalDeviceID();
+    public abstract String getDefaultLocalDeviceName();
     public abstract void setConnectionType( int connectionType );
     public abstract int getConnectionType();
     public abstract int getState();

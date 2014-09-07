@@ -1,7 +1,13 @@
 package com.adamnickle.deck;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
@@ -227,6 +233,28 @@ public class GameView extends View implements GameUiInterface
                     mCardDrawables.remove( cardDrawable );
                 }
             }
+
+            new AlertDialog.Builder( getContext() )
+                    .setTitle( "Pick background" )
+                    .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int index )
+                        {
+                            final TypedArray resources = getResources().obtainTypedArray( R.array.background_drawables );
+                            final int resource = resources.getResourceId( index, -1 );
+                            BitmapDrawable background = (BitmapDrawable) getResources().getDrawable( resource );
+                            background.setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
+                            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN )
+                            {
+                                setBackgroundDrawable( background );
+                            } else
+                            {
+                                setBackground( background );
+                            }
+                        }
+                    } )
+                    .show();
             return true;
         }
     };

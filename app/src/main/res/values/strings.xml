@@ -21,5 +21,9 @@
     <string name="settings_button_text">Settings</string>
     <string name="title_activity_server_game">Server Game</string>
     <string name="action_settings">Settings</string>
+    <string name="actionDealCardsText">Deal Cards</string>
+    <string name="actionClearPlayerHandsText">Clear Player Hands</string>
+    <string name="actionDealSingleCardText">Deal Single Card</string>
+    <string name="actionRequestCardFromPlayerText">Request Card From Player</string>
 
 </resources>

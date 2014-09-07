@@ -9,4 +9,7 @@ public interface GameConnectionInterface
     public void setConnectionInterface( ConnectionInterfaceFragment connectionInterfaceFragment );
     public void requestCard( String fromDeviceAddress );
     public void sendCard( String toDeviceAddress, Card card );
+    public void clearPlayerHand( String deviceID );
+    public String getDefaultLocalPlayerID();
+    public String getDefaultLocalPlayerName();
 }

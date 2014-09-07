@@ -10,14 +10,16 @@ import java.security.InvalidParameterException;
 public class ClientGame extends Game
 {
     private final Player mPlayer;
-    private String mServerAddress;
+    private String mServerID;
     private String mServerName;
     private int mCanSendCard;
 
     public ClientGame( Activity parentActivity, GameConnectionInterface gameConnectionInterface )
     {
         super( parentActivity, gameConnectionInterface );
-        mPlayer = new Player( "", "My Name" );
+
+        mPlayer = new Player( mGameConnection.getDefaultLocalPlayerID(), mGameConnection.getDefaultLocalPlayerName() );
+        mPlayers.put( mPlayer.getID(), mPlayer );
         mCanSendCard = 0;
     }
 
@@ -48,28 +50,28 @@ public class ClientGame extends Game
     }
 
     @Override
-    public void onPlayerConnect( String deviceAddress, String deviceName )
+    public void onPlayerConnect( String deviceID, String deviceName )
     {
-        mServerAddress = deviceAddress;
+        mServerID = deviceID;
         mServerName = deviceName;
-        mGameUI.displayNotification( "Connected to game server: " + mServerName + " - " + mServerAddress );
+        mGameUI.displayNotification( "Connected to game server: " + mServerName + " - " + mServerID );
     }
 
     @Override
-    public void onPlayerDisconnect( String senderAddress )
+    public void onPlayerDisconnect( String playerID )
     {
-        if( senderAddress == mServerAddress )
+        if( playerID.equals( mServerID ) )
         {
-            mGameUI.displayNotification( "Disconnected from game server: " + mServerName + " - " + mServerAddress );
-            mServerAddress = "";
+            mGameUI.displayNotification( "Disconnected from game server: " + mServerName + " - " + mServerID );
+            mServerID = "";
             mServerName = "";
         }
     }
 
     @Override
-    public void onCardReceive( String senderAddress, Card card )
+    public void onCardReceive( String senderID, Card card )
     {
-        if( senderAddress == mServerAddress )
+        if( senderID.equals( mServerID ) )
         {
             mPlayer.addCard( card );
             mGameUI.addCard( card );
@@ -77,11 +79,29 @@ public class ClientGame extends Game
     }
 
     @Override
-    public void onCardSendRequested( String requesterAddress )
+    public void onCardSendRequested( String requesterID )
     {
-        if( requesterAddress == mServerAddress )
+        if( requesterID.equals( mServerID ) )
         {
             mCanSendCard++;
+        }
+    }
+
+    @Override
+    public void onReceivePlayerName( String senderID, String name )
+    {
+        if( senderID.equals( mServerID ) )
+        {
+            mServerName = name;
+        }
+    }
+
+    @Override
+    public void onClearPlayerHand( String senderID )
+    {
+        if( senderID.equals( mServerID ) )
+        {
+            mPlayer.clearHand();
         }
     }
 
@@ -93,7 +113,7 @@ public class ClientGame extends Game
     {
         if( mCanSendCard > 0 )
         {
-            mGameConnection.sendCard( mServerAddress, card );
+            mGameConnection.sendCard( mServerID, card );
             mCanSendCard--;
             return true;
         }

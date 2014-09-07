@@ -5,25 +5,30 @@ import java.util.ArrayList;
 
 public class Player
 {
-    private final String mName;
-    private final String mDeviceAddress;
+    private String mName;
+    private final String mDeviceID;
     private final ArrayList<Card> mHand;
 
-    public Player( String deviceAddress, String name )
+    public Player( String deviceID, String name )
     {
         mName = name;
-        mDeviceAddress = deviceAddress;
+        mDeviceID = deviceID;
         mHand = new ArrayList< Card >();
     }
 
-    public String getAddress()
+    public String getID()
     {
-        return mDeviceAddress;
+        return mDeviceID;
     }
 
     public String getName()
     {
         return mName;
+    }
+
+    public void setName( String name )
+    {
+        mName = name;
     }
 
     public boolean hasCards()
@@ -43,6 +48,11 @@ public class Player
 
     public Card[] getAllCards()
     {
-        return (Card[]) mHand.toArray();
+        return mHand.toArray( new Card[ mHand.size() ] );
+    }
+
+    public void clearHand()
+    {
+        mHand.clear();
     }
 }

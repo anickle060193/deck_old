@@ -131,4 +131,43 @@
         <item>0</item>
     </integer-array>
 
+    <string-array name="backgrounds">
+        <item>Argyle</item>
+        <item>Buried</item>
+        <item>Cartographer</item>
+        <item>G-Play Pattern</item>
+        <item>Hexabump</item>
+        <item>Leather</item>
+        <item>Light Honeycomb</item>
+        <item>Pool Table</item>
+        <item>Purty Wood</item>
+        <item>Retina Wood</item>
+        <item>Strange Bullseye</item>
+        <item>Tiny Grid</item>
+        <item>Triangle Pattern</item>
+    </string-array>
+
+    <!--
+     ==========================================================
+     These patterns are downloaded from www.subtlepatterns.com
+     If you need more, that's where to get'em.
+     ==========================================================
+    -->
+
+    <integer-array name="background_drawables">
+        <item>@drawable/argyle</item>
+        <item>@drawable/burried</item>
+        <item>@drawable/cartographer</item>
+        <item>@drawable/gplaypattern</item>
+        <item>@drawable/hexabump</item>
+        <item>@drawable/leather_1</item>
+        <item>@drawable/light_honeycomb</item>
+        <item>@drawable/pool_table</item>
+        <item>@drawable/purty_wood</item>
+        <item>@drawable/retina_wood</item>
+        <item>@drawable/strange_bullseyes</item>
+        <item>@drawable/tiny_grid</item>
+        <item>@drawable/triangles_pattern</item>
+    </integer-array>
+
 </resources>

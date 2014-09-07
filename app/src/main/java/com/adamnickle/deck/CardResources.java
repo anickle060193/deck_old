@@ -1,11 +1,15 @@
 package com.adamnickle.deck;
 
-/**
- * Created by Adam on 8/19/2014.
- */
+
 public final class CardResources
 {
     private CardResources() { }
+
+    /*
+     *   Vectorized Playing Cards 1.3- http://code.google.com/p/vectorized-playing-cards/
+     *   Copyright 2011 - Chris Aguilar
+     *   Licensed under LGPL 3 - www.gnu.org/copyleft/lesser.html
+     */
 
     public static final int BLUE_CARD_BACK = R.drawable.card_blue_back;
     public static final int RED_CARD_BACK = R.drawable.card_red_back;

@@ -1,6 +1,5 @@
 package com.adamnickle.deck;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +9,7 @@ import android.view.Window;
 import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
 
 
-public class GameActivity extends Activity
+public class GameActivity extends DrawerActivity
 {
     private static final String TAG = GameActivity.class.getSimpleName();
 

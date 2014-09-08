@@ -3,10 +3,10 @@ package com.adamnickle.deck.Game;
 
 import android.app.Activity;
 
-import com.adamnickle.deck.spi.GameConnectionInterface;
-import com.adamnickle.deck.spi.GameConnectionListener;
-import com.adamnickle.deck.spi.GameUiInterface;
-import com.adamnickle.deck.spi.GameUiListener;
+import com.adamnickle.deck.Interfaces.GameConnectionInterface;
+import com.adamnickle.deck.Interfaces.GameConnectionListener;
+import com.adamnickle.deck.Interfaces.GameUiInterface;
+import com.adamnickle.deck.Interfaces.GameUiListener;
 
 import java.util.HashMap;
 import java.util.Set;

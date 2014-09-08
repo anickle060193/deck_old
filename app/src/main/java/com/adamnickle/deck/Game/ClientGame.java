@@ -2,8 +2,8 @@ package com.adamnickle.deck.Game;
 
 import android.app.Activity;
 
-import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
-import com.adamnickle.deck.spi.GameConnectionInterface;
+import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.GameConnectionInterface;
 
 import java.security.InvalidParameterException;
 

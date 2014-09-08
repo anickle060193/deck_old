@@ -17,11 +17,11 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.ClientGame;
 import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.ServerGame;
-import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
-import com.adamnickle.deck.spi.ConnectionListener;
-import com.adamnickle.deck.spi.GameConnectionInterface;
-import com.adamnickle.deck.spi.GameConnectionListener;
-import com.adamnickle.deck.spi.GameUiInterface;
+import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.ConnectionListener;
+import com.adamnickle.deck.Interfaces.GameConnectionInterface;
+import com.adamnickle.deck.Interfaces.GameConnectionListener;
+import com.adamnickle.deck.Interfaces.GameUiInterface;
 
 public class GameFragment extends Fragment implements ConnectionListener, GameConnectionInterface
 {

@@ -6,7 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 
-import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
 
 
 public class MainActivity extends ActionBarActivity

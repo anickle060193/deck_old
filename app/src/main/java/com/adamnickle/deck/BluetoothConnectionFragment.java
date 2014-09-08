@@ -15,8 +15,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
-import com.adamnickle.deck.spi.ConnectionListener;
+import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.ConnectionListener;
 
 import java.io.IOException;
 import java.io.InputStream;

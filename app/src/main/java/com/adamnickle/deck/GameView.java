@@ -18,8 +18,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.spi.GameUiInterface;
-import com.adamnickle.deck.spi.GameUiListener;
+import com.adamnickle.deck.Interfaces.GameUiInterface;
+import com.adamnickle.deck.Interfaces.GameUiListener;
 
 import java.util.Iterator;
 import java.util.LinkedList;

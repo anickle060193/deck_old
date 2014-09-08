@@ -1,4 +1,4 @@
-package com.adamnickle.deck.spi;
+package com.adamnickle.deck.Interfaces;
 
 
 import com.adamnickle.deck.Game.Card;

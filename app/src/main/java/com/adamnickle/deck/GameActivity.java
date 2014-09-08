@@ -6,7 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.adamnickle.deck.spi.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.DrawerActivity;
 
 
 public class GameActivity extends DrawerActivity

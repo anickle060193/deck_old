@@ -35,6 +35,10 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     private static final String SERVICE_NAME = "Deck Server";
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
+    private static final int REQUEST_FIND_DEVICE = 2;
+    private static final int REQUEST_MAKE_DISCOVERABLE = 3;
+
+    public static final String EXTRA_DEVICE_ADDRESS = "device_address";
 
     private final BluetoothAdapter mBluetoothAdapter;
     private ConnectionListener mListener;
@@ -93,22 +97,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     }
 
     @Override
-    public void startConnection()
-    {
-        Log.d( TAG, "startConnection" );
-
-        if( !mBluetoothAdapter.isEnabled() )
-        {
-            Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
-            startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
-        }
-        else
-        {
-            start();
-        }
-    }
-
-    @Override
     public void onActivityResult( int requestCode, int resultCode, Intent data )
     {
         Log.d( TAG, "onActivityResult" );
@@ -120,7 +108,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                 {
                     if( mConnectionType == CONNECTION_TYPE_SERVER )
                     {
-                        start();
+                        startConnection();
                     }
                     else if( mConnectionType == CONNECTION_TYPE_CLIENT )
                     {
@@ -137,6 +125,34 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                     {
                         mListener.onNotification( "Bluetooth was not enabled. Bluetooth must be enabled to use application." );
                     }
+                    getActivity().finish();
+                }
+                break;
+
+            case REQUEST_MAKE_DISCOVERABLE:
+                if( resultCode == Activity.RESULT_OK )
+                {
+                    startConnection();
+                }
+                else
+                {
+                    Log.d( TAG, "Not made discoverable" );
+                    if( mListener != null )
+                    {
+                        mListener.onNotification( "Server was not made discoverable. Server closing." );
+                        getActivity().finish();
+                    }
+                }
+                break;
+
+            case REQUEST_FIND_DEVICE:
+                if( resultCode == Activity.RESULT_OK )
+                {
+                    final String address = data.getStringExtra( EXTRA_DEVICE_ADDRESS );
+                    connect( mBluetoothAdapter.getRemoteDevice( address ) );
+                }
+                else
+                {
                     getActivity().finish();
                 }
                 break;
@@ -285,24 +301,25 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         return mBluetoothAdapter.getName();
     }
 
-    private void ensureDiscoverable()
+    public synchronized void startConnection()
     {
-        Log.d( TAG, "ensureDiscoverable" );
-
-        if( mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE )
+        Log.d( TAG, "BEGIN startConnection()" );
+        if( !mBluetoothAdapter.isEnabled() )
         {
-            Intent discoverableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
-            discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
-            startActivity( discoverableIntent );
+            Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
+            startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
+            return;
         }
-    }
 
-    public synchronized void start()
-    {
-        Log.d( TAG, "BEGIN start()" );
         if( getConnectionType() == CONNECTION_TYPE_SERVER )
         {
-            ensureDiscoverable();
+            if( mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE )
+            {
+                Intent discoverableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
+                discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
+                startActivityForResult( discoverableIntent, REQUEST_MAKE_DISCOVERABLE );
+                return;
+            }
         }
 
         if( mConnectThread != null )
@@ -343,7 +360,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
-            start();
+            startConnection();
             return;
         }
 
@@ -422,17 +439,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     @Override
     public void findServer()
     {
-        getFragmentManager().beginTransaction()
-                .addToBackStack( FRAGMENT_NAME )
-                .replace( android.R.id.content, new DeviceListFragment( new DeviceListFragment.DeviceListFragmentListener()
-                {
-                    @Override
-                    public void onDeviceSelected( String address )
-                    {
-                        connect( mBluetoothAdapter.getRemoteDevice( address ) );
-                    }
-                }) )
-                .commit();
+        Intent intent = new Intent( getActivity(), DeviceListActivity.class );
+        startActivityForResult( intent, REQUEST_FIND_DEVICE );
     }
 
     @Override

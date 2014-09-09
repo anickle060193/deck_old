@@ -170,4 +170,14 @@
         <item>@drawable/triangles_pattern</item>
     </integer-array>
 
+    <string-array name="game_server_actions">
+        <item>Finish Connecting</item>
+        <item>Restart Connecting</item>
+        <item>Close Server</item>
+    </string-array>
+
+    <string-array name="game_client_actions">
+        <item>Leave Server</item>
+    </string-array>
+
 </resources>

@@ -40,6 +40,8 @@ public class GameView extends View implements GameUiInterface
     private final Activity mParentActivity;
     private GameUiListener mListener;
 
+    private final Toast mToast;
+
     public GameView( Activity activity )
     {
         super( activity );
@@ -49,6 +51,8 @@ public class GameView extends View implements GameUiInterface
         mDetector = new GestureDetectorCompat( activity, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
         mMovingCardDrawables = new SparseArray< CardDrawable >();
+
+        mToast = Toast.makeText( activity, "", Toast.LENGTH_SHORT );
     }
 
     public void setGameUiListener( GameUiListener gameUiListener )

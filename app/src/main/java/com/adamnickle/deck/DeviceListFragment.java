@@ -1,5 +1,6 @@
 package com.adamnickle.deck;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -12,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,20 +31,6 @@ public class DeviceListFragment extends Fragment
     private BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
-    private DeviceListFragmentListener mListener;
-
-    @SuppressWarnings( "ValidFragment" )
-    public DeviceListFragment( DeviceListFragmentListener listener )
-    {
-        mListener = listener;
-    }
-
-    public DeviceListFragment() { }
-
-    public void setDeviceListFragmentListener( DeviceListFragmentListener listener )
-    {
-        mListener = listener;
-    }
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -57,14 +43,13 @@ public class DeviceListFragment extends Fragment
         filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
         filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
         getActivity().registerReceiver( mReceiver, filter );
+
+        getActivity().setResult( Activity.RESULT_CANCELED );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        getActivity().getActionBar().show();
-        getActivity().getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, 0 );
-
         if( mView == null )
         {
             mView = inflater.inflate( R.layout.activity_device_list, container, false );
@@ -154,8 +139,12 @@ public class DeviceListFragment extends Fragment
             }
             mBluetoothAdapter.cancelDiscovery();
 
-            mListener.onDeviceSelected( info.substring( info.length() - 17 ) );
-            getFragmentManager().popBackStackImmediate();
+            final String address = info.substring( info.length() - 17 );
+
+            Intent intent = new Intent();
+            intent.putExtra( BluetoothConnectionFragment.EXTRA_DEVICE_ADDRESS, address );
+            getActivity().setResult( Activity.RESULT_OK, intent );
+            getActivity().finish();
         }
     };
 
@@ -195,9 +184,4 @@ public class DeviceListFragment extends Fragment
             }
         }
     };
-
-    public interface DeviceListFragmentListener
-    {
-        public void onDeviceSelected( String address );
-    }
 }

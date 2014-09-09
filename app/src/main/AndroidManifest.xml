@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DeviceListFragment"
+            android:name=".DeviceListActivity"
             android:label="@string/device_list_activity_title" >
         </activity>
         <activity

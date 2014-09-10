@@ -21,6 +21,11 @@ public class CardCollection
         }
     }
 
+    public Card[] getCards()
+    {
+        return mCards.toArray( new Card[ mCards.size() ] );
+    }
+
     public int getCardCount()
     {
         return mCards.size();

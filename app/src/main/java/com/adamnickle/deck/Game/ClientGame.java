@@ -23,6 +23,12 @@ public class ClientGame extends Game
         mCanSendCard = 0;
     }
 
+    @Override
+    public Card[] getCards()
+    {
+        return mPlayer.getAllCards();
+    }
+
     /*******************************************************************
      * GameConnectionListener Methods
      *******************************************************************/

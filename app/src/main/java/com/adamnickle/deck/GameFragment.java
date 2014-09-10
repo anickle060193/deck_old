@@ -24,8 +24,6 @@ import com.adamnickle.deck.Interfaces.GameUiInterface;
 
 public class GameFragment extends Fragment implements ConnectionListener, GameConnectionInterface
 {
-    public static final String FRAGMENT_NAME = GameFragment.class.getSimpleName();
-
     private int mLastOrientation;
     private Game mGame;
     private GameView mGameView;
@@ -172,11 +170,24 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
         super.onDestroy();
     }
 
-    public void selectItem( String title, final String items[], DialogInterface.OnClickListener listener )
+    public void selectItem( String title, Object items[], DialogInterface.OnClickListener listener )
     {
+        String[] itemNames;
+        if( items instanceof String[] )
+        {
+            itemNames = (String[]) items;
+        }
+        else
+        {
+            itemNames = new String[ items.length ];
+            for( int i = 0; i < items.length; i++ )
+            {
+                itemNames[ i ] = items[ i ].toString();
+            }
+        }
         new AlertDialog.Builder( getActivity() )
                 .setTitle( title )
-                .setItems( items, listener )
+                .setItems( itemNames, listener )
                 .show();
     }
 
@@ -225,6 +236,7 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     public void onConnectionStateChange( int newState )
     {
         mGameConnectionListener.onConnectionStateChange( newState );
+        getActivity().invalidateOptionsMenu();
     }
 
     @Override

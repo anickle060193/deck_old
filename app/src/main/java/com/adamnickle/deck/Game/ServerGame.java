@@ -68,6 +68,12 @@ public class ServerGame extends Game
         }
     }
 
+    @Override
+    public Card[] getCards()
+    {
+        return mDeck.getCards();
+    }
+
     /*******************************************************************
      * GameConnectionListener Methods
      *******************************************************************/

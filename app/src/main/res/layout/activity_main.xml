@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="45pt"
+        android:textSize="100sp"
         android:text="Deck"
         android:id="@+id/deckTitle"
         android:layout_alignParentTop="true"

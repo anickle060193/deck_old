@@ -29,8 +29,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 {
     private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
 
-    public static final String FRAGMENT_NAME = BluetoothConnectionFragment.class.getSimpleName();
-
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
     private static final String SERVICE_NAME = "Deck Server";
 

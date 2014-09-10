@@ -59,6 +59,8 @@ public abstract class Game implements GameConnectionListener, GameUiListener
         return keys.toArray( new String[ keys.size() ] );
     }
 
+    public abstract Card[] getCards();
+
     /*******************************************************************
      * GameConnectionListener Methods
      *******************************************************************/

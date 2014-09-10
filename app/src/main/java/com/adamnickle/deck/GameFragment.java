@@ -11,9 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.ClientGame;
@@ -21,7 +18,6 @@ import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.ServerGame;
 import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
 import com.adamnickle.deck.Interfaces.ConnectionListener;
-import com.adamnickle.deck.Interfaces.DrawerActivity;
 import com.adamnickle.deck.Interfaces.GameConnectionInterface;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiInterface;
@@ -36,68 +32,13 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     private GameConnectionListener mGameConnectionListener;
     private ConnectionInterfaceFragment mConnection;
 
-    private ArrayAdapter<String> mActionsArrayAdapter;
-    private ArrayAdapter<String> mNavArrayAdapter;
-
     @Override
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
         setHasOptionsMenu( true );
-
-        mActionsArrayAdapter = new ArrayAdapter< String >( getActivity(), R.layout.drawer_list_item, getResources().getStringArray( R.array.game_server_actions ) );
-        mNavArrayAdapter = new ArrayAdapter< String >( getActivity(), R.layout.drawer_list_item, getResources().getStringArray( R.array.game_client_actions ) );
-
-        DrawerActivity drawerActivity = (DrawerActivity) getActivity();
-
-        drawerActivity.initializeActionDrawer( mActionsArrayAdapter, new DrawerActivity.DrawerOnClickListener()
-        {
-            @Override
-            public void onItemClick( AdapterView< ? > adapterView, View view, int index, long l )
-            {
-                super.onItemClick( adapterView, view, index, l );
-            }
-        } );
-
-        drawerActivity.initializeNavDrawer( mNavArrayAdapter, new DrawerActivity.DrawerOnClickListener()
-        {
-            @Override
-            public void onItemClick( AdapterView< ? > adapterView, View view, int index, long l )
-            {
-                super.onItemClick( adapterView, view, index, l );
-            }
-        } );
-
-        drawerActivity.setDrawerActionListener( mDrawerActionListener );
     }
-
-    private final DrawerActivity.DrawerActionListener mDrawerActionListener = new DrawerActivity.DrawerActionListener()
-    {
-        @Override
-        public void onNavDrawerOpen( ListView navDrawer )
-        {
-
-        }
-
-        @Override
-        public void onNavDrawerClosed( ListView navDrawer )
-        {
-
-        }
-
-        @Override
-        public void onActionDrawerOpen( ListView actionDrawer )
-        {
-
-        }
-
-        @Override
-        public void onActionDrawerClosed( ListView actionDrawer )
-        {
-
-        }
-    };
 
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedStateInstance )
     {

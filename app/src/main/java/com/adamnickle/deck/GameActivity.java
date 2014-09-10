@@ -1,5 +1,6 @@
 package com.adamnickle.deck;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -7,10 +8,9 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
-import com.adamnickle.deck.Interfaces.DrawerActivity;
 
 
-public class GameActivity extends DrawerActivity
+public class GameActivity extends Activity
 {
     private static final String TAG = GameActivity.class.getSimpleName();
 
@@ -42,7 +42,7 @@ public class GameActivity extends DrawerActivity
 
                 getFragmentManager()
                         .beginTransaction()
-                        .replace( R.id.content, gameFragment )
+                        .replace( android.R.id.content, gameFragment )
                         .commit();
             }
             catch( ClassCastException e )

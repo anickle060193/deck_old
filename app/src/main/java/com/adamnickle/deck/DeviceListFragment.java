@@ -18,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Set;
 
@@ -26,6 +25,8 @@ import java.util.Set;
 public class DeviceListFragment extends Fragment
 {
     private static final String TAG = DeviceListFragment.class.getSimpleName();
+
+    private static final int REQUEST_BLUETOOTH_ENABLE = 1;
 
     private View mView;
     private BluetoothAdapter mBluetoothAdapter;
@@ -45,6 +46,13 @@ public class DeviceListFragment extends Fragment
         getActivity().registerReceiver( mReceiver, filter );
 
         getActivity().setResult( Activity.RESULT_CANCELED );
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if( !mBluetoothAdapter.isEnabled() )
+        {
+            Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
+            startActivityForResult( intent, REQUEST_BLUETOOTH_ENABLE );
+        }
     }
 
     @Override
@@ -76,8 +84,6 @@ public class DeviceListFragment extends Fragment
             newDevicesListView.setAdapter( mNewDevicesArrayAdapter );
             newDevicesListView.setOnItemClickListener( mDeviceClickListener );
 
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
             if( !pairedDevices.isEmpty() )
@@ -95,6 +101,22 @@ public class DeviceListFragment extends Fragment
 
         }
         return mView;
+    }
+
+    @Override
+    public void onActivityResult( int requestCode, int resultCode, Intent data )
+    {
+        switch( requestCode )
+        {
+            case REQUEST_BLUETOOTH_ENABLE:
+                if( resultCode != Activity.RESULT_OK )
+                {
+                    Intent intent = new Intent();
+                    intent.putExtra( BluetoothConnectionFragment.EXTRA_NOTIFICATION, "Bluetooth was not enabled" );
+                    getActivity().setResult( BluetoothConnectionFragment.RESULT_FIND_DEVICE_FAIL, intent );
+                    getActivity().finish();
+                }
+        }
     }
 
     @Override
@@ -178,7 +200,9 @@ public class DeviceListFragment extends Fragment
                 final int state = intent.getIntExtra( BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR );
                 if( state == BluetoothAdapter.STATE_OFF )
                 {
-                    Toast.makeText( getActivity(), "Bluetooth has been disabled.", Toast.LENGTH_SHORT ).show();
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra( BluetoothConnectionFragment.EXTRA_NOTIFICATION, "Bluetooth was disabled enabled" );
+                    getActivity().setResult( BluetoothConnectionFragment.RESULT_FIND_DEVICE_FAIL, returnIntent );
                     getActivity().finish();
                 }
             }

@@ -291,7 +291,8 @@ public class GameView extends View implements GameUiInterface
             @Override
             public void run()
             {
-                Toast.makeText( mParentActivity, notification, Toast.LENGTH_LONG ).show();
+                mToast.setText( notification );
+                mToast.show();
             }
         } );
     }

@@ -38,7 +38,11 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     private static final int REQUEST_FIND_DEVICE = 2;
     private static final int REQUEST_MAKE_DISCOVERABLE = 3;
 
+    private static final int DISCOVERABLE_DURATION = 300;
     public static final String EXTRA_DEVICE_ADDRESS = "device_address";
+    public static final String EXTRA_NOTIFICATION = "notification";
+
+    public static final int RESULT_FIND_DEVICE_FAIL = Activity.RESULT_FIRST_USER + 1;
 
     private final BluetoothAdapter mBluetoothAdapter;
     private ConnectionListener mListener;
@@ -97,7 +101,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     }
 
     @Override
-    public void onActivityResult( int requestCode, int resultCode, Intent data )
+    public synchronized void onActivityResult( int requestCode, int resultCode, Intent data )
     {
         Log.d( TAG, "onActivityResult" );
 
@@ -106,6 +110,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             case REQUEST_ENABLE_BLUETOOTH:
                 if( resultCode == Activity.RESULT_OK )
                 {
+                    Log.d( TAG, "ENABLE BLUETOOTH - OK" );
+
                     if( mConnectionType == CONNECTION_TYPE_SERVER )
                     {
                         startConnection();
@@ -120,7 +126,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                 }
                 else
                 {
-                    Log.d( TAG, "Bluetooth not enabled" );
+                    Log.d( TAG, "ENABLE BLUETOOTH - CANCEL" );
+
                     if( mListener != null )
                     {
                         mListener.onNotification( "Bluetooth was not enabled. Bluetooth must be enabled to use application." );
@@ -130,13 +137,16 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                 break;
 
             case REQUEST_MAKE_DISCOVERABLE:
-                if( resultCode == Activity.RESULT_OK )
+                if( resultCode == DISCOVERABLE_DURATION )
                 {
+                    Log.d( TAG, "ENABLE DISCOVERABLE - OK" );
+
                     startConnection();
                 }
                 else
                 {
-                    Log.d( TAG, "Not made discoverable" );
+                    Log.d( TAG, "ENABLE DISCOVERABLE - CANCEL" );
+
                     if( mListener != null )
                     {
                         mListener.onNotification( "Server was not made discoverable. Server closing." );
@@ -304,23 +314,30 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     public synchronized void startConnection()
     {
         Log.d( TAG, "BEGIN startConnection()" );
-        if( !mBluetoothAdapter.isEnabled() )
+        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
-            Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
-            startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
-            return;
+            if( !mBluetoothAdapter.isEnabled() )
+            {
+                Log.d( TAG, "enabling Bluetooth" );
+                Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
+                startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
+                return;
+            }
         }
 
         if( getConnectionType() == CONNECTION_TYPE_SERVER )
         {
             if( mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE )
             {
+                Log.d( TAG, "enabling Discoverable" );
                 Intent discoverableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
-                discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
+                discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_DURATION );
                 startActivityForResult( discoverableIntent, REQUEST_MAKE_DISCOVERABLE );
                 return;
             }
         }
+
+        Log.d( TAG, "STARTING startConnection()" );
 
         if( mConnectThread != null )
         {

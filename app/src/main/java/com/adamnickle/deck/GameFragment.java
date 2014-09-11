@@ -13,22 +13,33 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Game.ClientGame;
-import com.adamnickle.deck.Game.Game;
-import com.adamnickle.deck.Game.ServerGame;
-import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
-import com.adamnickle.deck.Interfaces.ConnectionListener;
-import com.adamnickle.deck.Interfaces.GameConnectionInterface;
+import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiInterface;
+import com.adamnickle.deck.Interfaces.GameUiListener;
 
-public class GameFragment extends Fragment implements ConnectionListener, GameConnectionInterface
+import java.util.HashMap;
+
+public class GameFragment extends Fragment implements GameConnectionListener, GameUiListener
 {
     private int mLastOrientation;
-    private Game mGame;
     private GameView mGameView;
-    private GameConnectionListener mGameConnectionListener;
-    private ConnectionInterfaceFragment mConnection;
+    private GameUiInterface mGameUiInterface;
+    private GameConnection mGameConnection;
+
+    /* Game specific fields */
+    private Player mLocalPlayer;
+    private HashMap<String, Player > mPlayers;
+    private int mCanSendCard;
+
+    public GameFragment()
+    {
+        mLocalPlayer = new Player( mGameConnection.getLocalPlayerID(), mGameConnection.getDefaultLocalPlayerName() );
+        mPlayers = new HashMap< String, Player >();
+        mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
+        mCanSendCard = 0;
+    }
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -43,7 +54,7 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
         if( mGameView == null )
         {
             mGameView = new GameView( getActivity() );
-            mGameView.setGameUiListener( mGame );
+            mGameView.setGameUiListener( this );
 
             mLastOrientation = getResources().getConfiguration().orientation;
         }
@@ -58,7 +69,7 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
                 mLastOrientation = newOrientation;
             }
         }
-        mGame.setGameUiInterface( mGameView );
+        setGameUiInterface( mGameView );
 
         return mGameView;
     }
@@ -68,21 +79,9 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     {
         super.onResume();
 
-        switch( mConnection.getConnectionType() )
+        if( !mGameConnection.isGameStarted() )
         {
-            case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
-                if( mConnection.getState() == ConnectionInterfaceFragment.STATE_NONE )
-                {
-                    mConnection.findServer();
-                }
-                break;
-
-            case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
-                if( mConnection.getState() == ConnectionInterfaceFragment.STATE_NONE )
-                {
-                    mConnection.startConnection();
-                }
-                break;
+            mGameConnection.startGame();
         }
     }
 
@@ -98,23 +97,19 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     {
         super.onPrepareOptionsMenu( menu );
 
-        final int connectionType = mConnection.getConnectionType();
-
-        switch( connectionType )
+        if( mGameConnection.isServer() )
         {
-            case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
-                menu.findItem( R.id.actionDealCards ).setVisible( false );
-                menu.findItem( R.id.actionClearPlayerHands ).setVisible( false );
-                menu.findItem( R.id.actionDealSingleCard ).setVisible( false );
-                menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( false );
-                break;
-
-            case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
-                menu.findItem( R.id.actionDealCards ).setVisible( true );
-                menu.findItem( R.id.actionClearPlayerHands ).setVisible( true );
-                menu.findItem( R.id.actionDealSingleCard ).setVisible( true );
-                menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( true );
-                break;
+            menu.findItem( R.id.actionDealCards ).setVisible( true );
+            menu.findItem( R.id.actionClearPlayerHands ).setVisible( true );
+            menu.findItem( R.id.actionDealSingleCard ).setVisible( true );
+            menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( true );
+        }
+        else
+        {
+            menu.findItem( R.id.actionDealCards ).setVisible( false );
+            menu.findItem( R.id.actionClearPlayerHands ).setVisible( false );
+            menu.findItem( R.id.actionDealSingleCard ).setVisible( false );
+            menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( false );
         }
     }
 
@@ -124,17 +119,32 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
         switch( item.getItemId() )
         {
             case R.id.actionDealCards:
+                if( mGameConnection.isServer() ) //TODO Change to isDealer
+                {
+                    //TODO Deal cards
+                }
                 return true;
 
             case R.id.actionClearPlayerHands:
-                mGame.clearPlayerHands();
+
+                if( mGameConnection.isServer() ) //TODO Change to isDealer
+                {
+                    for( Player player : mPlayers.values() )
+                    {
+                        mGameConnection.clearPlayerHand( mLocalPlayer.getID(), player.getID() );
+                    }
+                }
                 return true;
 
             case R.id.actionDealSingleCard:
+                if( mGameConnection.isServer() ) //TODO Change to isDealer
+                {
+                    //TODO Deal card
+                }
                 return true;
 
             case R.id.actionRequestCardFromPlayer:
-                if( mGame.getPlayerCount() == 0 )
+                if( mPlayers.size() == 0 )
                 {
                     new AlertDialog.Builder( getActivity() )
                             .setTitle( "No Players Connected" )
@@ -144,13 +154,21 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
                 }
                 else
                 {
-                    selectItem( "Select player:", mGame.getPlayerNames(), new DialogInterface.OnClickListener()
+                    final Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
+                    final String[] playerNames = new String[ players.length ];
+                    final String[] playerIDs = new String[ players.length ];
+                    for( int i = 0; i < players.length; i++ )
+                    {
+                        playerNames[ i ] = players[ i ].getName();
+                        playerIDs[ i ] = players[ i ].getID();
+                    }
+                    selectItem( "Select player:", playerNames, new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick( DialogInterface dialogInterface, int index )
                         {
                             //TODO Do something
-                            final String key = mGame.getPlayerIDs()[ index ];
+                            final String playerID = playerIDs[ index ];
                             dialogInterface.dismiss();
                         }
                     } );
@@ -160,14 +178,6 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
             default:
                 return super.onOptionsItemSelected( item );
         }
-    }
-
-    @Override
-    public void onDestroy()
-    {
-        mConnection.stopConnection();
-
-        super.onDestroy();
     }
 
     public void selectItem( String title, Object items[], DialogInterface.OnClickListener listener )
@@ -192,130 +202,77 @@ public class GameFragment extends Fragment implements ConnectionListener, GameCo
     }
 
     /*******************************************************************
-     * ConnectionListener Methods
+     * GameUiListener Methods
      *******************************************************************/
     @Override
-    public void onMessageReceive( String senderID, int bytes, byte[] data )
+    public boolean onAttemptSendCard( Card card )
     {
-        int messageType = (int) data[ 0 ];
-        switch( messageType )
+        if( mCanSendCard > 0 )
         {
-            case GameMessageParser.MESSAGE_CARD:
-                final Card card = GameMessageParser.parseCardMessage( data );
-                mGameConnectionListener.onCardReceive( senderID, card );
-                break;
-
-            case GameMessageParser.MESSAGE_CARD_SEND_REQUEST:
-                mGameConnectionListener.onCardSendRequested( senderID ); //TODO Add something about valid cards
-                break;
-
-            case GameMessageParser.MESSAGE_PLAYER_NAME:
-                final String name = GameMessageParser.parsePlayerNameMessage( data );
-                mGameConnectionListener.onReceivePlayerName( senderID, name );
-                break;
-
-            case GameMessageParser.MESSAGE_CLEAR_HAND:
-                mGameConnectionListener.onClearPlayerHand( senderID );
-                break;
+            mGameConnection.sendCard( mLocalPlayer.getID(), GameConnection.MOCK_SERVER_ADDRESS, card );
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
     @Override
-    public void onDeviceConnect( String deviceID, String deviceName )
+    public void setGameUiInterface( GameUiInterface gameUiInterface )
     {
-        mGameConnectionListener.onPlayerConnect( deviceID, deviceName );
+        mGameUiInterface = gameUiInterface;
+    }
+
+    /*******************************************************************
+     * GameConnectionListener Methods
+     *******************************************************************/
+    @Override
+    public void setGameConnection( GameConnection gameConnection )
+    {
+        mGameConnection = gameConnection;
+    }
+
+    @Override
+    public void onPlayerConnect( Player newPlayer )
+    {
+        mPlayers.put( newPlayer.getID(), newPlayer );
+    }
+
+    @Override
+    public void onPlayerDisconnect( String playerID )
+    {
+        mPlayers.remove( playerID );
     }
 
     @Override
     public void onNotification( String notification )
     {
-        mGameConnectionListener.onNotification( notification );
+        mGameUiInterface.displayNotification( notification );
     }
 
     @Override
     public void onConnectionStateChange( int newState )
     {
-        mGameConnectionListener.onConnectionStateChange( newState );
         getActivity().invalidateOptionsMenu();
     }
 
     @Override
-    public void onConnectionLost( String deviceID )
+    public void onCardReceive( String senderID, String receiverID, Card card )
     {
-        mGameConnectionListener.onPlayerDisconnect( deviceID );
-        if( mConnection.getConnectionType() == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
-        {
-            getActivity().finish();
-        }
+        mLocalPlayer.addCard( card );
+        mGameUiInterface.addCard( card ); //TODO Switch to passing in local player to GameView
     }
 
     @Override
-    public void onConnectionFailed()
+    public void onCardRequested( String requesterID, String requesteeID )
     {
-        mGameConnectionListener.onNotification( "Connection failed." );
-        if( mConnection.getConnectionType() == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
-        {
-            mConnection.findServer();
-        }
-    }
-
-    /*******************************************************************
-     * GameConnectionInterface Methods
-     *******************************************************************/
-    @Override
-    public void setConnectionType( int connectionType )
-    {
-        if( connectionType != mConnection.getConnectionType() )
-        {
-            if( connectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
-            {
-                mGame = new ClientGame( getActivity(), this );
-                mConnection.setConnectionType( ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT );
-            }
-            else if( connectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER )
-            {
-                mGame = new ServerGame( getActivity(), this );
-                mConnection.setConnectionType( ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER );
-            }
-
-            mGame.setGameUiInterface( (GameUiInterface) getView() );
-            mGameConnectionListener = mGame;
-        }
+        mCanSendCard++;
     }
 
     @Override
-    public void setConnectionInterface( ConnectionInterfaceFragment connectionInterfaceFragment )
+    public void onClearPlayerHand( String commanderID, String commandeeID )
     {
-        mConnection = connectionInterfaceFragment;
-    }
-
-    @Override
-    public void sendCard( String toDeviceID, Card card )
-    {
-        mConnection.sendDataToDevice( toDeviceID, GameMessageParser.createCardMessage( card ) );
-    }
-
-    @Override
-    public void requestCard( String fromDeviceID )
-    {
-        mConnection.sendDataToDevice( fromDeviceID, GameMessageParser.createCardRequestMessage() );
-    }
-
-    @Override
-    public void clearPlayerHand( String deviceID )
-    {
-        mConnection.sendDataToDevice( deviceID, GameMessageParser.createClearHandMessage() );
-    }
-
-    @Override
-    public String getDefaultLocalPlayerID()
-    {
-        return mConnection.getDefaultLocalDeviceID();
-    }
-
-    @Override
-    public String getDefaultLocalPlayerName()
-    {
-        return mConnection.getDefaultLocalDeviceName();
+        mLocalPlayer.clearHand();
     }
 }

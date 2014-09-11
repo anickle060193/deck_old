@@ -264,10 +264,13 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         if( mConnectionType != connectionType )
         {
+            //TODO See if this can stay commented out
+            /*
             if( connectionType != CONNECTION_TYPE_NONE )
             {
                 stopConnection();
             }
+            */
             mConnectionType = connectionType;
         }
     }
@@ -298,7 +301,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     }
 
     @Override
-    public String getDefaultLocalDeviceID()
+    public String getLocalDeviceID()
     {
         return mBluetoothAdapter.getAddress();
     }

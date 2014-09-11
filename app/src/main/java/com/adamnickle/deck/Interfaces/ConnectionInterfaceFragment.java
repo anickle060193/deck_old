@@ -8,6 +8,8 @@ public abstract class ConnectionInterfaceFragment extends Fragment
     public static final String EXTRA_CONNECTION_TYPE = "EXTRA_CONNECTION_TYPE";
     public static final String EXTRA_CONNECTION_CLASS_NAME = "EXTRA_CONNECTION_CLASS_NAME";
 
+    public static final int DEVICE_ID_LENGTH = 20;
+
     public static final int CONNECTION_TYPE_NONE = 0;
     public static final int CONNECTION_TYPE_SERVER = 1;
     public static final int CONNECTION_TYPE_CLIENT = 2;
@@ -21,7 +23,7 @@ public abstract class ConnectionInterfaceFragment extends Fragment
     public abstract void setConnectionListener( ConnectionListener connectionListener );
     public abstract void sendDataToDevice( String deviceID, byte[] data );
     public abstract boolean isConnected();
-    public abstract String getDefaultLocalDeviceID();
+    public abstract String getLocalDeviceID();
     public abstract String getDefaultLocalDeviceName();
     public abstract void setConnectionType( int connectionType );
     public abstract int getConnectionType();

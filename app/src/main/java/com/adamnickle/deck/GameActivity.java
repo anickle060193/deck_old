@@ -7,14 +7,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 
+import com.adamnickle.deck.Game.ClientGameConnection;
+import com.adamnickle.deck.Game.ServerGameConnection;
 import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.GameConnection;
 
 
 public class GameActivity extends Activity
 {
-    private static final String TAG = GameActivity.class.getSimpleName();
-
-    private ConnectionInterfaceFragment mGameConnection;
+    private ConnectionInterfaceFragment mConnection;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -29,16 +30,30 @@ public class GameActivity extends Activity
             final String className = intent.getStringExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME );
             try
             {
-                mGameConnection = (ConnectionInterfaceFragment)Class.forName( className ).newInstance();
+                mConnection = (ConnectionInterfaceFragment)Class.forName( className ).newInstance();
+                mConnection.setConnectionType( connectionType );
+
                 getFragmentManager()
                         .beginTransaction()
-                        .add( mGameConnection, mGameConnection.getClass().getName() )
+                        .add( mConnection, mConnection.getClass().getName() )
                         .commit();
 
                 final GameFragment gameFragment = new GameFragment();
-                gameFragment.setConnectionInterface( mGameConnection );
-                gameFragment.setConnectionType( connectionType );
-                mGameConnection.setConnectionListener( gameFragment );
+
+                GameConnection gameConnection = null;
+                switch( connectionType )
+                {
+                    case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
+                        gameConnection = new ClientGameConnection( mConnection, gameFragment );
+                        break;
+
+                    case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
+                        gameConnection = new ServerGameConnection( mConnection, gameFragment );
+                        break;
+                }
+                mConnection.setConnectionListener( gameConnection );
+
+                gameFragment.setGameConnection( gameConnection );
 
                 getFragmentManager()
                         .beginTransaction()
@@ -68,7 +83,7 @@ public class GameActivity extends Activity
     public void onBackPressed()
     {
         String message = null;
-        switch( mGameConnection.getConnectionType() )
+        switch( mConnection.getConnectionType() )
         {
             case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
                 message = "Close current Game? This will disconnect you from server.";

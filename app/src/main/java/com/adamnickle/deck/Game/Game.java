@@ -63,9 +63,9 @@ public abstract class Game implements GameConnectionListener, GameUiListener
 
     /*******************************************************************
      * GameConnectionListener Methods
-     *******************************************************************/
+     ******************************************************************/
     @Override
-    public abstract void onPlayerConnect( String deviceID, String deviceName );
+    public abstract void onPlayerConnect( Player newPlayer );
 
     @Override
     public abstract void onPlayerDisconnect( String playerID );
@@ -83,10 +83,10 @@ public abstract class Game implements GameConnectionListener, GameUiListener
     public abstract void onConnectionStateChange( int newState );
 
     @Override
-    public abstract void onCardReceive( String senderID, Card card );
+    public abstract void onCardReceive( String senderID, String receiverID, Card card );
 
     @Override
-    public abstract void onCardSendRequested( String requesterID );
+    public abstract void onCardRequested( String requesterID, String requesteeID );
 
     /*******************************************************************
      * GameUiListener Methods

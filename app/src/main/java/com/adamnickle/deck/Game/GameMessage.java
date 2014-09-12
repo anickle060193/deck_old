@@ -16,6 +16,8 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         MESSAGE_CARD_REQUEST,
         MESSAGE_CLEAR_HAND,
         MESSAGE_NEW_PLAYER,
+        MESSAGE_PLAYER_LEFT,
+        MESSAGE_SET_DEALER,
     }
 
     protected enum Key
@@ -25,6 +27,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         RECEIVER_ID,
         CARD_NUMBER,
         PLAYER_NAME,
+        IS_DEALER,
     }
 
     public GameMessage( MessageType messageType, String originalSenderID, String receiverID )
@@ -109,5 +112,15 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
     public void putName( String name )
     {
         super.put( Key.PLAYER_NAME, name );
+    }
+
+    public boolean getIsDealer()
+    {
+        return (Boolean) super.get( Key.IS_DEALER );
+    }
+
+    public void setIsDealer( boolean isDealer )
+    {
+        super.put( Key.IS_DEALER, isDealer );
     }
 }

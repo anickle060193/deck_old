@@ -264,13 +264,13 @@ public class GameView extends View implements GameUiInterface
     };
 
     @Override
-    public void addCard( Card card )
+    public void addCardDrawable( Card card )
     {
         mCardDrawables.addFirst( new CardDrawable( this, getResources(), card, getWidth() / 2, getHeight() / 2, CARD_WIDTH, CARD_HEIGHT, true ) );
     }
 
     @Override
-    public boolean removeCard( Card card )
+    public boolean removeCardDrawable( Card card )
     {
         for( CardDrawable cardDrawable : mCardDrawables )
         {

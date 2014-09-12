@@ -31,24 +31,19 @@ public class Player
         mName = name;
     }
 
-    public boolean hasCards()
+    public boolean hasCard( Card card )
     {
-        return getCardCount() > 0;
+        return mHand.contains( card );
     }
 
-    public int getCardCount()
+    public void removeCard( Card card )
     {
-        return mHand.size();
+        mHand.remove( card );
     }
 
     public void addCard( Card card )
     {
         mHand.add( card );
-    }
-
-    public Card[] getAllCards()
-    {
-        return mHand.toArray( new Card[ mHand.size() ] );
     }
 
     public void clearHand()

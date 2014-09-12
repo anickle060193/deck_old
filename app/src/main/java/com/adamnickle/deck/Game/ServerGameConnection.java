@@ -44,13 +44,32 @@ public class ServerGameConnection extends GameConnection
     @Override
     public void onDeviceConnect( String deviceID, String deviceName )
     {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_NEW_PLAYER, MOCK_SERVER_ADDRESS, null );
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_NEW_PLAYER, deviceID, null );
+        message.putName( deviceName );
         for( String ID : mDeviceIDs )
         {
             message.setReceiverID( ID );
             mConnection.sendDataToDevice( ID, GameMessage.serializeMessage( message ) );
         }
+        message.setReceiverID( getLocalPlayerID() );
+        final byte data[] = GameMessage.serializeMessage( message );
+        this.onMessageReceive( deviceID, data.length, data );
         mDeviceIDs.add( deviceID );
+    }
+
+    @Override
+    public void onConnectionLost( String deviceID )
+    {
+        mDeviceIDs.remove( deviceID );
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_PLAYER_LEFT, deviceID, null );
+        for( String ID : mDeviceIDs )
+        {
+            message.setReceiverID( ID );
+            mConnection.sendDataToDevice( ID, GameMessage.serializeMessage( message ) );
+        }
+        message.setReceiverID( getLocalPlayerID() );
+        final byte data[] = GameMessage.serializeMessage( message );
+        this.onMessageReceive( deviceID, data.length, data );
     }
 
     /*******************************************************************

@@ -31,13 +31,6 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
         return mConnection.getState() != ConnectionInterfaceFragment.STATE_NONE;
     }
 
-    /*
-    public void setConnectionInterface( ConnectionInterfaceFragment connectionInterfaceFragment )
-    {
-        mConnection = connectionInterfaceFragment;
-    }
-    */
-
     public String getLocalPlayerID()
     {
         return mConnection.getLocalDeviceID();
@@ -65,6 +58,10 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
                 mListener.onPlayerConnect( player );
                 break;
 
+            case MESSAGE_PLAYER_LEFT:
+                mListener.onPlayerDisconnect( originalSenderID );
+                break;
+
             case MESSAGE_CARD:
                 final Card card = message.getCard();
                 mListener.onCardReceive( originalSenderID, receiverID, card );
@@ -77,6 +74,10 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
             case MESSAGE_CLEAR_HAND:
                 mListener.onClearPlayerHand( originalSenderID, receiverID );
                 break;
+
+            case MESSAGE_SET_DEALER:
+                final boolean isDealer = message.getIsDealer();
+                mListener.onSetDealer( originalSenderID, receiverID, isDealer );
         }
     }
 
@@ -90,12 +91,6 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
     public void onConnectionStateChange( int newState )
     {
         mListener.onConnectionStateChange( newState );
-    }
-
-    @Override
-    public void onConnectionLost( String deviceID )
-    {
-        mListener.onPlayerDisconnect( deviceID );
     }
 
     @Override

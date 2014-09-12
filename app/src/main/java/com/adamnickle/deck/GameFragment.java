@@ -35,9 +35,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     public GameFragment()
     {
-        mLocalPlayer = new Player( mGameConnection.getLocalPlayerID(), mGameConnection.getDefaultLocalPlayerName() );
         mPlayers = new HashMap< String, Player >();
-        mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
         mCanSendCard = 0;
     }
 
@@ -69,7 +67,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 mLastOrientation = newOrientation;
             }
         }
-        setGameUiInterface( mGameView );
+        this.setGameUiInterface( mGameView );
 
         return mGameView;
     }
@@ -231,24 +229,37 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     public void setGameConnection( GameConnection gameConnection )
     {
         mGameConnection = gameConnection;
+        mLocalPlayer = new Player( mGameConnection.getLocalPlayerID(), mGameConnection.getDefaultLocalPlayerName() );
+        mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
     }
 
     @Override
     public void onPlayerConnect( Player newPlayer )
     {
         mPlayers.put( newPlayer.getID(), newPlayer );
+        if( mGameUiInterface != null )
+        {
+            mGameUiInterface.displayNotification( newPlayer.getName() + " joined game." );
+        }
     }
 
     @Override
     public void onPlayerDisconnect( String playerID )
     {
-        mPlayers.remove( playerID );
+        Player player = mPlayers.remove( playerID );
+        if( mGameUiInterface != null )
+        {
+            mGameUiInterface.displayNotification( player.getName() + " left game." );
+        }
     }
 
     @Override
     public void onNotification( String notification )
     {
-        mGameUiInterface.displayNotification( notification );
+        if( mGameUiInterface != null )
+        {
+            mGameUiInterface.displayNotification( notification );
+        }
     }
 
     @Override

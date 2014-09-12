@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 public class GameMessage extends HashMap<GameMessage.Key, Object>
@@ -33,18 +32,6 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         put( Key.MESSAGE_TYPE, messageType );
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
-    }
-
-    @Override
-    public Object get( Object key )
-    {
-        throw new InvalidParameterException( "Do not use HashMap get(). Use predefined get<Object>() methods." );
-    }
-
-    @Override
-    public Object put( Key key, Object value )
-    {
-        throw new InvalidParameterException( "Do not use HashMap put(). Use predefined put<Object>() methods." );
     }
 
     public static byte[] serializeMessage( GameMessage gameMessage )

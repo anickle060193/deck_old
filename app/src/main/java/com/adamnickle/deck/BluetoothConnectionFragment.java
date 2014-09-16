@@ -516,11 +516,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         mConnectedThreads.add( connectedThread );
         connectedThread.start();
 
-        if( mListener != null )
-        {
-            mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
-        }
-
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
             setState( STATE_CONNECTED );
@@ -528,6 +523,11 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         else
         {
             setState( STATE_CONNECTED_LISTENING );
+        }
+
+        if( mListener != null )
+        {
+            mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
         }
     }
 

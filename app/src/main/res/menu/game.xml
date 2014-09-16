@@ -4,6 +4,11 @@
       xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/setDealer"
+        android:title="@string/actionSetDealerText"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/actionDealCards"
         android:title="@string/actionDealCardsText"
         app:showAsAction="never" />

@@ -91,4 +91,21 @@ public class ClientGameConnection extends GameConnection
             mConnection.sendDataToDevice( mActualServerAddress, data );
         }
     }
+
+    @Override
+    public void setDealer( String setterID, String setteeID, boolean isDealer )
+    {
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_DEALER, setterID, setteeID );
+        message.putIsDealer( isDealer );
+        final byte[] data = GameMessage.serializeMessage( message );
+
+        if( setteeID.equals( getLocalPlayerID() ) )
+        {
+            this.onMessageReceive( setterID, data.length, data );
+        }
+        else
+        {
+            mConnection.sendDataToDevice( setteeID, data );
+        }
+    }
 }

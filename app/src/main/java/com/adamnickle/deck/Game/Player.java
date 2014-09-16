@@ -1,29 +1,18 @@
 package com.adamnickle.deck.Game;
 
+import com.adamnickle.deck.Connector;
+
 import java.util.ArrayList;
 
 
-public class Player
+public class Player extends Connector
 {
-    private String mName;
-    private final String mDeviceID;
     private final ArrayList<Card> mHand;
 
     public Player( String deviceID, String name )
     {
-        mName = name;
-        mDeviceID = deviceID;
+        super( deviceID, name );
         mHand = new ArrayList< Card >();
-    }
-
-    public String getID()
-    {
-        return mDeviceID;
-    }
-
-    public String getName()
-    {
-        return mName;
     }
 
     public void setName( String name )
@@ -49,5 +38,11 @@ public class Player
     public void clearHand()
     {
         mHand.clear();
+    }
+
+    @Override
+    public String toString()
+    {
+        return mName;
     }
 }

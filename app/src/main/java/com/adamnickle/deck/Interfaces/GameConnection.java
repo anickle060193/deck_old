@@ -54,7 +54,8 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
         switch( message.getMessageType() )
         {
             case MESSAGE_NEW_PLAYER:
-                final Player player = new Player( originalSenderID, message.getPlayerName() );
+                final String name = message.getPlayerName();
+                final Player player = new Player( originalSenderID, name );
                 mListener.onPlayerConnect( player );
                 break;
 
@@ -78,6 +79,10 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
             case MESSAGE_SET_DEALER:
                 final boolean isDealer = message.getIsDealer();
                 mListener.onSetDealer( originalSenderID, receiverID, isDealer );
+
+            case MESSAGE_CURRENT_PLAYERS:
+                final Player[] players = message.getCurrentPlayers();
+                mListener.onReceiverCurrentPlayers( originalSenderID, receiverID, players );
         }
     }
 
@@ -106,4 +111,5 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
     public abstract void requestCard( String requesterID, String requesteeID );
     public abstract void sendCard( String senderID, String receiverID, Card card );
     public abstract void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID );
+    public abstract void setDealer( String setterID, String setteeID, boolean isDealer );
 }

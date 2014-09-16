@@ -16,9 +16,6 @@ public class CardDrawable extends Drawable
 {
     private static final String TAG = "CardDrawable";
 
-    public static final int DEFAULT_WIDTH = 598;
-    public static final int DEFAULT_HEIGHT = 834;
-
     private static final float TIME_CONVERT = 1000.0f;
     private static final float DECELERATION_RATE = 0.99f;
     private static final float THRESHOLD_VELOCITY = 45.0f;
@@ -42,7 +39,7 @@ public class CardDrawable extends Drawable
     private long mLastUpdate;
     private boolean mCanCardsLeave;
 
-    public CardDrawable( final View view, final Resources resources, final Card card, final int x, final int y, final int reqWidth, final int reqHeight, final boolean forceSize )
+    public CardDrawable( final View view, final Resources resources, final Card card, final int x, final int y )
     {
         mIsBitmapLoaded = false;
         mCard = card;
@@ -60,36 +57,8 @@ public class CardDrawable extends Drawable
                 final BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeResource( resources, card.getResource(), options );
-
-                final int width = options.outWidth;
-                final int height = options.outHeight;
-                int inSampleSize = 1;
-
-                if( height > reqHeight || width > reqWidth )
-                {
-                    final int halfWidth = width / 2;
-                    final int halfHeight = height / 2;
-
-                    while( ( halfHeight / inSampleSize ) > reqHeight
-                            && ( halfWidth / inSampleSize ) > reqWidth )
-                    {
-                        inSampleSize *= 2;
-                    }
-                }
-
-                options.inSampleSize = inSampleSize;
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeResource( resources, card.getResource(), options );
-                if( forceSize )
-                {
-                    mWidth = reqWidth;
-                    mHeight = reqHeight;
-                }
-                else
-                {
-                    mWidth = options.outWidth;
-                    mHeight = options.outHeight;
-                }
+                mWidth = options.outWidth;
+                mHeight = options.outHeight;
 
                 options.inJustDecodeBounds = false;
                 mBitmap = BitmapFactory.decodeResource( resources, card.getResource(), options );
@@ -98,16 +67,6 @@ public class CardDrawable extends Drawable
                 mIsBitmapLoaded = true;
             }
         }.start();
-    }
-
-    public CardDrawable( View view, Resources resources, Card card, int x, int y, int reqWidth, int reqHeight )
-    {
-        this( view, resources, card, x, y, reqWidth, reqHeight, false );
-    }
-
-    public CardDrawable( View view, Resources resources, Card card, int x, int y )
-    {
-        this( view, resources, card, x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT );
     }
 
     public Card getCard()

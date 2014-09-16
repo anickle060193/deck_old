@@ -28,9 +28,6 @@ public class GameView extends View implements GameUiInterface
 {
     private static final String TAG = "GameView";
 
-    private static final int CARD_WIDTH = (int)( CardDrawable.DEFAULT_WIDTH / 2.0f );
-    private static final int CARD_HEIGHT = (int)( CardDrawable.DEFAULT_HEIGHT / 2.0f );
-
     private static final float MINIMUM_VELOCITY = 400.0f;
 
     private GestureDetectorCompat mDetector;
@@ -53,6 +50,11 @@ public class GameView extends View implements GameUiInterface
         mMovingCardDrawables = new SparseArray< CardDrawable >();
 
         mToast = Toast.makeText( activity, "", Toast.LENGTH_SHORT );
+
+        for( int i = 0; i < 10; i++ )
+        {
+            mCardDrawables.add( new CardDrawable( this, getResources(), new Card( i ), 100, 100 ) );
+        }
     }
 
     public void setGameUiListener( GameUiListener gameUiListener )
@@ -266,7 +268,7 @@ public class GameView extends View implements GameUiInterface
     @Override
     public void addCardDrawable( Card card )
     {
-        mCardDrawables.addFirst( new CardDrawable( this, getResources(), card, getWidth() / 2, getHeight() / 2, CARD_WIDTH, CARD_HEIGHT, true ) );
+        mCardDrawables.addFirst( new CardDrawable( this, getResources(), card, getWidth() / 2, getHeight() / 2 ) );
     }
 
     @Override

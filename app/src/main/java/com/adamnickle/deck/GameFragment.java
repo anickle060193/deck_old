@@ -118,15 +118,32 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         switch( item.getItemId() )
         {
+            case R.id.setDealer:
+            {
+                final Player players[] = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
+                selectItem( "Select dealer:", players, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int i )
+                    {
+                        Player newDealer = players[ i ];
+                        mGameConnection.setDealer( mLocalPlayer.getID(), newDealer.getID(), true );
+                    }
+                } );
+                return true;
+            }
+
             case R.id.actionDealCards:
+            {
                 if( mIsDealer )
                 {
                     //TODO Deal cards
                 }
                 return true;
+            }
 
             case R.id.actionClearPlayerHands:
-
+            {
                 if( mIsDealer )
                 {
                     for( Player player : mPlayers.values() )
@@ -135,15 +152,19 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     }
                 }
                 return true;
+            }
 
             case R.id.actionDealSingleCard:
+            {
                 if( mIsDealer )
                 {
                     //TODO Deal card
                 }
                 return true;
+            }
 
             case R.id.actionRequestCardFromPlayer:
+            {
                 if( mPlayers.size() == 0 )
                 {
                     new AlertDialog.Builder( getActivity() )
@@ -151,8 +172,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                             .setMessage( "There are not players connected to the current game to select from." )
                             .setPositiveButton( "OK", null )
                             .show();
-                }
-                else
+                } else
                 {
                     final Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
                     final String[] playerNames = new String[ players.length ];
@@ -174,6 +194,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     } );
                 }
                 return true;
+            }
 
             default:
                 return super.onOptionsItemSelected( item );
@@ -296,7 +317,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mLocalPlayer.addCard( card );
         if( mGameUiInterface != null )
         {
-            mGameUiInterface.addCardDrawable( card ); //TODO Switch to passing in local player to GameView
+            mGameUiInterface.addCardDrawable( card );
         }
     }
 
@@ -326,7 +347,25 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mIsDealer = isDealer;
         if( mGameUiInterface != null )
         {
-            mGameUiInterface.displayNotification( mPlayers.get( setterID ).getName() + " cleared your hand" );
+            String notification;
+            if( mIsDealer )
+            {
+                notification = mPlayers.get( setterID ).getName() + " made you dealer.";
+            }
+            else
+            {
+                notification = mPlayers.get( setterID ).getName() + " unmade you dealer";
+            }
+            mGameUiInterface.displayNotification( notification );
+        }
+    }
+
+    @Override
+    public void onReceiverCurrentPlayers( String senderID, String receiverID, Player[] players )
+    {
+        for( Player player : players )
+        {
+            mPlayers.put( player.getID(), player );
         }
     }
 }

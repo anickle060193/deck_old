@@ -17,4 +17,5 @@ public interface GameConnectionListener
     public void onCardRequested( String requesterID, String requesteeID );
     public void onClearPlayerHand( String commanderID, String commandeeID );
     public void onSetDealer( String setterID, String setID, boolean isDealer );
+    public void onReceiverCurrentPlayers( String senderID, String receiverID, Player[] players );
 }

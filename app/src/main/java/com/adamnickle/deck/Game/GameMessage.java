@@ -1,6 +1,8 @@
 package com.adamnickle.deck.Game;
 
 
+import com.adamnickle.deck.Connector;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +20,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         MESSAGE_NEW_PLAYER,
         MESSAGE_PLAYER_LEFT,
         MESSAGE_SET_DEALER,
+        MESSAGE_CURRENT_PLAYERS,
     }
 
     protected enum Key
@@ -28,6 +31,8 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         CARD_NUMBER,
         PLAYER_NAME,
         IS_DEALER,
+        CURRENT_PLAYER_IDS,
+        CURRENT_PLAYER_NAMES,
     }
 
     public GameMessage( MessageType messageType, String originalSenderID, String receiverID )
@@ -119,8 +124,34 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         return (Boolean) super.get( Key.IS_DEALER );
     }
 
-    public void setIsDealer( boolean isDealer )
+    public void putIsDealer( boolean isDealer )
     {
         super.put( Key.IS_DEALER, isDealer );
+    }
+
+    public Player[] getCurrentPlayers()
+    {
+        final String[] playerIDs = (String[]) super.get( Key.CURRENT_PLAYER_IDS );
+        final String[] playerNames = (String[]) super.get( Key.CURRENT_PLAYER_NAMES );
+        final Player[] players = new Player[ playerIDs.length ];
+        for( int i = 0; i < playerIDs.length; i++ )
+        {
+            players[ i ] = new Player( playerIDs[ i ], playerNames[ i ] );
+        }
+        return players;
+    }
+
+    public void putCurrentPlayers( Connector[] players )
+    {
+        final String[] playerIDs = new String[ players.length ];
+        final String[] playerNames = new String[ players.length ];
+        for( int i = 0; i < players.length; i++ )
+        {
+            playerIDs[ i ] = players[ i ].getID();
+            playerNames[ i ] = players[ i ].getName();
+        }
+
+        super.put( Key.CURRENT_PLAYER_IDS, playerIDs );
+        super.put( Key.CURRENT_PLAYER_NAMES, playerNames );
     }
 }

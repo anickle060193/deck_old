@@ -20,8 +20,8 @@ public class GameActivity extends Activity
     @Override
     public void onCreate( Bundle savedInstanceState )
     {
-        requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         super.onCreate( savedInstanceState );
+        requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
 
         if( savedInstanceState == null )
         {

@@ -40,6 +40,11 @@ public class Player extends Connector
         mHand.clear();
     }
 
+    public Card[] getCards()
+    {
+        return mHand.toArray( new Card[ mHand.size() ] );
+    }
+
     @Override
     public String toString()
     {

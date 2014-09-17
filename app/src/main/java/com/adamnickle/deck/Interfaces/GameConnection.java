@@ -79,10 +79,12 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
             case MESSAGE_SET_DEALER:
                 final boolean isDealer = message.getIsDealer();
                 mListener.onSetDealer( originalSenderID, receiverID, isDealer );
+                break;
 
             case MESSAGE_CURRENT_PLAYERS:
                 final Player[] players = message.getCurrentPlayers();
                 mListener.onReceiverCurrentPlayers( originalSenderID, receiverID, players );
+                break;
         }
     }
 

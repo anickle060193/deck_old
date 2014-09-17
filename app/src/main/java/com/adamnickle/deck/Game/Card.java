@@ -5,9 +5,7 @@ import com.adamnickle.deck.CardResources;
 import java.security.InvalidParameterException;
 import java.util.Comparator;
 
-/**
- * Created by Adam on 8/18/2014.
- */
+
 public class Card
 {
     private int mCardNumber;
@@ -78,19 +76,31 @@ public class Card
     }
 
     @Override
-    public boolean equals( Object obj )
+    public boolean equals( Object o )
     {
-        if( this == obj )
+        if( this == o )
         {
             return true;
         }
 
-        if( !(obj instanceof Card ) )
+        if( o == null || getClass() != o.getClass() )
         {
             return false;
         }
 
-        if( this.mCardNumber != ( (Card) obj ).mCardNumber )
+        Card card = (Card) o;
+
+        if( mCardNumber != card.mCardNumber )
+        {
+            return false;
+        }
+
+        if( mRank != card.mRank )
+        {
+            return false;
+        }
+
+        if( mSuit != card.mSuit )
         {
             return false;
         }

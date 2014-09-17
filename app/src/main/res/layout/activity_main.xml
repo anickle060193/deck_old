@@ -16,9 +16,8 @@
         android:textSize="100sp"
         android:text="Deck"
         android:id="@+id/deckTitle"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"/>
+        android:layout_above="@+id/startGameButton"
+        android:layout_centerHorizontal="true"/>
 
     <Button
         android:layout_width="wrap_content"

@@ -15,6 +15,12 @@ public class CardCollection
     public CardCollection()
     {
         mCards = new ArrayList< Card >( Deck.CARD_COUNT );
+        resetCards();
+    }
+
+    public void resetCards()
+    {
+        mCards.clear();
         for( int i = 0; i < Deck.CARD_COUNT; i++ )
         {
             mCards.add( new Card( i ) );
@@ -39,6 +45,11 @@ public class CardCollection
             return true;
         }
         return false;
+    }
+
+    public Card removeTopCard()
+    {
+        return removeCard( 0 );
     }
 
     public boolean removeCard( Card card )

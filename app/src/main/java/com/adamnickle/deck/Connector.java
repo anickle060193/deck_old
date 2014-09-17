@@ -21,4 +21,31 @@ public class Connector
     {
         return mName;
     }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if( this == o )
+        {
+            return true;
+        }
+        if( o == null || getClass() != o.getClass() )
+        {
+            return false;
+        }
+
+        Connector connector = (Connector) o;
+
+        if( mID != null ? !mID.equals( connector.mID ) : connector.mID != null )
+        {
+            return false;
+        }
+
+        if( mName != null ? !mName.equals( connector.mName ) : connector.mName != null )
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -7,5 +7,5 @@ public interface GameUiListener
 {
     public boolean onAttemptSendCard( Card card );
     public boolean canSendCard();
-    public void setGameUiInterface( GameUiInterfaceView gameUiInterfaceView );
+    public void setGameUiInterface( GameUiView gameUiView );
 }

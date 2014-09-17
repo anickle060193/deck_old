@@ -28,5 +28,8 @@
     <string name="drawer_open">Drawer Open</string>
     <string name="drawer_closed">Drawer Closed</string>
     <string name="actionSetDealerText">Set Dealer</string>
+    <string name="actionShuffleCardsText">Shuffle Cards</string>
+    <string name="subMenuConnectionText">Connection</string>
+    <string name="subMenuGameText">Game</string>
 
 </resources>

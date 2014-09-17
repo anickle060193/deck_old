@@ -66,6 +66,7 @@ public class ServerGameConnection extends GameConnection
         message.setReceiverID( getLocalPlayerID() );
         final byte data[] = GameMessage.serializeMessage( message );
         this.onMessageReceive( deviceID, data.length, data );
+
         mConnectors.add( new Connector( deviceID, deviceName ) );
     }
 
@@ -110,6 +111,10 @@ public class ServerGameConnection extends GameConnection
         {
             this.onMessageReceive( requesterID, data.length, data );
         }
+        else if( requesteeID.equals( getLocalPlayerID() ) )
+        {
+            mListener.onCardRequested( requesterID, requesteeID );
+        }
         else
         {
             mConnection.sendDataToDevice( requesteeID, data );
@@ -126,6 +131,10 @@ public class ServerGameConnection extends GameConnection
         if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
         {
             this.onMessageReceive( senderID, data.length, data );
+        }
+        else if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            mListener.onCardReceive( senderID, receiverID, card );
         }
         else
         {
@@ -144,6 +153,10 @@ public class ServerGameConnection extends GameConnection
             //TODO Local player is telling server to clear hand
             this.onMessageReceive( commandingDeviceID, data.length, data );
         }
+        else if( toBeClearedDeviceID.equals( getLocalPlayerID() ) )
+        {
+            mListener.onClearPlayerHand( commandingDeviceID, toBeClearedDeviceID );
+        }
         else
         {
             mConnection.sendDataToDevice( toBeClearedDeviceID, data );
@@ -160,6 +173,10 @@ public class ServerGameConnection extends GameConnection
         if( setteeID.equals( MOCK_SERVER_ADDRESS ) )
         {
             //TODO Local player set server as dealer
+        }
+        else if( setteeID.equals( getLocalPlayerID() ) )
+        {
+            mListener.onSetDealer( setterID, setteeID, isDealer );
         }
         else
         {

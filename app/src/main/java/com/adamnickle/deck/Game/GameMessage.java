@@ -42,6 +42,11 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         put( Key.RECEIVER_ID, receiverID );
     }
 
+    public byte[] serializeMessage()
+    {
+        return serializeMessage( this );
+    }
+
     public static byte[] serializeMessage( GameMessage gameMessage )
     {
         byte[] data = null;

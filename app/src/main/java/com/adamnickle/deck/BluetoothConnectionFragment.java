@@ -786,14 +786,14 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         {
             Log.d( TAG, "BEGIN ConnectedThread" );
 
-            byte[] buffer = new byte[ 1024 ];
+            byte[] buffer = new byte[ 8192 ];
             int bytes;
 
             while( true )
             {
                 try
                 {
-                    bytes = mInputStream.read( buffer );
+                    bytes = mInputStream.read( buffer, 0, mInputStream.available() );
                     if( bytes > 0 )
                     {
                         if( mListener != null )

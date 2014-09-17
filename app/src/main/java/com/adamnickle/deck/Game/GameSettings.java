@@ -3,9 +3,7 @@ package com.adamnickle.deck.Game;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by Adam on 8/19/2014.
- */
+
 public class GameSettings implements Parcelable
 {
     public String GameName;

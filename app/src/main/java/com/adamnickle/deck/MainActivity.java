@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.crashlytics.android.Crashlytics;
 
 
 public class MainActivity extends ActionBarActivity
@@ -17,6 +18,12 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+
+        if( !BuildConfig.DEBUG )
+        {
+            Crashlytics.start( this );
+        }
+
         Log.d( TAG, "+++ ON CREATE +++" );
         setContentView( R.layout.activity_main );
 

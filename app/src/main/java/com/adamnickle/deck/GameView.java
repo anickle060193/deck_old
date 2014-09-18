@@ -37,6 +37,7 @@ public class GameView extends GameUiView
     private final Activity mParentActivity;
     private GameUiListener mListener;
     private final Toast mToast;
+    private GameGestureListener mGameGestureListener;
 
     public GameView( Activity activity )
     {
@@ -47,6 +48,7 @@ public class GameView extends GameUiView
         mDetector = new GestureDetectorCompat( activity, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
         mMovingCardDrawables = new SparseArray< CardDrawable >();
+        mGameGestureListener = mDefaultGameGestureListener;
 
         mToast = Toast.makeText( activity.getApplicationContext(), "", Toast.LENGTH_SHORT );
     }
@@ -176,8 +178,14 @@ public class GameView extends GameUiView
                 if( cardDrawable != null )
                 {
                     cardDrawable.setVelocity( velocityX, velocityY );
+
+                    if( mGameGestureListener != null )
+                    {
+                        mGameGestureListener.onCardFling( event1, event2, cardDrawable );
+                    }
                 }
             }
+
             return true;
         }
 
@@ -195,6 +203,11 @@ public class GameView extends GameUiView
                 if( cardDrawable != null )
                 {
                     cardDrawable.update( (int) x, (int) y );
+
+                    if( mGameGestureListener != null )
+                    {
+                        mGameGestureListener.onCardMove( e1, e2, cardDrawable );
+                    }
                 }
             }
             return true;
@@ -212,7 +225,10 @@ public class GameView extends GameUiView
             {
                 if( cardDrawable != null && cardDrawable.contains( x, y ) )
                 {
-                    cardDrawable.flipFaceUp();
+                    if( mGameGestureListener != null )
+                    {
+                        mGameGestureListener.onCardSingleTap( event, cardDrawable );
+                    }
                     break;
                 }
             }
@@ -225,28 +241,69 @@ public class GameView extends GameUiView
         {
             Log.d( TAG, "+++ ON DOUBLE TAP +++" );
 
-            new AlertDialog.Builder( getContext() )
-                    .setTitle( "Pick background" )
-                    .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
+            final int x = (int) event.getX();
+            final int y = (int) event.getY();
+
+            boolean foundCard = false;
+            for( CardDrawable cardDrawable : mCardDrawables )
+            {
+                if( cardDrawable != null && cardDrawable.contains( x, y ) )
+                {
+                    cardDrawable.flipFaceUp();
+
+                    if( mGameGestureListener != null )
                     {
-                        @Override
-                        public void onClick( DialogInterface dialogInterface, int index )
-                        {
-                            final TypedArray resources = getResources().obtainTypedArray( R.array.background_drawables );
-                            final int resource = resources.getResourceId( index, -1 );
-                            BitmapDrawable background = (BitmapDrawable) getResources().getDrawable( resource );
-                            background.setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
-                            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN )
-                            {
-                                setBackgroundDrawable( background );
-                            } else
-                            {
-                                setBackground( background );
-                            }
-                        }
-                    } )
-                    .show();
+                        foundCard = true;
+                        mGameGestureListener.onCardDoubleTap( event, cardDrawable );
+                    }
+                    break;
+                }
+            }
+
+            if( !foundCard )
+            {
+                if( mGameGestureListener != null )
+                {
+                    mGameGestureListener.onGameDoubleTap( event );
+                }
+            }
+
             return true;
+        }
+    };
+
+    private GameGestureListener mDefaultGameGestureListener = new GameGestureListener()
+    {
+        @Override
+        public void onCardSingleTap( MotionEvent event, CardDrawable cardDrawable )
+        {
+            cardDrawable.flipFaceUp();
+        }
+
+        @Override
+        public void onGameDoubleTap( MotionEvent event )
+        {
+            new AlertDialog.Builder( getContext() )
+                .setTitle( "Pick background" )
+                .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int index )
+                    {
+                        final TypedArray resources = getResources().obtainTypedArray( R.array.background_drawables );
+                        final int resource = resources.getResourceId( index, -1 );
+                        BitmapDrawable background = (BitmapDrawable) getResources().getDrawable( resource );
+                        background.setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
+                        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN )
+                        {
+                            setBackgroundDrawable( background );
+                        } else
+                        {
+                            setBackground( background );
+                        }
+                    }
+                } )
+                .show();
         }
     };
 
@@ -263,6 +320,12 @@ public class GameView extends GameUiView
     public void setGameUiListener( GameUiListener gameUiListener )
     {
         mListener = gameUiListener;
+    }
+
+    @Override
+    public void setGameGestureListener( GameGestureListener gameGestureListener )
+    {
+        mGameGestureListener = gameGestureListener;
     }
 
     @Override

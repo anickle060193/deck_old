@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -36,6 +38,7 @@
             android:hardwareAccelerated="true"
             android:label="@string/game_activity_title" >
         </activity>
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="e1a1841ff9279cd6da2f637481db99e1ca4fa5d1"/>
     </application>
 
 </manifest>

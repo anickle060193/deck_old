@@ -49,6 +49,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     private ArrayList< ConnectedThread > mConnectedThreads;
     private int mState;
     private int mConnectionType;
+    private String mOriginalDeviceName;
 
     public BluetoothConnectionFragment()
     {
@@ -95,6 +96,10 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         getActivity().unregisterReceiver( mReceiver );
         this.stopConnection();
+        if( mBluetoothAdapter != null && mOriginalDeviceName != null )
+        {
+            mBluetoothAdapter.setName( mOriginalDeviceName );
+        }
         super.onDestroy();
     }
 
@@ -262,17 +267,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     @Override
     public synchronized void setConnectionType( int connectionType )
     {
-        if( mConnectionType != connectionType )
-        {
-            //TODO See if this can stay commented out
-            /*
-            if( connectionType != CONNECTION_TYPE_NONE )
-            {
-                stopConnection();
-            }
-            */
-            mConnectionType = connectionType;
-        }
+        mConnectionType = connectionType;
     }
 
     @Override
@@ -307,9 +302,22 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     }
 
     @Override
-    public String getDefaultLocalDeviceName()
+    public String getLocalDeviceName()
     {
         return mBluetoothAdapter.getName();
+    }
+
+    @Override
+    public void setLocalDeviceName( String newName )
+    {
+        if( mBluetoothAdapter != null && !mBluetoothAdapter.getName().equals( newName ) )
+        {
+            if( mOriginalDeviceName == null )
+            {
+                mOriginalDeviceName = mBluetoothAdapter.getName();
+            }
+            mBluetoothAdapter.setName( newName );
+        }
     }
 
     public synchronized void startConnection()

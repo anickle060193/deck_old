@@ -15,6 +15,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
     public enum MessageType
     {
         MESSAGE_CARD,
+        MESSAGE_CARDS,
         MESSAGE_CARD_REQUEST,
         MESSAGE_CLEAR_HAND,
         MESSAGE_NEW_PLAYER,
@@ -29,25 +30,21 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         ORIGINAL_SENDER_ID,
         RECEIVER_ID,
         CARD_NUMBER,
+        CARD_NUMBERS,
         PLAYER_NAME,
         IS_DEALER,
         CURRENT_PLAYER_IDS,
         CURRENT_PLAYER_NAMES,
     }
 
-    public GameMessage( MessageType messageType, String originalSenderID, String receiverID )
+    public GameMessage( final MessageType messageType, final String originalSenderID, final String receiverID )
     {
         put( Key.MESSAGE_TYPE, messageType );
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
     }
 
-    public byte[] serializeMessage()
-    {
-        return serializeMessage( this );
-    }
-
-    public static byte[] serializeMessage( GameMessage gameMessage )
+    public static byte[] serializeMessage( final GameMessage gameMessage )
     {
         byte[] data = null;
         try
@@ -99,7 +96,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         return (String) get( Key.RECEIVER_ID );
     }
 
-    public void setReceiverID( String receiverID )
+    public void setReceiverID( final String receiverID )
     {
         super.put( Key.RECEIVER_ID, receiverID );
     }
@@ -109,7 +106,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         return new Card( (Integer) super.get( Key.CARD_NUMBER ) );
     }
 
-    public void putCard( Card card )
+    public void putCard( final Card card )
     {
         super.put( Key.CARD_NUMBER, card.getCardNumber() );
     }
@@ -119,7 +116,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         return (String) super.get( Key.PLAYER_NAME );
     }
 
-    public void putName( String name )
+    public void putName( final String name )
     {
         super.put( Key.PLAYER_NAME, name );
     }
@@ -129,7 +126,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         return (Boolean) super.get( Key.IS_DEALER );
     }
 
-    public void putIsDealer( boolean isDealer )
+    public void putIsDealer( final boolean isDealer )
     {
         super.put( Key.IS_DEALER, isDealer );
     }
@@ -146,7 +143,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         return players;
     }
 
-    public void putCurrentPlayers( Connector[] players )
+    public void putCurrentPlayers( final Connector[] players )
     {
         final String[] playerIDs = new String[ players.length ];
         final String[] playerNames = new String[ players.length ];
@@ -158,5 +155,26 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
 
         super.put( Key.CURRENT_PLAYER_IDS, playerIDs );
         super.put( Key.CURRENT_PLAYER_NAMES, playerNames );
+    }
+
+    public Card[] getCards()
+    {
+        final int[] cardNumbers = (int[]) super.get( Key.CARD_NUMBERS );
+        Card[] cards = new Card[ cardNumbers.length ];
+        for( int i = 0; i < cardNumbers.length; i++ )
+        {
+            cards[ i ] = new Card( cardNumbers[ i ] );
+        }
+        return cards;
+    }
+
+    public void putCards( final Card[] cards )
+    {
+        final int[] cardNumbers = new int[ cards.length ];
+        for( int i = 0; i < cards.length; i++ )
+        {
+            cardNumbers[ i ] = cards[ i ].getCardNumber();
+        }
+        super.put( Key.CARD_NUMBERS, cardNumbers );
     }
 }

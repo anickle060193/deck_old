@@ -1,4 +1,4 @@
-package com.adamnickle.deck;
+package com.adamnickle.deck.Interfaces;
 
 import android.app.ActionBar;
 import android.app.Activity;

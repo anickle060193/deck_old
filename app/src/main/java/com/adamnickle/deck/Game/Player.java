@@ -15,11 +15,6 @@ public class Player extends Connector
         mHand = new ArrayList< Card >();
     }
 
-    public void setName( String name )
-    {
-        mName = name;
-    }
-
     public boolean hasCard( Card card )
     {
         return mHand.contains( card );

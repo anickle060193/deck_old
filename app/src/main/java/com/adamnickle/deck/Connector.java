@@ -22,6 +22,11 @@ public class Connector
         return mName;
     }
 
+    public void setName( String name )
+    {
+        mName = name;
+    }
+
     @Override
     public boolean equals( Object o )
     {

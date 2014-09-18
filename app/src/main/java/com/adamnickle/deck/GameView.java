@@ -329,13 +329,13 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public void addCardDrawable( Card card )
+    public synchronized void addCardDrawable( Card card )
     {
         mCardDrawables.addFirst( new CardDrawable( this, mListener, card ) );
     }
 
     @Override
-    public boolean removeCardDrawable( Card card )
+    public synchronized boolean removeCardDrawable( Card card )
     {
         for( CardDrawable cardDrawable : mCardDrawables )
         {
@@ -355,7 +355,7 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public void resetCard( Card card )
+    public synchronized void resetCard( Card card )
     {
         for( CardDrawable cardDrawable : mCardDrawables )
         {

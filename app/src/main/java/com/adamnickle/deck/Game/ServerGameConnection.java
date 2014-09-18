@@ -5,20 +5,18 @@ import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.HashMap;
 
 public class ServerGameConnection extends GameConnection
 {
-    private ArrayList< Connector > mConnectors;
+    private HashMap< String, Connector > mConnectors;
 
     public ServerGameConnection( ConnectionInterfaceFragment connection, GameConnectionListener listener )
     {
         super( connection, listener );
 
-        mConnectors = new ArrayList< Connector >();
-        mConnectors.add( new Connector( getLocalPlayerID(), getDefaultLocalPlayerName() ) );
+        mConnectors = new HashMap< String, Connector >();
     }
 
     /*******************************************************************
@@ -29,11 +27,20 @@ public class ServerGameConnection extends GameConnection
     {
         final byte[] data = Arrays.copyOf( allData, bytes );
         final GameMessage message = GameMessage.deserializeMessage( data );
+        final String originalSenderID = message.getOriginalSenderID();
         final String receiverID = message.getReceiverID();
 
-        if( receiverID.equals( MOCK_SERVER_ADDRESS ) || receiverID.equals( getLocalPlayerID() ) )
+        if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
         {
-            // If message is for this local player, handle normally
+            switch( message.getMessageType() )
+            {
+                case MESSAGE_CARD:
+                    //TODO Server received card from player
+                    break;
+            }
+        }
+        else if( receiverID.equals( getLocalPlayerID() ) )
+        {
             super.onMessageReceive( senderID, bytes, allData );
         }
         else
@@ -48,7 +55,7 @@ public class ServerGameConnection extends GameConnection
     {
         // Send the new player information about already connected players
         final GameMessage currentPlayersMessage = new GameMessage( GameMessage.MessageType.MESSAGE_CURRENT_PLAYERS, MOCK_SERVER_ADDRESS, deviceID );
-        currentPlayersMessage.putCurrentPlayers( mConnectors.toArray( new Connector[ mConnectors.size() ] ) );
+        currentPlayersMessage.putCurrentPlayers( mConnectors.values().toArray( new Connector[ mConnectors.size() ] ) );
         final byte[] currentPlayersData = GameMessage.serializeMessage( currentPlayersMessage );
         mConnection.sendDataToDevice( deviceID, currentPlayersData );
 
@@ -56,7 +63,7 @@ public class ServerGameConnection extends GameConnection
         message.putName( deviceName );
 
         // Send new player to all connected remote players
-        for( Connector connector : mConnectors )
+        for( Connector connector : mConnectors.values() )
         {
             message.setReceiverID( connector.getID() );
             mConnection.sendDataToDevice( connector.getID(), GameMessage.serializeMessage( message ) );
@@ -67,7 +74,7 @@ public class ServerGameConnection extends GameConnection
         final byte data[] = GameMessage.serializeMessage( message );
         this.onMessageReceive( deviceID, data.length, data );
 
-        mConnectors.add( new Connector( deviceID, deviceName ) );
+        mConnectors.put( deviceID, new Connector( deviceID, deviceName ) );
     }
 
     @Override
@@ -77,7 +84,7 @@ public class ServerGameConnection extends GameConnection
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_PLAYER_LEFT, deviceID, null );
 
         // Send player left to all connected remote players
-        for( Connector connector : mConnectors )
+        for( Connector connector : mConnectors.values() )
         {
             message.setReceiverID( connector.getID() );
             mConnection.sendDataToDevice( connector.getID(), GameMessage.serializeMessage( message ) );
@@ -98,89 +105,127 @@ public class ServerGameConnection extends GameConnection
         if( !isGameStarted() )
         {
             mConnection.startConnection();
+            this.onDeviceConnect( getLocalPlayerID(), getDefaultLocalPlayerName() );
+            mListener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
         }
     }
 
     @Override
     public void requestCard( String requesterID, String requesteeID )
     {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD_REQUEST, requesterID, requesteeID );
-        final byte[] data = GameMessage.serializeMessage( message );
-
-        if( requesteeID.equals( MOCK_SERVER_ADDRESS ) )
-        {
-            this.onMessageReceive( requesterID, data.length, data );
-        }
-        else if( requesteeID.equals( getLocalPlayerID() ) )
+        if( requesteeID.equals( getLocalPlayerID() ) )
         {
             mListener.onCardRequested( requesterID, requesteeID );
         }
         else
         {
-            mConnection.sendDataToDevice( requesteeID, data );
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD_REQUEST, requesterID, requesteeID );
+            final byte[] data = GameMessage.serializeMessage( message );
+
+            if( requesteeID.equals( MOCK_SERVER_ADDRESS ) )
+            {
+                this.onMessageReceive( requesterID, data.length, data );
+            }
+            else
+            {
+                mConnection.sendDataToDevice( requesteeID, data );
+            }
         }
     }
 
     @Override
     public void sendCard( String senderID, String receiverID, Card card )
     {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD, senderID, receiverID );
-        message.putCard( card );
-        final byte[] data = GameMessage.serializeMessage( message );
-
-        if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
-        {
-            this.onMessageReceive( senderID, data.length, data );
-        }
-        else if( receiverID.equals( getLocalPlayerID() ) )
+        if( receiverID.equals( getLocalPlayerID() ) )
         {
             mListener.onCardReceive( senderID, receiverID, card );
         }
         else
         {
-            mConnection.sendDataToDevice( receiverID, data );
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD, senderID, receiverID );
+            message.putCard( card );
+            final byte[] data = GameMessage.serializeMessage( message );
+
+            if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
+            {
+                this.onMessageReceive( senderID, data.length, data );
+            }
+            else
+            {
+                mConnection.sendDataToDevice( receiverID, data );
+            }
+        }
+    }
+
+    @Override
+    public void sendCards( String senderID, String receiverID, Card[] cards )
+    {
+        if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            mListener.onCardsReceive( senderID, receiverID, cards );
+        }
+        else
+        {
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARDS, senderID, receiverID );
+            message.putCards( cards );
+            final byte[] data = GameMessage.serializeMessage( message );
+
+            if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
+            {
+                this.onMessageReceive( senderID, data.length, data );
+            }
+            else
+            {
+                mConnection.sendDataToDevice( receiverID, data );
+            }
         }
     }
 
     @Override
     public void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID )
     {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_HAND, commandingDeviceID, toBeClearedDeviceID );
-        final byte[] data = GameMessage.serializeMessage( message );
-
-        if( toBeClearedDeviceID.equals( MOCK_SERVER_ADDRESS ) )
-        {
-            //TODO Local player is telling server to clear hand
-            this.onMessageReceive( commandingDeviceID, data.length, data );
-        }
-        else if( toBeClearedDeviceID.equals( getLocalPlayerID() ) )
+        if( toBeClearedDeviceID.equals( getLocalPlayerID() ) )
         {
             mListener.onClearPlayerHand( commandingDeviceID, toBeClearedDeviceID );
         }
         else
         {
-            mConnection.sendDataToDevice( toBeClearedDeviceID, data );
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_HAND, commandingDeviceID, toBeClearedDeviceID );
+            final byte[] data = GameMessage.serializeMessage( message );
+
+            if( toBeClearedDeviceID.equals( MOCK_SERVER_ADDRESS ) )
+            {
+                //TODO Local player is telling server to clear hand
+                this.onMessageReceive( commandingDeviceID, data.length, data );
+            }
+            else
+            {
+                mConnection.sendDataToDevice( toBeClearedDeviceID, data );
+            }
         }
     }
 
     @Override
     public void setDealer( String setterID, String setteeID, boolean isDealer )
     {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_DEALER, setterID, setteeID );
-        message.putIsDealer( isDealer );
-        final byte[] data = GameMessage.serializeMessage( message );
-
-        if( setteeID.equals( MOCK_SERVER_ADDRESS ) )
-        {
-            //TODO Local player set server as dealer
-        }
-        else if( setteeID.equals( getLocalPlayerID() ) )
+        if( setteeID.equals( getLocalPlayerID() ) )
         {
             mListener.onSetDealer( setterID, setteeID, isDealer );
         }
         else
         {
-            mConnection.sendDataToDevice( setteeID, data );
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_DEALER, setterID, setteeID );
+            message.putIsDealer( isDealer );
+            final byte[] data = GameMessage.serializeMessage( message );
+
+            if( setteeID.equals( MOCK_SERVER_ADDRESS ) )
+            {
+                //TODO Local player set server as dealer
+            }
+            else
+            {
+                mConnection.sendDataToDevice( setteeID, data );
+            }
         }
     }
 }

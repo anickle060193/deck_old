@@ -8,8 +8,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -38,7 +37,19 @@
             android:hardwareAccelerated="true"
             android:label="@string/game_activity_title" >
         </activity>
-        <meta-data android:name="com.crashlytics.ApiKey" android:value="e1a1841ff9279cd6da2f637481db99e1ca4fa5d1"/>
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="e1a1841ff9279cd6da2f637481db99e1ca4fa5d1" />
+
+        <activity
+            android:name=".DeckSettingsActivity"
+            android:label="@string/title_activity_deck_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

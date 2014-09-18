@@ -23,8 +23,8 @@ android {
         applicationId "com.adamnickle.deck"
         minSdkVersion 11
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "Beta 1.1"
     }
     buildTypes {
         release {

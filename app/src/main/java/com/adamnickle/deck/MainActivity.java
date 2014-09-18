@@ -19,10 +19,7 @@ public class MainActivity extends ActionBarActivity
     {
         super.onCreate( savedInstanceState );
 
-        if( !BuildConfig.DEBUG )
-        {
-            Crashlytics.start( this );
-        }
+        Crashlytics.start( this );
 
         Log.d( TAG, "+++ ON CREATE +++" );
         setContentView( R.layout.activity_main );
@@ -48,6 +45,16 @@ public class MainActivity extends ActionBarActivity
                 startClient.putExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_TYPE, ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT );
                 startClient.putExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
                 startActivity( startClient );
+            }
+        } );
+
+        findViewById( R.id.settingsButton ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View view )
+            {
+                Intent openSettings = new Intent( MainActivity.this, DeckSettingsActivity.class );
+                startActivity( openSettings );
             }
         } );
     }

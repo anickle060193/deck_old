@@ -84,6 +84,9 @@ public class DeviceListFragment extends Fragment
             newDevicesListView.setAdapter( mNewDevicesArrayAdapter );
             newDevicesListView.setOnItemClickListener( mDeviceClickListener );
 
+            mView.findViewById( R.id.title_new_devices ).setVisibility( View.GONE );
+            newDevicesListView.setVisibility( View.GONE );
+
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
             if( !pairedDevices.isEmpty() )
@@ -96,7 +99,8 @@ public class DeviceListFragment extends Fragment
             }
             else
             {
-                mPairedDevicesArrayAdapter.add( "No paired devices." );
+                mView.findViewById( R.id.title_paired_devices ).setVisibility( View.GONE );
+                mView.findViewById( R.id.paired_devices ).setVisibility( View.GONE );
             }
 
         }
@@ -140,6 +144,7 @@ public class DeviceListFragment extends Fragment
         getActivity().setTitle( "Scanning..." );
 
         mView.findViewById( R.id.title_new_devices ).setVisibility( View.VISIBLE );
+        mView.findViewById( R.id.new_devices ).setVisibility( View.VISIBLE );
 
         if( mBluetoothAdapter.isDiscovering() )
         {

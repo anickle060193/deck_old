@@ -7,10 +7,10 @@ import com.adamnickle.deck.Game.Player;
 
 import java.util.Arrays;
 
-public abstract class GameConnection implements ConnectionListener, GameConnectionInterface
+public abstract class GameConnection implements ConnectionListener
 {
     public static final String MOCK_SERVER_ADDRESS = "mock_server_address";
-    public static final String MOCK_SERVER_NAME = "SERVER";
+    public static final String MOCK_SERVER_NAME = "Server Host";
 
     protected ConnectionInterfaceFragment mConnection;
     protected GameConnectionListener mListener;
@@ -38,7 +38,7 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
 
     public String getDefaultLocalPlayerName()
     {
-        return mConnection.getDefaultLocalDeviceName();
+        return mConnection.getLocalDeviceName();
     }
 
     /*******************************************************************
@@ -66,6 +66,11 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
             case MESSAGE_CARD:
                 final Card card = message.getCard();
                 mListener.onCardReceive( originalSenderID, receiverID, card );
+                break;
+
+            case MESSAGE_CARDS:
+                final Card[] cards = message.getCards();
+                mListener.onCardsReceive( originalSenderID, receiverID, cards );
                 break;
 
             case MESSAGE_CARD_REQUEST:
@@ -112,6 +117,7 @@ public abstract class GameConnection implements ConnectionListener, GameConnecti
     public abstract void startGame();
     public abstract void requestCard( String requesterID, String requesteeID );
     public abstract void sendCard( String senderID, String receiverID, Card card );
+    public abstract void sendCards( String senderID, String receiverID, Card[] cards );
     public abstract void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID );
     public abstract void setDealer( String setterID, String setteeID, boolean isDealer );
 }

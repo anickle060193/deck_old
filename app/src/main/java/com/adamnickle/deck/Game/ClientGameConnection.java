@@ -8,21 +8,24 @@ import com.adamnickle.deck.Interfaces.GameConnectionListener;
 public class ClientGameConnection extends GameConnection
 {
     private String mActualServerAddress;
-    private String mServerName;
+    private String mCurrentPlayerName;
 
     public ClientGameConnection( ConnectionInterfaceFragment connection, GameConnectionListener listener )
     {
         super( connection, listener );
     }
 
-    /*******************************************************************
+    /**
+     * *****************************************************************
      * ConnectionListener Methods
-     *******************************************************************/
+     * *****************************************************************
+     */
     @Override
     public void onDeviceConnect( String deviceID, String deviceName )
     {
         mActualServerAddress = deviceID;
-        mListener.onServerConnect( deviceID, deviceName );
+        mCurrentPlayerName = mConnection.getLocalDeviceName();
+        mListener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
     }
 
     @Override
@@ -31,9 +34,11 @@ public class ClientGameConnection extends GameConnection
         mListener.onServerDisconnect( deviceID );
     }
 
-    /*******************************************************************
+    /**
+     * *****************************************************************
      * GameConnection Methods
-     *******************************************************************/
+     * *****************************************************************
+     */
     @Override
     public void startGame()
     {
@@ -77,6 +82,22 @@ public class ClientGameConnection extends GameConnection
     }
 
     @Override
+    public void sendCards( String senderID, String receiverID, Card[] cards )
+    {
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARDS, senderID, receiverID );
+        final byte[] data = GameMessage.serializeMessage( message );
+
+        if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            this.onMessageReceive( senderID, data.length, data );
+        }
+        else
+        {
+            mConnection.sendDataToDevice( mActualServerAddress, data );
+        }
+    }
+
+    @Override
     public void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_HAND, commandingDeviceID, toBeClearedDeviceID );
@@ -105,7 +126,7 @@ public class ClientGameConnection extends GameConnection
         }
         else
         {
-            mConnection.sendDataToDevice( setteeID, data );
+            mConnection.sendDataToDevice( mActualServerAddress, data );
         }
     }
 }

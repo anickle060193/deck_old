@@ -4,6 +4,7 @@ package com.adamnickle.deck;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -340,23 +341,16 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     public void onPlayerConnect( Player newPlayer )
     {
         mPlayers.put( newPlayer.getID(), newPlayer );
-        if( mGameUiView != null )
-        {
-            mGameUiView.displayNotification( newPlayer.getName() + " joined the game." );
-        }
     }
 
     @Override
-    public void onSetPlayerName( String senderID, String newName )
+    public void onPlayerNameReceive( String senderID, String newName )
     {
-        Player player = mPlayers.get( senderID );
-        if( player != null )
+        final Player player = mPlayers.get( senderID );
+        player.setName( newName );
+        if( mGameUiView != null )
         {
-            if( mGameUiView != null )
-            {
-                mGameUiView.displayNotification( player.getName() + " changed their name to " + newName + "." );
-            }
-            player.setName( newName );
+            mGameUiView.displayNotification( player.getName() + " joined the game." );
         }
     }
 
@@ -380,6 +374,12 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
         mLocalPlayer = new Player( mGameConnection.getLocalPlayerID(), "ME" );
         mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
+
+        String playerName = PreferenceManager
+                .getDefaultSharedPreferences( getActivity().getApplicationContext() )
+                .getString( DeckSettings.PLAYER_NAME, mGameConnection.getDefaultLocalPlayerName() );
+
+        mGameConnection.sendPlayerName( mLocalPlayer.getID(), GameConnection.MOCK_SERVER_ADDRESS, playerName );
     }
 
     @Override

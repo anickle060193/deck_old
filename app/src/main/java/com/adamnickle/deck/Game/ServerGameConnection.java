@@ -23,7 +23,7 @@ public class ServerGameConnection extends GameConnection
      * ConnectionListener Methods
      *******************************************************************/
     @Override
-    public void onMessageReceive( String senderID, int bytes, byte[] allData )
+    public synchronized void onMessageReceive( String senderID, int bytes, byte[] allData )
     {
         final byte[] data = Arrays.copyOf( allData, bytes );
         final GameMessage message = GameMessage.deserializeMessage( data );
@@ -34,6 +34,21 @@ public class ServerGameConnection extends GameConnection
         {
             switch( message.getMessageType() )
             {
+                case MESSAGE_SET_PLAYER_NAME:
+                    final String newName = message.getPlayerName();
+                    for( Connector connector : mConnectors.values() )
+                    {
+                        if( connector.getID().equals( originalSenderID ) )
+                        {
+                            connector.setName( newName );
+                        }
+                        else
+                        {
+                            this.sendPlayerName( originalSenderID, connector.getID(), newName );
+                        }
+                    }
+                    break;
+
                 case MESSAGE_CARD:
                     //TODO Server received card from player
                     break;
@@ -51,13 +66,16 @@ public class ServerGameConnection extends GameConnection
     }
 
     @Override
-    public void onDeviceConnect( String deviceID, String deviceName )
+    public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
-        // Send the new player information about already connected players
-        final GameMessage currentPlayersMessage = new GameMessage( GameMessage.MessageType.MESSAGE_CURRENT_PLAYERS, MOCK_SERVER_ADDRESS, deviceID );
-        currentPlayersMessage.putCurrentPlayers( mConnectors.values().toArray( new Connector[ mConnectors.size() ] ) );
-        final byte[] currentPlayersData = GameMessage.serializeMessage( currentPlayersMessage );
-        mConnection.sendDataToDevice( deviceID, currentPlayersData );
+        if( mConnectors.size() > 0 )
+        {
+            // Send the new player information about already connected players
+            final GameMessage currentPlayersMessage = new GameMessage( GameMessage.MessageType.MESSAGE_CURRENT_PLAYERS, MOCK_SERVER_ADDRESS, deviceID );
+            currentPlayersMessage.putCurrentPlayers( mConnectors.values().toArray( new Connector[ mConnectors.size() ] ) );
+            final byte[] currentPlayersData = GameMessage.serializeMessage( currentPlayersMessage );
+            mConnection.sendDataToDevice( deviceID, currentPlayersData );
+        }
 
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_NEW_PLAYER, deviceID, null );
         message.putName( deviceName );
@@ -65,8 +83,11 @@ public class ServerGameConnection extends GameConnection
         // Send new player to all connected remote players
         for( Connector connector : mConnectors.values() )
         {
-            message.setReceiverID( connector.getID() );
-            mConnection.sendDataToDevice( connector.getID(), GameMessage.serializeMessage( message ) );
+            if( !connector.getID().equals( getLocalPlayerID() ) )
+            {
+                message.setReceiverID( connector.getID() );
+                mConnection.sendDataToDevice( connector.getID(), GameMessage.serializeMessage( message ) );
+            }
         }
 
         // Send new player to local player
@@ -78,7 +99,7 @@ public class ServerGameConnection extends GameConnection
     }
 
     @Override
-    public void onConnectionLost( String deviceID )
+    public synchronized void onConnectionLost( String deviceID )
     {
         mConnectors.remove( deviceID );
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_PLAYER_LEFT, deviceID, null );
@@ -225,6 +246,30 @@ public class ServerGameConnection extends GameConnection
             else
             {
                 mConnection.sendDataToDevice( setteeID, data );
+            }
+        }
+    }
+
+    @Override
+    public void sendPlayerName( String senderID, String receiverID, String name )
+    {
+        if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            mListener.onPlayerNameReceive( senderID, name );
+        }
+        else
+        {
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_PLAYER_NAME, senderID, receiverID );
+            message.putName( name );
+            final byte[] data = GameMessage.serializeMessage( message );
+
+            if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
+            {
+                this.onMessageReceive( senderID, data.length, data );
+            }
+            else
+            {
+                mConnection.sendDataToDevice( receiverID, data );
             }
         }
     }

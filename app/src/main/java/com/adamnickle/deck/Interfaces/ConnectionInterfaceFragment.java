@@ -23,7 +23,6 @@ public abstract class ConnectionInterfaceFragment extends Fragment
     public abstract boolean isConnected();
     public abstract String getLocalDeviceID();
     public abstract String getLocalDeviceName();
-    public abstract void setLocalDeviceName( String newName );
     public abstract void setConnectionType( int connectionType );
     public abstract int getConnectionType();
     public abstract int getState();

@@ -59,6 +59,11 @@ public abstract class GameConnection implements ConnectionListener
                 mListener.onPlayerConnect( player );
                 break;
 
+            case MESSAGE_SET_PLAYER_NAME:
+                final String newName = message.getPlayerName();
+                mListener.onPlayerNameReceive( originalSenderID, newName );
+                break;
+
             case MESSAGE_PLAYER_LEFT:
                 mListener.onPlayerDisconnect( originalSenderID );
                 break;
@@ -120,4 +125,5 @@ public abstract class GameConnection implements ConnectionListener
     public abstract void sendCards( String senderID, String receiverID, Card[] cards );
     public abstract void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID );
     public abstract void setDealer( String setterID, String setteeID, boolean isDealer );
+    public abstract void sendPlayerName( String senderID, String receiverID, String name );
 }

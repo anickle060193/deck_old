@@ -19,6 +19,7 @@ public class GameMessage extends HashMap<GameMessage.Key, Object>
         MESSAGE_CARD_REQUEST,
         MESSAGE_CLEAR_HAND,
         MESSAGE_NEW_PLAYER,
+        MESSAGE_SET_PLAYER_NAME,
         MESSAGE_PLAYER_LEFT,
         MESSAGE_SET_DEALER,
         MESSAGE_CURRENT_PLAYERS,

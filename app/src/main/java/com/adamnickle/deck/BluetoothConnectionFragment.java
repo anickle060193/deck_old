@@ -49,7 +49,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     private ArrayList< ConnectedThread > mConnectedThreads;
     private int mState;
     private int mConnectionType;
-    private String mOriginalDeviceName;
 
     public BluetoothConnectionFragment()
     {
@@ -96,10 +95,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         getActivity().unregisterReceiver( mReceiver );
         this.stopConnection();
-        if( mBluetoothAdapter != null && mOriginalDeviceName != null )
-        {
-            mBluetoothAdapter.setName( mOriginalDeviceName );
-        }
         super.onDestroy();
     }
 
@@ -307,19 +302,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         return mBluetoothAdapter.getName();
     }
 
-    @Override
-    public void setLocalDeviceName( String newName )
-    {
-        if( mBluetoothAdapter != null && !mBluetoothAdapter.getName().equals( newName ) )
-        {
-            if( mOriginalDeviceName == null )
-            {
-                mOriginalDeviceName = mBluetoothAdapter.getName();
-            }
-            mBluetoothAdapter.setName( newName );
-        }
-    }
-
     public synchronized void startConnection()
     {
         Log.d( TAG, "BEGIN startConnection()" );
@@ -520,10 +502,6 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             }
         }
 
-        ConnectedThread connectedThread = new ConnectedThread( socket );
-        mConnectedThreads.add( connectedThread );
-        connectedThread.start();
-
         if( getConnectionType() == CONNECTION_TYPE_CLIENT )
         {
             setState( STATE_CONNECTED );
@@ -532,6 +510,10 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         {
             setState( STATE_CONNECTED_LISTENING );
         }
+
+        ConnectedThread connectedThread = new ConnectedThread( socket );
+        mConnectedThreads.add( connectedThread );
+        connectedThread.start();
 
         if( mListener != null )
         {

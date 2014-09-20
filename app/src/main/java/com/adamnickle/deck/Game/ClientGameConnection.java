@@ -8,7 +8,6 @@ import com.adamnickle.deck.Interfaces.GameConnectionListener;
 public class ClientGameConnection extends GameConnection
 {
     private String mActualServerAddress;
-    private String mCurrentPlayerName;
 
     public ClientGameConnection( ConnectionInterfaceFragment connection, GameConnectionListener listener )
     {
@@ -21,15 +20,14 @@ public class ClientGameConnection extends GameConnection
      * *****************************************************************
      */
     @Override
-    public void onDeviceConnect( String deviceID, String deviceName )
+    public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
         mActualServerAddress = deviceID;
-        mCurrentPlayerName = mConnection.getLocalDeviceName();
         mListener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
     }
 
     @Override
-    public void onConnectionLost( String deviceID )
+    public synchronized void onConnectionLost( String deviceID )
     {
         mListener.onServerDisconnect( deviceID );
     }
@@ -123,6 +121,23 @@ public class ClientGameConnection extends GameConnection
         if( setteeID.equals( getLocalPlayerID() ) )
         {
             this.onMessageReceive( setterID, data.length, data );
+        }
+        else
+        {
+            mConnection.sendDataToDevice( mActualServerAddress, data );
+        }
+    }
+
+    @Override
+    public void sendPlayerName( String senderID, String receiverID, String name )
+    {
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_PLAYER_NAME, senderID, receiverID );
+        message.putName( name );
+        final byte[] data = GameMessage.serializeMessage( message );
+
+        if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            this.onMessageReceive( senderID, data.length, data );
         }
         else
         {

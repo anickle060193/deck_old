@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Window;
 
 import com.adamnickle.deck.Game.ClientGameConnection;
@@ -33,13 +32,6 @@ public class GameActivity extends Activity
             {
                 mConnection = (ConnectionInterfaceFragment)Class.forName( className ).newInstance();
                 mConnection.setConnectionType( connectionType );
-
-                String playerName = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() ).getString( DeckSettings.PLAYER_NAME, null );
-
-                if( playerName != null )
-                {
-                    mConnection.setLocalDeviceName( playerName );
-                }
 
                 getFragmentManager()
                         .beginTransaction()

@@ -8,7 +8,7 @@ public interface GameConnectionListener
 {
     public void setGameConnection( GameConnection gameConnection );
     public void onPlayerConnect( Player newPlayer );
-    public void onSetPlayerName( String senderID, String newName );
+    public void onPlayerNameReceive( String senderID, String newName );
     public void onPlayerDisconnect( String playerID );
     public void onServerConnect( String deviceID, String deviceName );
     public void onServerDisconnect( String deviceID );

@@ -33,8 +33,8 @@ public class GameView extends GameUiView
     private static final float MINIMUM_VELOCITY = 400.0f;
 
     private GestureDetectorCompat mDetector;
-    private final LinkedList<CardDrawable> mCardDrawables;
-    private SparseArray<CardDrawable> mMovingCardDrawables;
+    private final LinkedList< CardDrawable > mCardDrawables;
+    private SparseArray< CardDrawable > mMovingCardDrawables;
 
     private final Activity mParentActivity;
     private GameUiListener mListener;
@@ -182,7 +182,7 @@ public class GameView extends GameUiView
         {
             Log.d( TAG, "+++ ON FLING +++" );
 
-            final float velocity = (float)Math.sqrt( velocityX * velocityX + velocityY * velocityY );
+            final float velocity = (float) Math.sqrt( velocityX * velocityX + velocityY * velocityY );
             if( velocity > MINIMUM_VELOCITY )
             {
                 final int pointerIndex = MotionEventCompat.getActionIndex( event2 );
@@ -297,23 +297,23 @@ public class GameView extends GameUiView
         public void onGameDoubleTap( MotionEvent event )
         {
             new AlertDialog.Builder( getContext() )
-                .setTitle( "Pick background" )
-                .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialogInterface, int index )
+                    .setTitle( "Pick background" )
+                    .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
                     {
-                        final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
-                        final String background = backgrounds[ index ];
-                        PreferenceManager
-                                .getDefaultSharedPreferences( getContext().getApplicationContext() )
-                                .edit()
-                                .putString( DeckSettings.BACKGROUND, background )
-                                .commit();
-                        setGameBackground( index );
-                    }
-                } )
-                .show();
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int index )
+                        {
+                            final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
+                            final String background = backgrounds[ index ];
+                            PreferenceManager
+                                    .getDefaultSharedPreferences( getContext().getApplicationContext() )
+                                    .edit()
+                                    .putString( DeckSettings.BACKGROUND, background )
+                                    .commit();
+                            setGameBackground( index );
+                        }
+                    } )
+                    .show();
         }
     };
 

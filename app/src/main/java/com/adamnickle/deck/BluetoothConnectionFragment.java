@@ -186,7 +186,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
             menu.findItem( R.id.actionCloseServer ).setVisible( false );
             menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-        } else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
+        }
+        else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
         {
             menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
             menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
@@ -195,11 +196,13 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
             {
                 menu.findItem( R.id.actionLeaveServer ).setVisible( true );
-            } else
+            }
+            else
             {
                 menu.findItem( R.id.actionLeaveServer ).setVisible( false );
             }
-        } else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER )
+        }
+        else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER )
         {
             menu.findItem( R.id.actionCloseServer ).setVisible( true );
             menu.findItem( R.id.actionLeaveServer ).setVisible( false );
@@ -208,11 +211,13 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             {
                 menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
                 menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            } else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED_LISTENING )
+            }
+            else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED_LISTENING )
             {
                 menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
                 menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            } else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
+            }
+            else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
             {
                 menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
                 menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
@@ -603,7 +608,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 temp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord( SERVICE_NAME, MY_UUID );
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "Socket listen() failed", io );
             }
@@ -623,7 +629,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                 try
                 {
                     socket = mServerSocket.accept();
-                } catch( IOException io )
+                }
+                catch( IOException io )
                 {
                     Log.e( TAG, "Accept Thread accept() failed", io );
                     break;
@@ -646,7 +653,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                                 try
                                 {
                                     socket.close();
-                                } catch( IOException io )
+                                }
+                                catch( IOException io )
                                 {
                                     Log.e( TAG, "Could not close unwanted socket", io );
                                 }
@@ -665,7 +673,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 mServerSocket.close();
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "close() of server failed", io );
             }
@@ -685,7 +694,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 temp = device.createRfcommSocketToServiceRecord( MY_UUID );
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "ConnectThread create() failed", io );
             }
@@ -703,12 +713,14 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 mSocket.connect();
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 try
                 {
                     mSocket.close();
-                } catch( IOException io2 )
+                }
+                catch( IOException io2 )
                 {
                     Log.e( TAG, "unable to close()", io2 );
                 }
@@ -729,7 +741,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 mSocket.close();
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "ConnectThread close() of socket failed", io );
             }
@@ -759,7 +772,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "Failed to get input/output streams", io );
             }
@@ -791,7 +805,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                             mListener.onMessageReceive( mID, bytes, buffer );
                         }
                     }
-                } catch( IOException io )
+                }
+                catch( IOException io )
                 {
                     Log.e( TAG, "failed to read, disconnected", io );
                     connectionLost( this );
@@ -805,7 +820,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 mOutputStream.write( buffer );
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "Exception during write", io );
             }
@@ -816,7 +832,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             try
             {
                 mSocket.close();
-            } catch( IOException io )
+            }
+            catch( IOException io )
             {
                 Log.e( TAG, "close() of connected socket failed", io );
             }

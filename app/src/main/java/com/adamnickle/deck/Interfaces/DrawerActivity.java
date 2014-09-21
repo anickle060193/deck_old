@@ -246,9 +246,9 @@ public abstract class DrawerActivity extends Activity
     public static class DrawerOnClickListener implements ListView.OnItemClickListener
     {
         @Override
-        public void onItemClick( AdapterView<?> adapterView, View view, int index, long l )
+        public void onItemClick( AdapterView< ? > adapterView, View view, int index, long l )
         {
-            ListView drawer = (ListView)adapterView;
+            ListView drawer = (ListView) adapterView;
             drawer.setItemChecked( index, true );
             ( (DrawerLayout) drawer.getParent() ).closeDrawer( drawer );
         }

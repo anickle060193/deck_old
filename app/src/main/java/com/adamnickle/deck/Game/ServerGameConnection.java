@@ -107,8 +107,11 @@ public class ServerGameConnection extends GameConnection
         // Send player left to all connected remote players
         for( Connector connector : mConnectors.values() )
         {
-            message.setReceiverID( connector.getID() );
-            mConnection.sendDataToDevice( connector.getID(), GameMessage.serializeMessage( message ) );
+            if( !connector.getID().equals( getLocalPlayerID() ) )
+            {
+                message.setReceiverID( connector.getID() );
+                mConnection.sendDataToDevice( connector.getID(), GameMessage.serializeMessage( message ) );
+            }
         }
 
         // Send player left to local player

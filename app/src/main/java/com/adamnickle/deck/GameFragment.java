@@ -32,7 +32,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     private GameConnection mGameConnection;
 
     private Player mLocalPlayer;
-    private HashMap<String, Player > mPlayers;
+    private HashMap< String, Player > mPlayers;
     private int mCanSendCard;
 
     private CardCollection mDeck;
@@ -161,7 +161,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                                 {
                                     for( int j = 0; j < mPlayers.size(); j++ )
                                     {
-                                        cardsDealt[j][i] = mDeck.removeTopCard();
+                                        cardsDealt[ j ][ i ] = mDeck.removeTopCard();
                                     }
                                 }
 
@@ -232,7 +232,8 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 if( mPlayers.size() == 0 )
                 {
                     mGameUiView.showPopup( "No Players Connected", "There are not players connected to the current game to select from." );
-                } else
+                }
+                else
                 {
                     final Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
                     final String[] playerNames = new String[ players.length ];

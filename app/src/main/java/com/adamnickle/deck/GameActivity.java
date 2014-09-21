@@ -30,7 +30,7 @@ public class GameActivity extends Activity
             final String className = intent.getStringExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME );
             try
             {
-                mConnection = (ConnectionInterfaceFragment)Class.forName( className ).newInstance();
+                mConnection = (ConnectionInterfaceFragment) Class.forName( className ).newInstance();
                 mConnection.setConnectionType( connectionType );
 
                 getFragmentManager()

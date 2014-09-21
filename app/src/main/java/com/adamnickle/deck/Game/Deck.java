@@ -8,7 +8,7 @@ public final class Deck
     private Deck() { }
 
     public static final Random RANDOM = new Random();
-    
+
     public static final int CARD_COUNT = 52;
     public static final int SUITS = 4;
     public static final int RANKS = 13;

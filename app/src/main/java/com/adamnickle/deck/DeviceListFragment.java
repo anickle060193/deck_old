@@ -30,8 +30,8 @@ public class DeviceListFragment extends Fragment
 
     private View mView;
     private BluetoothAdapter mBluetoothAdapter;
-    private ArrayAdapter<String> mPairedDevicesArrayAdapter;
-    private ArrayAdapter<String> mNewDevicesArrayAdapter;
+    private ArrayAdapter< String > mPairedDevicesArrayAdapter;
+    private ArrayAdapter< String > mNewDevicesArrayAdapter;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -87,7 +87,7 @@ public class DeviceListFragment extends Fragment
             mView.findViewById( R.id.title_new_devices ).setVisibility( View.GONE );
             newDevicesListView.setVisibility( View.GONE );
 
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            Set< BluetoothDevice > pairedDevices = mBluetoothAdapter.getBondedDevices();
 
             if( !pairedDevices.isEmpty() )
             {
@@ -159,7 +159,7 @@ public class DeviceListFragment extends Fragment
         @Override
         public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
         {
-            final String info = (( TextView)view).getText().toString();
+            final String info = ( (TextView) view ).getText().toString();
             if( info.startsWith( "No" ) )
             {
                 return;

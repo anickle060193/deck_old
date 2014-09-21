@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class Player extends Connector
 {
-    private final ArrayList<Card> mHand;
+    private final ArrayList< Card > mHand;
 
     public Player( String deviceID, String name )
     {

@@ -10,7 +10,7 @@ public class CardCollection
     public static final int SORT_BY_RANK = 1;
     public static final int SORT_BY_SUIT = 2;
 
-    private ArrayList<Card> mCards;
+    private ArrayList< Card > mCards;
 
     public CardCollection()
     {
@@ -83,7 +83,7 @@ public class CardCollection
     public String toString()
     {
         StringBuilder ret = new StringBuilder();
-        Iterator<Card> cards = mCards.iterator();
+        Iterator< Card > cards = mCards.iterator();
         Card card;
         while( cards.hasNext() )
         {

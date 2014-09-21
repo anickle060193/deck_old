@@ -108,7 +108,7 @@ public class Card
         return true;
     }
 
-    public static class CardComparator implements Comparator<Card>
+    public static class CardComparator implements Comparator< Card >
     {
         public final int mCompareType;
 

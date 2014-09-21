@@ -10,8 +10,8 @@ import android.graphics.drawable.Drawable;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Deck;
-import com.adamnickle.deck.Interfaces.GameUiView;
 import com.adamnickle.deck.Interfaces.GameUiListener;
+import com.adamnickle.deck.Interfaces.GameUiView;
 
 public class CardDrawable extends Drawable
 {
@@ -26,7 +26,10 @@ public class CardDrawable extends Drawable
     private static Bitmap mBlueBack;
     private static Bitmap mRedBack;
 
-    private enum Side { LEFT, TOP, RIGHT, BOTTOM, NONE }
+    private enum Side
+    {
+        LEFT, TOP, RIGHT, BOTTOM, NONE
+    }
 
     private final GameUiView mGameUiView;
     private final GameUiListener mListener;
@@ -177,8 +180,8 @@ public class CardDrawable extends Drawable
         final long t = now - mLastUpdate;
         final float dx = mVelocityX * ( t * MILLISECONDS_TO_SECONDS );
         final float dy = mVelocityY * ( t * MILLISECONDS_TO_SECONDS );
-        mX += (int)dx;
-        mY += (int)dy;
+        mX += (int) dx;
+        mY += (int) dy;
         updateBounds();
         mLastUpdate = now;
 
@@ -244,7 +247,8 @@ public class CardDrawable extends Drawable
             mVelocityX = xSign * Math.abs( mVelocityX );
             mVelocityY = (float) ( newVelocity * Math.sin( theta ) );
             mVelocityY = ySign * Math.abs( mVelocityY );
-        } else
+        }
+        else
         {
             mVelocityX = 0.0f;
             mVelocityY = 0.0f;
@@ -291,14 +295,20 @@ public class CardDrawable extends Drawable
 
     private synchronized void updateBounds()
     {
-        if( !mIsBitmapLoaded ) return;
+        if( !mIsBitmapLoaded )
+        {
+            return;
+        }
 
-        mDrawRect.offsetTo( (int)( mX - mWidth / 2.0f ), (int)( mY - mHeight / 2.0f ) );
+        mDrawRect.offsetTo( (int) ( mX - mWidth / 2.0f ), (int) ( mY - mHeight / 2.0f ) );
     }
 
     public synchronized void update( int x, int y )
     {
-        if( !mIsBitmapLoaded ) return;
+        if( !mIsBitmapLoaded )
+        {
+            return;
+        }
 
         mX = x;
         mY = y;

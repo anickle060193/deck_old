@@ -52,7 +52,7 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
     private static final String KEY_PREF_CARDS_DIAMONDS_CATEGORY = "pref_cards_diamonds_screen";
 
     private PreferenceScreen mCardPointsValueScreen;
-    private HashMap<String, PreferenceGroup> mCardPointsPreferences;
+    private HashMap< String, PreferenceGroup > mCardPointsPreferences;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -188,7 +188,7 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
 
             if( pref instanceof PreferenceGroup )
             {
-                initializePreferences( (PreferenceGroup)pref );
+                initializePreferences( (PreferenceGroup) pref );
             }
             else if( pref instanceof ListPreference )
             {
@@ -221,7 +221,8 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
             if( 0 < newMinPlayers && newMinPlayers <= maxPlayers )
             {
                 preference.setSummary( newMinPlayers + " players" );
-            } else
+            }
+            else
             {
                 String title = "Invalid Input";
                 String message = "Minimum players must be greater than 0 and less than maximum players allowed.";
@@ -237,7 +238,8 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
             if( minPlayers <= newMaxPlayers && newMaxPlayers < 8 )
             {
                 preference.setSummary( newMaxPlayers + " players" );
-            } else
+            }
+            else
             {
                 String title = "Invalid Input";
                 String message = "Maximum players allowed must be greater than minimum required players and less than 8.";
@@ -274,7 +276,7 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
 
         if( KEY_PREF_POINTS_VALUE_STYLE.equals( key ) )
         {
-            String style = (String)newValue;
+            String style = (String) newValue;
             if( style.equals( "Custom" ) )
             {
                 if( mCardPointsValueScreen != null )
@@ -298,7 +300,7 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
 
         if( KEY_PREF_CARD_POINTS_SET_METHOD.equals( key ) )
         {
-            PreferenceScreen screen = (PreferenceScreen)this.findPreference( KEY_PREF_CUSTOM_POINTS_STYLE_SCREEN );
+            PreferenceScreen screen = (PreferenceScreen) this.findPreference( KEY_PREF_CUSTOM_POINTS_STYLE_SCREEN );
             while( screen.getPreferenceCount() > 1 )
             {
                 screen.removePreference( screen.getPreference( 1 ) );
@@ -345,7 +347,8 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
         if( gameSettings.TrackPoints )
         {
             gameSettings.CardPointValues = getCardPointValues();
-        } else
+        }
+        else
         {
             gameSettings.CardPointValues = null;
         }
@@ -393,7 +396,8 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
                         values[ j ] = value;
                     }
                 }
-            } else if( setMethod.equals( "By Rank" ) )
+            }
+            else if( setMethod.equals( "By Rank" ) )
             {
                 for( int i = 0; i < Deck.RANKS; i++ )
                 {
@@ -405,7 +409,8 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
                         values[ j ] = value;
                     }
                 }
-            } else if( setMethod.equals( "By Card" ) )
+            }
+            else if( setMethod.equals( "By Card" ) )
             {
                 for( int i = 0; i < Deck.CARD_COUNT; i++ )
                 {

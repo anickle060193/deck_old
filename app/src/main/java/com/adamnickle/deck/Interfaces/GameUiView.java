@@ -23,6 +23,8 @@ public abstract class GameUiView extends View
     public abstract boolean removeCardDrawable( Card card );
     public abstract void removeAllCardDrawables();
     public abstract void resetCard( Card card );
+    public abstract void sortCards( int sortType );
+    public abstract void layoutCards();
     public abstract AlertDialog.Builder createSelectItemDialog( String title, Object items[], DialogInterface.OnClickListener listener );
     public abstract void showPopup( String title, String message );
     public abstract void displayNotification( String notification );

@@ -23,6 +23,7 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -397,6 +398,50 @@ public class GameView extends GameUiView
                 cardDrawable.resetCardDrawable();
                 break;
             }
+        }
+    }
+
+    @Override
+    public synchronized void sortCards( int sortType )
+    {
+        Collections.sort( mCardDrawables, new CardDrawable.CardDrawableComparator( sortType ) );
+    }
+
+    @Override
+    public synchronized void layoutCards()
+    {
+        if( mCardDrawables.size() == 0 )
+        {
+            return;
+        }
+
+        final int cardWidth = mCardDrawables.get( 0 ).getWidth();
+        final int cardHeight = mCardDrawables.get( 0 ).getHeight();
+        final int cardHeaderHeight = (int) ( cardHeight * CardDrawable.CARD_HEADER_PERCENTAGE );
+
+        final int OFFSET = 30;
+
+        final int cardsPerColumn = (int) ( (float) ( this.getHeight() - OFFSET - ( cardHeight - cardHeaderHeight) ) / cardHeaderHeight );
+        final int cardsPerRow = this.getWidth() / ( OFFSET + cardWidth );
+
+        if( cardsPerColumn * cardsPerRow < mCardDrawables.size() )
+        {
+            this.showPopup( "Cannot layout cards", "There is not enough room to layout cards...sorry." );
+            return;
+        }
+
+        int i = 0;
+        Iterator <CardDrawable> cardDrawableIterator = mCardDrawables.descendingIterator();
+        while( cardDrawableIterator.hasNext() )
+        {
+            final CardDrawable cardDrawable = cardDrawableIterator.next();
+            final int xDisplacement = i / cardsPerColumn;
+            final int x = OFFSET + cardWidth / 2 + ( xDisplacement ) * ( OFFSET + cardWidth );
+            final int yDisplacement = i % cardsPerColumn;
+            final int y = OFFSET + cardHeight / 2 + ( yDisplacement ) * ( cardHeaderHeight );
+            cardDrawable.setVelocity( 0, 0 );
+            cardDrawable.update( x, y );
+            i++;
         }
     }
 

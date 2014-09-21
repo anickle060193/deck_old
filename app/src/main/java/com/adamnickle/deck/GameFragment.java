@@ -263,6 +263,29 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 return true;
             }
 
+            case R.id.actionLayoutCards:
+            {
+                if( mGameUiView != null )
+                {
+                    mGameUiView.createSelectItemDialog( "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int i )
+                        {
+                            if( i == 0 )
+                            {
+                                mGameUiView.sortCards( CardCollection.SORT_BY_RANK );
+                            }
+                            else if( i == 1 )
+                            {
+                                mGameUiView.sortCards( CardCollection.SORT_BY_SUIT );
+                            }
+                            mGameUiView.layoutCards();
+                        }
+                    } ).show();
+                }
+            }
+
             default:
                 return super.onOptionsItemSelected( item );
         }
@@ -313,7 +336,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public boolean canSendCard()
     {
-        return FREE_SEND_MODE || ( mCanSendCard > 0 );
+        return ( FREE_SEND_MODE || ( mCanSendCard > 0 ) ) && mPlayers.size() > 1;
     }
 
     @Override

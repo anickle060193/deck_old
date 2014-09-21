@@ -31,5 +31,6 @@
     <string name="actionShuffleCardsText">Shuffle Cards</string>
     <string name="subMenuConnectionText">Connection</string>
     <string name="subMenuGameText">Game</string>
+    <string name="actionLayoutCardsText">Layout cards</string>
 
 </resources>

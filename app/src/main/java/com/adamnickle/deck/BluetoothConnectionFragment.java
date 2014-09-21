@@ -797,7 +797,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             {
                 try
                 {
-                    bytes = mInputStream.read( buffer, 0, mInputStream.available() );
+                    bytes = mInputStream.read( buffer );
                     if( bytes > 0 )
                     {
                         if( mListener != null )

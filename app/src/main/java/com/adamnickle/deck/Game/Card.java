@@ -137,11 +137,11 @@ public class Card
         {
             if( card.getSuit() < card2.getSuit() )
             {
-                return -1;
+                return 1;
             }
             else if( card.getSuit() > card2.getSuit() )
             {
-                return 1;
+                return -1;
             }
             else
             {

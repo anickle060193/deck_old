@@ -83,6 +83,7 @@ public class ClientGameConnection extends GameConnection
     public void sendCards( String senderID, String receiverID, Card[] cards )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARDS, senderID, receiverID );
+        message.putCards( cards );
         final byte[] data = GameMessage.serializeMessage( message );
 
         if( receiverID.equals( getLocalPlayerID() ) )

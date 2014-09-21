@@ -4,17 +4,19 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Deck;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
 
-public class CardDrawable extends Drawable
+import java.util.Comparator;
+
+public class CardDrawable
 {
+    public static final float CARD_HEADER_PERCENTAGE = 0.27f;
+
     private static final int ORIGINAL_OFFSET = 200;
 
     private static final float MILLISECONDS_TO_SECONDS = 1.0f / 1000.0f;
@@ -128,6 +130,16 @@ public class CardDrawable extends Drawable
     public Card getCard()
     {
         return mCard;
+    }
+
+    public int getWidth()
+    {
+        return mWidth;
+    }
+
+    public int getHeight()
+    {
+        return mHeight;
     }
 
     public boolean isHeld()
@@ -320,7 +332,6 @@ public class CardDrawable extends Drawable
         return mDrawRect.contains( x, y );
     }
 
-    @Override
     public void draw( Canvas canvas )
     {
         if( mIsBitmapLoaded )
@@ -339,19 +350,19 @@ public class CardDrawable extends Drawable
         }
     }
 
-    @Override
-    public void setAlpha( int newAlpha )
+    public static class CardDrawableComparator implements Comparator< CardDrawable >
     {
-    }
+        private final Card.CardComparator mCardComparator;
 
-    @Override
-    public void setColorFilter( ColorFilter colorFilter )
-    {
-    }
+        public CardDrawableComparator( int sortType )
+        {
+            mCardComparator = new Card.CardComparator( sortType );
+        }
 
-    @Override
-    public int getOpacity()
-    {
-        return 1;
+        @Override
+        public int compare( CardDrawable cardDrawable, CardDrawable cardDrawable2 )
+        {
+            return mCardComparator.compare( cardDrawable.getCard(), cardDrawable2.getCard() );
+        }
     }
 }

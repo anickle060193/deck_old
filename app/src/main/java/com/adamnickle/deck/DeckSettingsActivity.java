@@ -1,17 +1,18 @@
 package com.adamnickle.deck;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-public class DeckSettingsActivity extends ActionBarActivity
+public class DeckSettingsActivity extends Activity
 {
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -25,7 +26,11 @@ public class DeckSettingsActivity extends ActionBarActivity
 
     private void setupActionBar()
     {
-        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+        ActionBar actionBar = getActionBar();
+        if( actionBar != null )
+        {
+            actionBar.setDisplayHomeAsUpEnabled( true );
+        }
     }
 
     @Override

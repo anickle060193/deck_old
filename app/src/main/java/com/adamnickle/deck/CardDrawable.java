@@ -82,16 +82,9 @@ public class CardDrawable
             @Override
             public void run()
             {
-                final Resources resources = mGameUiView.getResources();
-
-                final BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeResource( resources, mCard.getResource(), options );
-                mWidth = options.outWidth;
-                mHeight = options.outHeight;
-
-                options.inJustDecodeBounds = false;
-                mBitmap = BitmapFactory.decodeResource( resources, mCard.getResource(), options );
+                mBitmap = BitmapFactory.decodeResource( mGameUiView.getResources(), mCard.getResource(), null );
+                mWidth = mBitmap.getWidth();
+                mHeight = mBitmap.getHeight();
 
                 mX -= mWidth / 2.0f;
                 mY -= mHeight / 2.0f;
@@ -125,6 +118,24 @@ public class CardDrawable
     {
         this( parentView, gameUiListener, card, 0, 0 );
         resetCardDrawable();
+    }
+
+    public void draw( Canvas canvas )
+    {
+        if( mIsBitmapLoaded )
+        {
+            if( mIsFaceUp )
+            {
+                canvas.drawBitmap( mBitmap, null, mDrawRect, null );
+            }
+            else
+            {
+                if( mAreBackBitmapsLoaded )
+                {
+                    canvas.drawBitmap( mBlueBack, null, mDrawRect, null );
+                }
+            }
+        }
     }
 
     public Card getCard()
@@ -330,24 +341,6 @@ public class CardDrawable
     public boolean contains( int x, int y )
     {
         return mDrawRect.contains( x, y );
-    }
-
-    public void draw( Canvas canvas )
-    {
-        if( mIsBitmapLoaded )
-        {
-            if( mIsFaceUp )
-            {
-                canvas.drawBitmap( mBitmap, null, mDrawRect, null );
-            }
-            else
-            {
-                if( mAreBackBitmapsLoaded )
-                {
-                    canvas.drawBitmap( mBlueBack, null, mDrawRect, null );
-                }
-            }
-        }
     }
 
     public static class CardDrawableComparator implements Comparator< CardDrawable >

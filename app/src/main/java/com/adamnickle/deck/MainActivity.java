@@ -1,8 +1,8 @@
 package com.adamnickle.deck;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -10,7 +10,7 @@ import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
 import com.crashlytics.android.Crashlytics;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends Activity
 {
     private static final String TAG = MainActivity.class.getSimpleName();
 

@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -18,8 +20,8 @@ import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Interfaces.GameUiView;
 import com.adamnickle.deck.Interfaces.GameUiListener;
+import com.adamnickle.deck.Interfaces.GameUiView;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -51,6 +53,17 @@ public class GameView extends GameUiView
         mGameGestureListener = mDefaultGameGestureListener;
 
         mToast = Toast.makeText( activity.getApplicationContext(), "", Toast.LENGTH_SHORT );
+
+        final String background = PreferenceManager.getDefaultSharedPreferences( getContext().getApplicationContext() ).getString( DeckSettings.BACKGROUND, "White" );
+        final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
+        for( int i = 0; i < backgrounds.length; i++ )
+        {
+            if( backgrounds[ i ].equals( background ) )
+            {
+                setGameBackground( i );
+                break;
+            }
+        }
     }
 
     @Override
@@ -290,22 +303,42 @@ public class GameView extends GameUiView
                     @Override
                     public void onClick( DialogInterface dialogInterface, int index )
                     {
-                        final TypedArray resources = getResources().obtainTypedArray( R.array.background_drawables );
-                        final int resource = resources.getResourceId( index, -1 );
-                        BitmapDrawable background = (BitmapDrawable) getResources().getDrawable( resource );
-                        background.setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
-                        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN )
-                        {
-                            setBackgroundDrawable( background );
-                        } else
-                        {
-                            setBackground( background );
-                        }
+                        final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
+                        final String background = backgrounds[ index ];
+                        PreferenceManager
+                                .getDefaultSharedPreferences( getContext().getApplicationContext() )
+                                .edit()
+                                .putString( DeckSettings.BACKGROUND, background )
+                                .commit();
+                        setGameBackground( index );
                     }
                 } )
                 .show();
         }
     };
+
+    private void setGameBackground( int drawableIndex )
+    {
+        if( drawableIndex == 0 )
+        {
+            setBackgroundColor( Color.WHITE );
+        }
+        else
+        {
+            final TypedArray resources = getResources().obtainTypedArray( R.array.background_drawables );
+            final int resource = resources.getResourceId( drawableIndex, -1 );
+            BitmapDrawable background = (BitmapDrawable) getResources().getDrawable( resource );
+            background.setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
+            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN )
+            {
+                setBackgroundDrawable( background );
+            }
+            else
+            {
+                setBackground( background );
+            }
+        }
+    }
 
     public void onOrientationChange()
     {

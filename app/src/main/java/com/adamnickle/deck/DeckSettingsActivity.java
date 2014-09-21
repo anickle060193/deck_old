@@ -85,6 +85,7 @@ public class DeckSettingsActivity extends ActionBarActivity
             setRetainInstance( true );
 
             bindPreferenceSummaryToValue( findPreference( DeckSettings.PLAYER_NAME ) );
+            bindPreferenceSummaryToValue( findPreference( DeckSettings.BACKGROUND ) );
         }
 
         @Override

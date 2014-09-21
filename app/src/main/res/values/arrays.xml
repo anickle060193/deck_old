@@ -132,6 +132,7 @@
     </integer-array>
 
     <string-array name="backgrounds">
+        <item>White</item>
         <item>Argyle</item>
         <item>Buried</item>
         <item>Cartographer</item>
@@ -155,6 +156,7 @@
     -->
 
     <integer-array name="background_drawables">
+        <item>0</item>
         <item>@drawable/argyle</item>
         <item>@drawable/burried</item>
         <item>@drawable/cartographer</item>

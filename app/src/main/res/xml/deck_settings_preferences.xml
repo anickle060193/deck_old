@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <EditTextPreference
         android:key="player_name_pref"
@@ -9,5 +10,12 @@
         android:capitalize="words"
         android:singleLine="true"
         android:maxLines="1" />
+
+    <ListPreference
+        android:key="background_pref"
+        android:title="Game background"
+        android:entries="@array/backgrounds"
+        android:entryValues="@array/backgrounds"
+        android:defaultValue="White" />
 
 </PreferenceScreen>

@@ -1,8 +1,11 @@
 package com.adamnickle.deck.Interfaces;
 
 
+import android.content.Context;
+
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.GameMessage;
+import com.adamnickle.deck.Game.GameSave;
 import com.adamnickle.deck.Game.Player;
 
 import java.util.Arrays;
@@ -120,9 +123,11 @@ public abstract class GameConnection implements ConnectionListener
      * GameConnection Required Methods
      *******************************************************************/
     public abstract void startGame();
+    public abstract boolean saveGame( Context context, String saveName );
+    public abstract boolean openGameSave( Context context, GameSave gameSave );
     public abstract void requestCard( String requesterID, String requesteeID );
-    public abstract void sendCard( String senderID, String receiverID, Card card );
-    public abstract void sendCards( String senderID, String receiverID, Card[] cards );
+    public abstract void sendCard( String senderID, String receiverID, Card card, boolean removingFromHand );
+    public abstract void sendCards( String senderID, String receiverID, Card[] cards, boolean removingFromHand );
     public abstract void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID );
     public abstract void setDealer( String setterID, String setteeID, boolean isDealer );
     public abstract void sendPlayerName( String senderID, String receiverID, String name );

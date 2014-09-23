@@ -1,7 +1,11 @@
 package com.adamnickle.deck.Game;
 
+import android.util.JsonReader;
+import android.util.JsonWriter;
+
 import com.adamnickle.deck.CardResources;
 
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Comparator;
 
@@ -190,5 +194,15 @@ public class Card
                 throw new InvalidParameterException( "Invalid comparison type." );
             }
         }
+    }
+
+    public void writeToJson( JsonWriter writer ) throws IOException
+    {
+        writer.value( getCardNumber() );
+    }
+
+    public static Card readFromJson( JsonReader reader ) throws IOException
+    {
+        return new Card( reader.nextInt() );
     }
 }

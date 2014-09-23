@@ -32,5 +32,8 @@
     <string name="subMenuConnectionText">Connection</string>
     <string name="subMenuGameText">Game</string>
     <string name="actionLayoutCardsText">Layout cards</string>
+    <string name="actionSaveGameText">Save Game</string>
+    <string name="actionOpenGameText">Open Game</string>
+    <string name="actionDoneText">Done</string>
 
 </resources>

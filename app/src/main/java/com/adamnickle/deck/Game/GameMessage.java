@@ -1,16 +1,14 @@
 package com.adamnickle.deck.Game;
 
 
-import com.adamnickle.deck.Connector;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import java.util.EnumMap;
 
-public class GameMessage extends HashMap< GameMessage.Key, Object >
+public class GameMessage extends EnumMap< GameMessage.Key, Object >
 {
     public enum MessageType
     {
@@ -36,10 +34,12 @@ public class GameMessage extends HashMap< GameMessage.Key, Object >
         IS_DEALER,
         CURRENT_PLAYER_IDS,
         CURRENT_PLAYER_NAMES,
+        FROM_PLAYER_HAND,
     }
 
     public GameMessage( final MessageType messageType, final String originalSenderID, final String receiverID )
     {
+        super( Key.class );
         put( Key.MESSAGE_TYPE, messageType );
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
@@ -107,9 +107,10 @@ public class GameMessage extends HashMap< GameMessage.Key, Object >
         return new Card( (Integer) super.get( Key.CARD_NUMBER ) );
     }
 
-    public void putCard( final Card card )
+    public void putCard( final Card card, boolean fromPlayerHand )
     {
         super.put( Key.CARD_NUMBER, card.getCardNumber() );
+        putFromPlayerHand( fromPlayerHand );
     }
 
     public String getPlayerName()
@@ -144,7 +145,7 @@ public class GameMessage extends HashMap< GameMessage.Key, Object >
         return players;
     }
 
-    public void putCurrentPlayers( final Connector[] players )
+    public void putCurrentPlayers( final Player[] players )
     {
         final String[] playerIDs = new String[ players.length ];
         final String[] playerNames = new String[ players.length ];
@@ -169,7 +170,7 @@ public class GameMessage extends HashMap< GameMessage.Key, Object >
         return cards;
     }
 
-    public void putCards( final Card[] cards )
+    public void putCards( final Card[] cards, boolean fromPlayerHand )
     {
         final int[] cardNumbers = new int[ cards.length ];
         for( int i = 0; i < cards.length; i++ )
@@ -177,5 +178,16 @@ public class GameMessage extends HashMap< GameMessage.Key, Object >
             cardNumbers[ i ] = cards[ i ].getCardNumber();
         }
         super.put( Key.CARD_NUMBERS, cardNumbers );
+        putFromPlayerHand( fromPlayerHand );
+    }
+
+    public boolean getFromPlayerHand()
+    {
+        return (Boolean)super.get( Key.FROM_PLAYER_HAND );
+    }
+
+    public void putFromPlayerHand( boolean fromPlayerHand )
+    {
+        super.put( Key.FROM_PLAYER_HAND, fromPlayerHand );
     }
 }

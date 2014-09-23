@@ -12,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.adamnickle.deck.Game.DeckSettings;
+
 public class DeckSettingsActivity extends Activity
 {
     @Override

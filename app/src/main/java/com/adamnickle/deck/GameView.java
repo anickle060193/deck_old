@@ -17,9 +17,11 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
 
@@ -70,19 +72,16 @@ public class GameView extends GameUiView
     @Override
     protected void onAttachedToWindow()
     {
-        postDelayed( mUpdateScreen, 10 );
-    }
-
-    private Runnable mUpdateScreen = new Runnable()
-    {
-        @Override
-        public void run()
+        postDelayed( new Runnable()
         {
-            GameView.this.invalidate();
-
-            postDelayed( this, 10 );
-        }
-    };
+            @Override
+            public void run()
+            {
+                GameView.this.invalidate();
+                postDelayed( this, 10 );
+            }
+        }, 10 );
+    }
 
     @Override
     public synchronized void onDraw( Canvas canvas )
@@ -100,7 +99,7 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public boolean onTouchEvent( @NonNull MotionEvent event )
+    public synchronized boolean onTouchEvent( @NonNull MotionEvent event )
     {
         mDetector.onTouchEvent( event );
 
@@ -443,6 +442,46 @@ public class GameView extends GameUiView
             cardDrawable.update( x, y );
             i++;
         }
+    }
+
+    @Override
+    public AlertDialog.Builder createEditTextDialog( String title, String preSetText, String positiveButtonText, String negativeButtonText, final OnEditTextDialogClickListener onClickListener )
+    {
+        final EditText editText = new EditText( mParentActivity );
+
+        AlertDialog.Builder builder = new AlertDialog.Builder( mParentActivity )
+                .setTitle( title )
+                .setView( editText );
+
+        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick( DialogInterface dialogInterface, int i )
+            {
+                switch( i )
+                {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        onClickListener.onPositiveButtonClick( dialogInterface, editText.getText().toString() );
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        onClickListener.onNegativeButtonClick( dialogInterface );
+                        break;
+                }
+            }
+        };
+
+        if( positiveButtonText != null && !positiveButtonText.isEmpty())
+        {
+            builder.setPositiveButton( positiveButtonText, clickListener);
+        }
+
+        if( negativeButtonText != null && !negativeButtonText.isEmpty() )
+        {
+            builder.setNegativeButton( negativeButtonText, clickListener);
+        }
+
+        return builder;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.adamnickle.deck;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.view.ViewGroup;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
+import com.adamnickle.deck.Game.DeckSettings;
+import com.adamnickle.deck.Game.GameSave;
 import com.adamnickle.deck.Game.Player;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
@@ -168,7 +171,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                                 Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
                                 for( int i = 0; i < cardsDealt.length; i++ )
                                 {
-                                    mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ] );
+                                    mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ], false );
                                 }
                             }
                         } ).show();
@@ -218,7 +221,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                             public void onClick( DialogInterface dialogInterface, int index )
                             {
                                 final String playerID = playerIDs[ index ];
-                                mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard() );
+                                mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), false );
                                 dialogInterface.dismiss();
                             }
                         } ).show();
@@ -286,6 +289,65 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 }
             }
 
+            case R.id.actionSaveGame:
+            {
+                if( mGameConnection.isServer() )
+                {
+                    if( mGameUiView != null )
+                    {
+                        mGameUiView.createEditTextDialog( "Enter Deck game save name:", "Game Save", "OK", "Cancel", new GameUiView.OnEditTextDialogClickListener()
+                        {
+                            @Override
+                            public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
+                            {
+                                if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
+                                {
+                                    mGameUiView.showPopup( "Save Successful", "Game save was successful." );
+                                }
+                                else
+                                {
+                                    mGameUiView.showPopup( "Save Unsuccessful", "Game save was not successful." );
+                                }
+                            }
+                        } ).show();
+                    }
+                }
+                return true;
+            }
+
+            case R.id.actionOpenGame:
+            {
+                if( mGameUiView != null )
+                {
+                    final GameSave[] gameSaves = GameSave.getGameSaves( getActivity().getApplicationContext() );
+
+                    if( gameSaves.length == 0 )
+                    {
+                        mGameUiView.showPopup( "No Deck Game Saves", "There are currently no saved Deck games." );
+                    }
+                    else
+                    {
+                        mGameUiView.createSelectItemDialog( "Select game save:", gameSaves, new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick( DialogInterface dialogInterface, int i )
+                            {
+                                if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
+                                {
+                                    mGameUiView.showPopup( "Game Open Successful", "Game open was successful." );
+                                }
+                                else
+                                {
+                                    mGameUiView.showPopup( "Save Open Unsuccessful", "Game open was not successful." );
+                                }
+                                dialogInterface.dismiss();
+                            }
+                        } ).show();
+                    }
+                }
+                return true;
+            }
+
             default:
                 return super.onOptionsItemSelected( item );
         }
@@ -312,7 +374,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         {
                             mLocalPlayer.removeCard( card );
                             mGameUiView.removeCardDrawable( card );
-                            mGameConnection.sendCard( mLocalPlayer.getID(), player.getID(), card );
+                            mGameConnection.sendCard( mLocalPlayer.getID(), player.getID(), card, true );
                         }
                         else
                         {
@@ -413,7 +475,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         {
             mGameUiView.displayNotification( "Disconnected from server." );
         }
-        getActivity().finish();
+        Activity activity = getActivity();
+        if( activity != null )
+        {
+            activity.finish();
+        }
     }
 
     @Override
@@ -428,7 +494,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onConnectionStateChange( int newState )
     {
-        getActivity().invalidateOptionsMenu();
+        getActivity().runOnUiThread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                getActivity().invalidateOptionsMenu();
+            }
+        } );
     }
 
     @Override
@@ -444,9 +517,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onCardsReceive( String senderID, String receiverID, Card[] cards )
     {
+        mLocalPlayer.addCards( cards );
         for( Card card : cards )
         {
-            mLocalPlayer.addCard( card );
             mGameUiView.addCardDrawable( card );
         }
     }
@@ -507,7 +580,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             }
             mGameUiView.displayNotification( notification );
         }
-        getActivity().invalidateOptionsMenu();
+        getActivity().runOnUiThread( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                getActivity().invalidateOptionsMenu();
+            }
+        } );
     }
 
     @Override

@@ -15,10 +15,10 @@ public abstract class GameConnection implements ConnectionListener
     public static final String MOCK_SERVER_ADDRESS = "mock_server_address";
     public static final String MOCK_SERVER_NAME = "Server Host";
 
-    protected ConnectionInterfaceFragment mConnection;
+    protected Connection mConnection;
     protected GameConnectionListener mListener;
 
-    public GameConnection( ConnectionInterfaceFragment connection, GameConnectionListener listener )
+    public GameConnection( Connection connection, GameConnectionListener listener )
     {
         mConnection = connection;
         mListener = listener;
@@ -26,12 +26,12 @@ public abstract class GameConnection implements ConnectionListener
 
     public boolean isServer()
     {
-        return mConnection.getConnectionType() == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER;
+        return mConnection.getConnectionType() == Connection.ConnectionType.SERVER;
     }
 
     public boolean isGameStarted()
     {
-        return mConnection.getState() != ConnectionInterfaceFragment.STATE_NONE;
+        return mConnection.getState() != Connection.State.NONE;
     }
 
     public String getLocalPlayerID()
@@ -108,7 +108,7 @@ public abstract class GameConnection implements ConnectionListener
     }
 
     @Override
-    public void onConnectionStateChange( int newState )
+    public void onConnectionStateChange( Connection.State newState )
     {
         mListener.onConnectionStateChange( newState );
     }

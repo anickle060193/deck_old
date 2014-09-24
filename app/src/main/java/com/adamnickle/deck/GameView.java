@@ -20,10 +20,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.DeckSettings;
+import com.adamnickle.deck.Game.Player;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -342,30 +345,64 @@ public class GameView extends GameUiView
         mGameGestureListener = gameGestureListener;
     }
 
-    @Override
-    public synchronized void addCardDrawable( Card card )
+    private final Player.PlayerListener mPlayerListener = new Player.PlayerListener()
     {
-        mCardDrawables.addFirst( new CardDrawable( this, mListener, card ) );
-    }
-
-    @Override
-    public synchronized boolean removeCardDrawable( Card card )
-    {
-        for( CardDrawable cardDrawable : mCardDrawables )
+        @Override
+        public void onCardRemoved( String playerID, Card card )
         {
-            if( cardDrawable.getCard().equals( card ) )
+            for( CardDrawable cardDrawable : mCardDrawables )
             {
-                mCardDrawables.remove( cardDrawable );
-                return true;
+                if( cardDrawable.getCard().equals( card ) )
+                {
+                    mCardDrawables.remove( cardDrawable );
+                    break;
+                }
             }
         }
-        return false;
-    }
+
+        @Override
+        public void onCardsRemoved( String playerID, Card[] cards )
+        {
+            Arrays.sort( cards, new Card.CardComparator( CardCollection.SortingType.SORT_BY_CARD_NUMBER ) );
+
+            Iterator<CardDrawable> cardDrawables = mCardDrawables.iterator();
+            int removedCards = 0;
+            while( cardDrawables.hasNext() && ( removedCards < cards.length ) )
+            {
+                if( Arrays.binarySearch( cards, cardDrawables.next().getCard() ) >= 0 )
+                {
+                    cardDrawables.remove();
+                    removedCards++;
+                }
+            }
+        }
+
+        @Override
+        public void onCardAdded( String playerID, Card card )
+        {
+            mCardDrawables.addFirst( new CardDrawable( GameView.this, mListener, card ) );
+        }
+
+        @Override
+        public void onCardsAdded( String playerID, Card[] cards )
+        {
+            for( Card card : cards )
+            {
+                this.onCardAdded( playerID, card );
+            }
+        }
+
+        @Override
+        public void onHandCleared( String playerID )
+        {
+            mCardDrawables.clear();
+        }
+    };
 
     @Override
-    public synchronized void removeAllCardDrawables()
+    public Player.PlayerListener getPlayerListener()
     {
-        mCardDrawables.clear();
+        return mPlayerListener;
     }
 
     @Override
@@ -382,9 +419,9 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public synchronized void sortCards( int sortType )
+    public synchronized void sortCards( CardCollection.SortingType sortingType )
     {
-        Collections.sort( mCardDrawables, new CardDrawable.CardDrawableComparator( sortType ) );
+        Collections.sort( mCardDrawables, new CardDrawable.CardDrawableComparator( sortingType ) );
     }
 
     @Override

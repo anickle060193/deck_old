@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.Connection;
 import com.crashlytics.android.Crashlytics;
 
 
@@ -30,8 +30,8 @@ public class MainActivity extends Activity
             public void onClick( View view )
             {
                 Intent startServer = new Intent( MainActivity.this, GameActivity.class );
-                startServer.putExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_TYPE, ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER );
-                startServer.putExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
+                startServer.putExtra( Connection.EXTRA_CONNECTION_TYPE, Connection.ConnectionType.SERVER );
+                startServer.putExtra( Connection.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
                 startActivity( startServer );
             }
         } );
@@ -42,8 +42,8 @@ public class MainActivity extends Activity
             public void onClick( View view )
             {
                 Intent startClient = new Intent( MainActivity.this, GameActivity.class );
-                startClient.putExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_TYPE, ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT );
-                startClient.putExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
+                startClient.putExtra( Connection.EXTRA_CONNECTION_TYPE, Connection.ConnectionType.CLIENT );
+                startClient.putExtra( Connection.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
                 startActivity( startClient );
             }
         } );

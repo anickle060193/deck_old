@@ -8,6 +8,8 @@ import android.view.View;
 
 import com.adamnickle.deck.CardDrawable;
 import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.CardCollection;
+import com.adamnickle.deck.Game.Player;
 
 
 public abstract class GameUiView extends View
@@ -19,11 +21,9 @@ public abstract class GameUiView extends View
 
     public abstract void setGameUiListener( GameUiListener gameUiListener );
     public abstract void setGameGestureListener( GameGestureListener gameGestureListener );
-    public abstract void addCardDrawable( Card card );
-    public abstract boolean removeCardDrawable( Card card );
-    public abstract void removeAllCardDrawables();
+    public abstract Player.PlayerListener getPlayerListener();
     public abstract void resetCard( Card card );
-    public abstract void sortCards( int sortType );
+    public abstract void sortCards( CardCollection.SortingType sortingType );
     public abstract void layoutCards();
     public abstract AlertDialog.Builder createEditTextDialog( String title, String preSetText, String positiveButtonText, String negativeButtonText, OnEditTextDialogClickListener onClickListener  );
     public abstract AlertDialog.Builder createSelectItemDialog( String title, Object items[], DialogInterface.OnClickListener listener );

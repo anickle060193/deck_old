@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.Deck;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
@@ -105,8 +106,8 @@ public class CardDrawable
                     public void run()
                     {
                         final Resources resources = mGameUiView.getResources();
-                        mBlueBack = BitmapFactory.decodeResource( resources, R.drawable.card_blue_back, null );
-                        mRedBack = BitmapFactory.decodeResource( resources, R.drawable.card_red_back, null );
+                        mBlueBack = BitmapFactory.decodeResource( resources, CardResources.BLUE_CARD_BACK, null );
+                        mRedBack = BitmapFactory.decodeResource( resources, CardResources.RED_CARD_BACK, null );
                         mAreBackBitmapsLoaded = true;
                     }
                 }.start();
@@ -347,7 +348,7 @@ public class CardDrawable
     {
         private final Card.CardComparator mCardComparator;
 
-        public CardDrawableComparator( int sortType )
+        public CardDrawableComparator( CardCollection.SortingType sortType )
         {
             mCardComparator = new Card.CardComparator( sortType );
         }

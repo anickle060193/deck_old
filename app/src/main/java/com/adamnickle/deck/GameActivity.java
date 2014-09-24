@@ -9,13 +9,13 @@ import android.view.Window;
 
 import com.adamnickle.deck.Game.ClientGameConnection;
 import com.adamnickle.deck.Game.ServerGameConnection;
-import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
 
 
 public class GameActivity extends Activity
 {
-    private ConnectionInterfaceFragment mConnection;
+    private Connection mConnection;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -26,11 +26,11 @@ public class GameActivity extends Activity
         if( savedInstanceState == null )
         {
             final Intent intent = getIntent();
-            final int connectionType = intent.getIntExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_TYPE, ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT );
-            final String className = intent.getStringExtra( ConnectionInterfaceFragment.EXTRA_CONNECTION_CLASS_NAME );
+            final Connection.ConnectionType connectionType = (Connection.ConnectionType) intent.getSerializableExtra( Connection.EXTRA_CONNECTION_TYPE );
+            final String className = intent.getStringExtra( Connection.EXTRA_CONNECTION_CLASS_NAME );
             try
             {
-                mConnection = (ConnectionInterfaceFragment) Class.forName( className ).newInstance();
+                mConnection = (Connection) Class.forName( className ).newInstance();
                 mConnection.setConnectionType( connectionType );
 
                 getFragmentManager()
@@ -43,11 +43,11 @@ public class GameActivity extends Activity
                 GameConnection gameConnection = null;
                 switch( connectionType )
                 {
-                    case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
+                    case CLIENT:
                         gameConnection = new ClientGameConnection( mConnection, gameFragment );
                         break;
 
-                    case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
+                    case SERVER:
                         gameConnection = new ServerGameConnection( mConnection, gameFragment );
                         break;
                 }
@@ -62,7 +62,7 @@ public class GameActivity extends Activity
             }
             catch( ClassCastException e )
             {
-                throw new ClassCastException( className + " does not extend " + ConnectionInterfaceFragment.class.getSimpleName() );
+                throw new ClassCastException( className + " does not extend " + Connection.class.getSimpleName() );
             }
             catch( InstantiationException e )
             {
@@ -85,11 +85,11 @@ public class GameActivity extends Activity
         String message = null;
         switch( mConnection.getConnectionType() )
         {
-            case ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT:
+            case CLIENT:
                 message = "Close current Game? This will disconnect you from server.";
                 break;
 
-            case ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER:
+            case SERVER:
                 message = "Close current Game? This will disconnect all players.";
                 break;
         }

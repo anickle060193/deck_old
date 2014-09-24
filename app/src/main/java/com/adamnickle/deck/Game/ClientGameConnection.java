@@ -2,7 +2,7 @@ package com.adamnickle.deck.Game;
 
 import android.content.Context;
 
-import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 
@@ -11,7 +11,7 @@ public class ClientGameConnection extends GameConnection
 {
     private String mActualServerAddress;
 
-    public ClientGameConnection( ConnectionInterfaceFragment connection, GameConnectionListener listener )
+    public ClientGameConnection( Connection connection, GameConnectionListener listener )
     {
         super( connection, listener );
     }

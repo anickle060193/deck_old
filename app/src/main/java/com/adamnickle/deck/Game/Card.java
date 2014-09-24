@@ -114,11 +114,11 @@ public class Card
 
     public static class CardComparator implements Comparator< Card >
     {
-        public final int mCompareType;
+        public final CardCollection.SortingType mSortingType;
 
-        public CardComparator( int compareType )
+        public CardComparator( CardCollection.SortingType sortingType )
         {
-            mCompareType = compareType;
+            mSortingType = sortingType;
         }
 
         private int compareRank( Card card, Card card2 )
@@ -153,6 +153,22 @@ public class Card
             }
         }
 
+        private int compareCardNumber( Card card, Card card2 )
+        {
+            if( card.getCardNumber() < card2.getCardNumber() )
+            {
+                return -1;
+            }
+            else if( card.getCardNumber() > card2.getCardNumber() )
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         @Override
         public int compare( Card card, Card card2 )
         {
@@ -165,33 +181,43 @@ public class Card
                 return 1;
             }
 
-            if( mCompareType == CardCollection.SORT_BY_RANK )
+            switch( mSortingType )
             {
-                int comp = compareRank( card, card2 );
-                if( comp != 0 )
+                case SORT_BY_RANK:
                 {
-                    return comp;
+                    int comp = compareRank( card, card2 );
+                    if( comp != 0 )
+                    {
+                        return comp;
+                    }
+                    else
+                    {
+                        return compareSuit( card, card2 );
+                    }
                 }
-                else
+
+                case SORT_BY_SUIT:
                 {
-                    return compareSuit( card, card2 );
+                    int comp = compareSuit( card, card2 );
+                    if( comp != 0 )
+                    {
+                        return comp;
+                    }
+                    else
+                    {
+                        return compareRank( card, card2 );
+                    }
                 }
-            }
-            else if( mCompareType == CardCollection.SORT_BY_SUIT )
-            {
-                int comp = compareSuit( card, card2 );
-                if( comp != 0 )
+
+                case SORT_BY_CARD_NUMBER:
                 {
-                    return comp;
+                    return compareCardNumber( card, card2 );
                 }
-                else
+
+                default:
                 {
-                    return compareRank( card, card2 );
+                    throw new InvalidParameterException( "Invalid sorting type." );
                 }
-            }
-            else
-            {
-                throw new InvalidParameterException( "Invalid comparison type." );
             }
         }
     }

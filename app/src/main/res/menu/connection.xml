@@ -1,24 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto" >
 
-    <item
-        android:id="@+id/actionFinishConnecting"
-        android:title="@string/finish_connecting_menu_item_text"
-        app:showAsAction="never" />
 
-    <item
-        android:id="@+id/actionRestartConnecting"
-        android:title="@string/restart_connecting_menu_item_text"
-        app:showAsAction="never" />
 
-    <item
-        android:id="@+id/actionCloseServer"
-        android:title="@string/close_server_menu_item_text"
-        app:showAsAction="never" />
 
-    <item
-        android:id="@+id/actionLeaveServer"
-        android:title="@string/leave_server_menu_item_text"
-        app:showAsAction="never" />
 
 </menu>

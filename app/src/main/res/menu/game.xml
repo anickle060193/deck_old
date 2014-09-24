@@ -11,51 +11,6 @@
     <item
         android:id="@+id/actionRequestCardFromPlayer"
         android:title="@string/actionRequestCardFromPlayerText"
-        app:showAsAction="never" />
-
-    <group
-        android:id="@+id/serverActions" >
-
-        <item
-            android:id="@+id/actionSaveGame"
-            android:title="@string/actionSaveGameText"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/actionOpenGame"
-            android:title="@string/actionOpenGameText"
-            app:showAsAction="never" />
-
-    </group>
-
-    <group
-        android:id="@+id/dealerActions" >
-
-        <item
-            android:id="@+id/actionClearPlayerHands"
-            android:title="@string/actionClearPlayerHandsText"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/setDealer"
-            android:title="@string/actionSetDealerText"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/shuffleCards"
-            android:title="@string/actionShuffleCardsText"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/actionDealCards"
-            android:title="@string/actionDealCardsText"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/actionDealSingleCard"
-            android:title="@string/actionDealSingleCardText"
-            app:showAsAction="never" />
-
-    </group>
+        android:visible="false" />
 
 </menu>

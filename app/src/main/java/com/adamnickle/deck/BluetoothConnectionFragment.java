@@ -15,7 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.adamnickle.deck.Interfaces.ConnectionInterfaceFragment;
+import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.ConnectionListener;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 
-public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
+public class BluetoothConnectionFragment extends Connection
 {
     private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
 
@@ -47,14 +47,14 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ArrayList< ConnectedThread > mConnectedThreads;
-    private int mState;
-    private int mConnectionType;
+    private State mState;
+    private ConnectionType mConnectionType;
 
     public BluetoothConnectionFragment()
     {
         this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        this.mState = STATE_NONE;
-        this.mConnectionType = CONNECTION_TYPE_NONE;
+        this.mState = State.NONE;
+        this.mConnectionType = ConnectionType.NONE;
 
         mConnectedThreads = new ArrayList< ConnectedThread >();
     }
@@ -110,13 +110,13 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                 {
                     Log.d( TAG, "ENABLE BLUETOOTH - OK" );
 
-                    if( mConnectionType == CONNECTION_TYPE_SERVER )
+                    if( mConnectionType == ConnectionType.SERVER )
                     {
                         startConnection();
                     }
-                    else if( mConnectionType == CONNECTION_TYPE_CLIENT )
+                    else if( mConnectionType == ConnectionType.CLIENT )
                     {
-                        if( mState == STATE_NONE )
+                        if( mState == State.NONE )
                         {
                             findServer();
                         }
@@ -172,7 +172,16 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         super.onCreateOptionsMenu( menu, inflater );
 
-        inflater.inflate( R.menu.connection, menu );
+        switch( getConnectionType() )
+        {
+            case CLIENT:
+                inflater.inflate( R.menu.connection_client, menu );
+                break;
+
+            case SERVER:
+                inflater.inflate( R.menu.connection_server, menu );
+                break;
+        }
     }
 
     @Override
@@ -180,47 +189,39 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         super.onPrepareOptionsMenu( menu );
 
-        if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_NONE )
+        switch( getConnectionType() )
         {
-            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            menu.findItem( R.id.actionCloseServer ).setVisible( false );
-            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-        }
-        else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_CLIENT )
-        {
-            menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-            menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            menu.findItem( R.id.actionCloseServer ).setVisible( false );
+            case CLIENT:
+            {
+                if( mState == State.CONNECTED )
+                {
+                    menu.findItem( R.id.actionLeaveServer ).setVisible( true );
+                }
+                else
+                {
+                    menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+                }
+                break;
+            }
 
-            if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
+            case SERVER:
             {
-                menu.findItem( R.id.actionLeaveServer ).setVisible( true );
-            }
-            else
-            {
-                menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-            }
-        }
-        else if( mConnectionType == ConnectionInterfaceFragment.CONNECTION_TYPE_SERVER )
-        {
-            menu.findItem( R.id.actionCloseServer ).setVisible( true );
-            menu.findItem( R.id.actionLeaveServer ).setVisible( false );
-
-            if( mState == ConnectionInterfaceFragment.STATE_LISTENING )
-            {
-                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            }
-            else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED_LISTENING )
-            {
-                menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
-                menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-            }
-            else if( mState == ConnectionInterfaceFragment.STATE_CONNECTED )
-            {
-                menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-                menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+                if( mState == State.LISTENING )
+                {
+                    menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                    menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+                }
+                else if( mState == State.CONNECTED_LISTENING )
+                {
+                    menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
+                    menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+                }
+                else if( mState == State.CONNECTED )
+                {
+                    menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                    menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+                }
+                break;
             }
         }
     }
@@ -259,24 +260,24 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     }
 
     @Override
-    public synchronized int getConnectionType()
+    public synchronized ConnectionType getConnectionType()
     {
         return mConnectionType;
     }
 
     @Override
-    public synchronized void setConnectionType( int connectionType )
+    public synchronized void setConnectionType( ConnectionType connectionType )
     {
         mConnectionType = connectionType;
     }
 
     @Override
-    public synchronized int getState()
+    public synchronized State getState()
     {
         return mState;
     }
 
-    private synchronized void setState( int state )
+    private synchronized void setState( State state )
     {
         Log.d( TAG, "setState() " + mState + " -> " + state );
         if( state != mState )
@@ -292,7 +293,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     @Override
     public boolean isConnected()
     {
-        return ( mState == STATE_CONNECTED ) || ( mState == STATE_CONNECTED_LISTENING );
+        return ( mState == State.CONNECTED ) || ( mState == State.CONNECTED_LISTENING );
     }
 
     @Override
@@ -310,7 +311,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     public synchronized void startConnection()
     {
         Log.d( TAG, "BEGIN startConnection()" );
-        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
+        if( getConnectionType() == ConnectionType.CLIENT )
         {
             if( !mBluetoothAdapter.isEnabled() )
             {
@@ -321,7 +322,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             }
         }
 
-        if( getConnectionType() == CONNECTION_TYPE_SERVER )
+        if( getConnectionType() == ConnectionType.SERVER )
         {
             if( mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE )
             {
@@ -349,13 +350,13 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         switch( getConnectionType() )
         {
-            case CONNECTION_TYPE_NONE:
-            case CONNECTION_TYPE_CLIENT:
-                setState( STATE_NONE );
+            case NONE:
+            case CLIENT:
+                setState( State.NONE );
                 break;
 
-            case CONNECTION_TYPE_SERVER:
-                setState( STATE_LISTENING );
+            case SERVER:
+                setState( State.LISTENING );
 
                 if( mAcceptThread == null )
                 {
@@ -371,7 +372,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
     {
         Log.d( TAG, "BEGIN restartConnection()" );
 
-        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
+        if( getConnectionType() == ConnectionType.CLIENT )
         {
             startConnection();
             return;
@@ -385,11 +386,11 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         if( mConnectedThreads.isEmpty() )
         {
-            setState( STATE_LISTENING );
+            setState( State.LISTENING );
         }
         else
         {
-            setState( STATE_CONNECTED_LISTENING );
+            setState( State.CONNECTED_LISTENING );
         }
 
         if( mAcceptThread == null )
@@ -416,14 +417,14 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             mAcceptThread = null;
         }
 
-        setState( STATE_CONNECTED );
+        setState( State.CONNECTED );
     }
 
     @Override
     public synchronized void stopConnection()
     {
         Log.d( TAG, "BEGIN stopConnection" );
-        setConnectionType( CONNECTION_TYPE_NONE );
+        setConnectionType( ConnectionType.NONE );
 
         if( mConnectThread != null )
         {
@@ -446,7 +447,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             mAcceptThread = null;
         }
 
-        setState( STATE_NONE );
+        setState( State.NONE );
     }
 
     @Override
@@ -475,8 +476,8 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
         mConnectThread = new ConnectThread( (BluetoothDevice) device );
         mConnectThread.start();
 
-        setConnectionType( CONNECTION_TYPE_CLIENT );
-        setState( STATE_CONNECTING );
+        setConnectionType( ConnectionType.CLIENT );
+        setState( State.CONNECTING );
     }
 
     public synchronized void connected( BluetoothSocket socket, BluetoothDevice device )
@@ -489,7 +490,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             mConnectThread = null;
         }
 
-        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
+        if( getConnectionType() == ConnectionType.CLIENT )
         {
             for( ConnectedThread thread : mConnectedThreads )
             {
@@ -507,13 +508,13 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
             }
         }
 
-        if( getConnectionType() == CONNECTION_TYPE_CLIENT )
+        if( getConnectionType() == ConnectionType.CLIENT )
         {
-            setState( STATE_CONNECTED );
+            setState( State.CONNECTED );
         }
         else
         {
-            setState( STATE_CONNECTED_LISTENING );
+            setState( State.CONNECTED_LISTENING );
         }
 
         ConnectedThread connectedThread = new ConnectedThread( socket );
@@ -552,10 +553,10 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         switch( getConnectionType() )
         {
-            case CONNECTION_TYPE_CLIENT:
+            case CLIENT:
                 stopConnection();
                 break;
-            case CONNECTION_TYPE_SERVER:
+            case SERVER:
                 restartConnection();
                 break;
         }
@@ -571,10 +572,10 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
         switch( getConnectionType() )
         {
-            case CONNECTION_TYPE_CLIENT:
+            case CLIENT:
                 stopConnection();
                 break;
-            case CONNECTION_TYPE_SERVER:
+            case SERVER:
                 restartConnection();
                 break;
         }
@@ -624,7 +625,7 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
 
             BluetoothSocket socket;
 
-            while( mState != STATE_CONNECTED )
+            while( mState != Connection.State.CONNECTED )
             {
                 try
                 {
@@ -642,14 +643,14 @@ public class BluetoothConnectionFragment extends ConnectionInterfaceFragment
                     {
                         switch( mState )
                         {
-                            case STATE_LISTENING:
-                            case STATE_CONNECTING:
-                            case STATE_CONNECTED_LISTENING:
+                            case LISTENING:
+                            case CONNECTING:
+                            case CONNECTED_LISTENING:
                                 connected( socket, socket.getRemoteDevice() );
                                 break;
 
-                            case STATE_NONE:
-                            case STATE_CONNECTED:
+                            case NONE:
+                            case CONNECTED:
                                 try
                                 {
                                     socket.close();

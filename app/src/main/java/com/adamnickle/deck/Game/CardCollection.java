@@ -7,8 +7,12 @@ import java.util.Iterator;
 
 public class CardCollection
 {
-    public static final int SORT_BY_RANK = 1;
-    public static final int SORT_BY_SUIT = 2;
+    public enum SortingType
+    {
+        SORT_BY_RANK,
+        SORT_BY_SUIT,
+        SORT_BY_CARD_NUMBER,
+    }
 
     private ArrayList< Card > mCards;
 
@@ -75,9 +79,9 @@ public class CardCollection
         }
     }
 
-    public void sort( int sortType )
+    public void sort( SortingType sortingType )
     {
-        Collections.sort( mCards, new Card.CardComparator( sortType ) );
+        Collections.sort( mCards, new Card.CardComparator( sortingType ) );
     }
 
     public String toString()

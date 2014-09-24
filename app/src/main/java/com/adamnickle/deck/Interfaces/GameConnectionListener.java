@@ -13,7 +13,7 @@ public interface GameConnectionListener
     public void onServerConnect( String deviceID, String deviceName );
     public void onServerDisconnect( String deviceID );
     public void onNotification( String notification );
-    public void onConnectionStateChange( int newState );
+    public void onConnectionStateChange( Connection.State newState );
     public void onCardReceive( String senderID, String receiverID, Card card );
     public void onCardsReceive( String senderID, String receiverID, Card[] cards );
     public void onCardRequested( String requesterID, String requesteeID );

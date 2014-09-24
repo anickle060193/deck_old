@@ -1,6 +1,5 @@
 package com.adamnickle.deck.Game;
 
-import android.support.annotation.NonNull;
 import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
@@ -15,17 +14,23 @@ public class Player
     protected String mID;
     protected String mName;
     private final ArrayList< Card > mHand;
+    private PlayerListener mListener;
 
     private Player()
     {
         mHand = new ArrayList< Card >();
     }
 
-    public Player( @NonNull String deviceID, @NonNull String name )
+    public Player( String deviceID, String name )
     {
         this();
         mID = deviceID;
         mName = name;
+    }
+
+    public void setPlayerListener( PlayerListener playerListener )
+    {
+        mListener = playerListener;
     }
 
     public String getID()
@@ -53,28 +58,48 @@ public class Player
         return mHand.contains( card );
     }
 
-    public void removeCard( Card card )
+    public boolean removeCard( Card card )
     {
-        mHand.remove( card );
+        if( mListener != null )
+        {
+            mListener.onCardRemoved( mID, card );
+        }
+        return mHand.remove( card );
     }
 
-    public void removeCards( Card[] cards )
+    public boolean removeCards( Card[] cards )
     {
-        mHand.removeAll( Arrays.asList( cards ) );
+        if( mListener != null )
+        {
+            mListener.onCardsRemoved( mID, cards );
+        }
+        return mHand.removeAll( Arrays.asList( cards ) );
     }
 
-    public void addCard( Card card )
+    public boolean addCard( Card card )
     {
-        mHand.add( card );
+        if( mListener != null )
+        {
+            mListener.onCardAdded( mID, card );
+        }
+        return mHand.add( card );
     }
 
-    public void addCards( Card[] cards )
+    public boolean addCards( Card[] cards )
     {
-        mHand.addAll( Arrays.asList( cards ) );
+        if( mListener != null )
+        {
+            mListener.onCardsAdded( mID, cards );
+        }
+        return mHand.addAll( Arrays.asList( cards ) );
     }
 
     public void clearHand()
     {
+        if( mListener != null )
+        {
+            mListener.onHandCleared( mID );
+        }
         mHand.clear();
     }
 
@@ -158,5 +183,14 @@ public class Player
         reader.endObject();
 
         return player;
+    }
+
+    public interface PlayerListener
+    {
+        public void onCardRemoved( String playerID, Card card );
+        public void onCardsRemoved( String playerID, Card[] cards );
+        public void onCardAdded( String playerID, Card card );
+        public void onCardsAdded( String playerID, Card[] cards );
+        public void onHandCleared( String playerID );
     }
 }

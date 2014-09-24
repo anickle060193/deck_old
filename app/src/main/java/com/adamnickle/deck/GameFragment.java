@@ -18,6 +18,7 @@ import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.Game.GameSave;
 import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
@@ -98,22 +99,15 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         super.onCreateOptionsMenu( menu, inflater );
         inflater.inflate( R.menu.game, menu );
-    }
-
-    @Override
-    public void onPrepareOptionsMenu( Menu menu )
-    {
-        super.onPrepareOptionsMenu( menu );
 
         if( mGameConnection.isServer() )
         {
-            menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( false );
-            menu.setGroupVisible( R.id.dealerActions, true );
+            inflater.inflate( R.menu.game_server, menu );
         }
-        else
+
+        if( mGameConnection.isServer() || mIsDealer )
         {
-            menu.findItem( R.id.actionRequestCardFromPlayer ).setVisible( false );
-            menu.setGroupVisible( R.id.dealerActions, true ); //mIsDealer );
+            inflater.inflate( R.menu.game_dealer, menu );
         }
     }
 
@@ -139,55 +133,49 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
             case R.id.actionDealCards:
             {
-                if( mIsDealer || mGameConnection.isServer() )
+                if( mDeck.getCardCount() < mPlayers.size() )
                 {
-                    if( mDeck.getCardCount() < mPlayers.size() )
+                    mGameUiView.showPopup( "No Cards Left", "There are not enough cards left to evenly deal to players." );
+                }
+                else
+                {
+                    final int maxCardsPerPlayer = mDeck.getCardCount() / mPlayers.size();
+                    final Integer[] cardsDealAmounts = new Integer[ maxCardsPerPlayer ];
+                    for( int i = 1; i <= maxCardsPerPlayer; i++ )
                     {
-                        mGameUiView.showPopup( "No Cards Left", "There are not enough cards left to evenly deal to players." );
+                        cardsDealAmounts[ i - 1 ] = i;
                     }
-                    else
+                    mGameUiView.createSelectItemDialog( "Number of cards to deal to each player:", cardsDealAmounts, new DialogInterface.OnClickListener()
                     {
-                        final int maxCardsPerPlayer = mDeck.getCardCount() / mPlayers.size();
-                        final Integer[] cardsDealAmounts = new Integer[ maxCardsPerPlayer ];
-                        for( int i = 1; i <= maxCardsPerPlayer; i++ )
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int index )
                         {
-                            cardsDealAmounts[ i - 1 ] = i;
-                        }
-                        mGameUiView.createSelectItemDialog( "Number of cards to deal to each player:", cardsDealAmounts, new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick( DialogInterface dialogInterface, int index )
+                            int cardsPerPlayer = cardsDealAmounts[ index ];
+                            final Card[][] cardsDealt = new Card[ mPlayers.size() ][ cardsPerPlayer ];
+                            for( int i = 0; i < cardsPerPlayer && mDeck.getCardCount() > 0; i++ )
                             {
-                                int cardsPerPlayer = cardsDealAmounts[ index ];
-                                final Card[][] cardsDealt = new Card[ mPlayers.size() ][ cardsPerPlayer ];
-                                for( int i = 0; i < cardsPerPlayer && mDeck.getCardCount() > 0; i++ )
+                                for( int j = 0; j < mPlayers.size(); j++ )
                                 {
-                                    for( int j = 0; j < mPlayers.size(); j++ )
-                                    {
-                                        cardsDealt[ j ][ i ] = mDeck.removeTopCard();
-                                    }
-                                }
-
-                                Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
-                                for( int i = 0; i < cardsDealt.length; i++ )
-                                {
-                                    mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ], false );
+                                    cardsDealt[ j ][ i ] = mDeck.removeTopCard();
                                 }
                             }
-                        } ).show();
-                    }
+
+                            Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
+                            for( int i = 0; i < cardsDealt.length; i++ )
+                            {
+                                mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ], false );
+                            }
+                        }
+                    } ).show();
                 }
                 return true;
             }
 
             case R.id.actionClearPlayerHands:
             {
-                if( mIsDealer || mGameConnection.isServer() )
+                for( Player player : mPlayers.values() )
                 {
-                    for( Player player : mPlayers.values() )
-                    {
-                        mGameConnection.clearPlayerHand( mLocalPlayer.getID(), player.getID() );
-                    }
+                    mGameConnection.clearPlayerHand( mLocalPlayer.getID(), player.getID() );
                 }
                 mDeck.resetCards();
                 return true;
@@ -195,37 +183,34 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
             case R.id.actionDealSingleCard:
             {
-                if( mIsDealer || mGameConnection.isServer() )
+                if( mPlayers.size() == 0 )
                 {
-                    if( mPlayers.size() == 0 )
+                    mGameUiView.showPopup( "No Players Connected", "There are not players connected to the current game to select from." );
+                }
+                else if( mDeck.getCardCount() == 0 )
+                {
+                    mGameUiView.showPopup( "No Cards Left", "There are no cards left to deal." );
+                }
+                else
+                {
+                    final Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
+                    final String[] playerNames = new String[ players.length ];
+                    final String[] playerIDs = new String[ players.length ];
+                    for( int i = 0; i < players.length; i++ )
                     {
-                        mGameUiView.showPopup( "No Players Connected", "There are not players connected to the current game to select from." );
+                        playerNames[ i ] = players[ i ].getName();
+                        playerIDs[ i ] = players[ i ].getID();
                     }
-                    else if( mDeck.getCardCount() == 0 )
+                    mGameUiView.createSelectItemDialog( "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
                     {
-                        mGameUiView.showPopup( "No Cards Left", "There are no cards left to deal." );
-                    }
-                    else
-                    {
-                        final Player[] players = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
-                        final String[] playerNames = new String[ players.length ];
-                        final String[] playerIDs = new String[ players.length ];
-                        for( int i = 0; i < players.length; i++ )
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int index )
                         {
-                            playerNames[ i ] = players[ i ].getName();
-                            playerIDs[ i ] = players[ i ].getID();
+                            final String playerID = playerIDs[ index ];
+                            mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), false );
+                            dialogInterface.dismiss();
                         }
-                        mGameUiView.createSelectItemDialog( "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick( DialogInterface dialogInterface, int index )
-                            {
-                                final String playerID = playerIDs[ index ];
-                                mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), false );
-                                dialogInterface.dismiss();
-                            }
-                        } ).show();
-                    }
+                    } ).show();
                 }
                 return true;
             }
@@ -277,11 +262,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         {
                             if( i == 0 )
                             {
-                                mGameUiView.sortCards( CardCollection.SORT_BY_RANK );
+                                mGameUiView.sortCards( CardCollection.SortingType.SORT_BY_RANK );
                             }
                             else if( i == 1 )
                             {
-                                mGameUiView.sortCards( CardCollection.SORT_BY_SUIT );
+                                mGameUiView.sortCards( CardCollection.SortingType.SORT_BY_SUIT );
                             }
                             mGameUiView.layoutCards();
                         }
@@ -359,7 +344,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public boolean onAttemptSendCard( final Card card )
     {
-        if( FREE_SEND_MODE || canSendCard() )
+        if( canSendCard() )
         {
             if( mLocalPlayer.hasCard( card ) && mPlayers.size() > 1 )
             {
@@ -373,7 +358,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         if( player != null )
                         {
                             mLocalPlayer.removeCard( card );
-                            mGameUiView.removeCardDrawable( card );
                             mGameConnection.sendCard( mLocalPlayer.getID(), player.getID(), card, true );
                         }
                         else
@@ -407,10 +391,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mGameUiView = gameUiView;
         if( mLocalPlayer != null )
         {
-            for( Card card : mLocalPlayer.getCards() )
-            {
-                mGameUiView.addCardDrawable( card );
-            }
+            mLocalPlayer.setPlayerListener( mGameUiView.getPlayerListener() );
         }
     }
 
@@ -459,6 +440,10 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         }
 
         mLocalPlayer = new Player( mGameConnection.getLocalPlayerID(), "ME" );
+        if( mGameUiView != null )
+        {
+            mLocalPlayer.setPlayerListener( mGameUiView.getPlayerListener() );
+        }
         mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
 
         String playerName = PreferenceManager
@@ -492,7 +477,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
-    public void onConnectionStateChange( int newState )
+    public void onConnectionStateChange( Connection.State newState )
     {
         getActivity().runOnUiThread( new Runnable()
         {
@@ -508,20 +493,12 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     public void onCardReceive( String senderID, String receiverID, Card card )
     {
         mLocalPlayer.addCard( card );
-        if( mGameUiView != null )
-        {
-            mGameUiView.addCardDrawable( card );
-        }
     }
 
     @Override
     public void onCardsReceive( String senderID, String receiverID, Card[] cards )
     {
         mLocalPlayer.addCards( cards );
-        for( Card card : cards )
-        {
-            mGameUiView.addCardDrawable( card );
-        }
     }
 
     @Override
@@ -549,7 +526,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mLocalPlayer.clearHand();
         if( mGameUiView != null )
         {
-            mGameUiView.removeAllCardDrawables();
             String notification;
             if( commanderID.equals( mLocalPlayer.getID() ) )
             {

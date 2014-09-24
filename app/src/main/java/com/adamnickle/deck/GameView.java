@@ -13,7 +13,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -31,8 +30,6 @@ import java.util.LinkedList;
 
 public class GameView extends GameUiView
 {
-    private static final String TAG = "GameView";
-
     private static final float MINIMUM_VELOCITY = 400.0f;
 
     private GestureDetectorCompat mDetector;
@@ -47,7 +44,6 @@ public class GameView extends GameUiView
     public GameView( Activity activity )
     {
         super( activity );
-        Log.d( TAG, "___ CONSTRUCTOR ___" );
 
         mParentActivity = activity;
         mDetector = new GestureDetectorCompat( activity, mGestureListener );
@@ -109,7 +105,6 @@ public class GameView extends GameUiView
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
             {
-                Log.d( TAG, "--- ACTION_DOWN ---" );
 
                 final int pointerIndex = MotionEventCompat.getActionIndex( event );
                 final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
@@ -137,8 +132,6 @@ public class GameView extends GameUiView
 
             case MotionEvent.ACTION_CANCEL:
             {
-                Log.d( TAG, "--- ACTION CANCEL ---" );
-
                 for( int i = 0; i < mMovingCardDrawables.size(); i++ )
                 {
                     mMovingCardDrawables.valueAt( i ).setIsHeld( false );
@@ -150,8 +143,6 @@ public class GameView extends GameUiView
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
             {
-                Log.d( TAG, "--- ACTION UP ---" );
-
                 final int pointerIndex = MotionEventCompat.getActionIndex( event );
                 final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
                 final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
@@ -172,16 +163,12 @@ public class GameView extends GameUiView
         @Override
         public boolean onDown( MotionEvent event )
         {
-            Log.d( TAG, "+++ ON DOWN +++" );
-
             return true;
         }
 
         @Override
         public boolean onFling( MotionEvent event1, MotionEvent event2, float velocityX, float velocityY )
         {
-            Log.d( TAG, "+++ ON FLING +++" );
-
             final float velocity = (float) Math.sqrt( velocityX * velocityX + velocityY * velocityY );
             if( velocity > MINIMUM_VELOCITY )
             {
@@ -205,7 +192,6 @@ public class GameView extends GameUiView
         @Override
         public boolean onScroll( MotionEvent e1, MotionEvent e2, float distanceX, float distanceY )
         {
-            Log.d( TAG, "+++ ON SCROLL +++" );
             for( int i = 0; i < MotionEventCompat.getPointerCount( e2 ); i++ )
             {
                 final int pointerId = MotionEventCompat.getPointerId( e2, i );
@@ -229,8 +215,6 @@ public class GameView extends GameUiView
         @Override
         public boolean onSingleTapConfirmed( MotionEvent event )
         {
-            Log.d( TAG, "+++ ON SINGLE TAP CONFIRMED +++" );
-
             final int x = (int) event.getX();
             final int y = (int) event.getY();
 
@@ -252,8 +236,6 @@ public class GameView extends GameUiView
         @Override
         public boolean onDoubleTap( MotionEvent event )
         {
-            Log.d( TAG, "+++ ON DOUBLE TAP +++" );
-
             final int x = (int) event.getX();
             final int y = (int) event.getY();
 
@@ -342,7 +324,6 @@ public class GameView extends GameUiView
 
     public void onOrientationChange()
     {
-        Log.d( TAG, "__ ORIENTATION CHANGE __" );
         for( CardDrawable cardDrawable : mCardDrawables )
         {
             cardDrawable.onOrientationChange();

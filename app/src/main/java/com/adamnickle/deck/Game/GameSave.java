@@ -19,6 +19,16 @@ import java.util.regex.Pattern;
 
 public final class GameSave
 {
+    private static final String GAME_SAVE_FOLDER = "deck_game_saves";
+    private static final String GAME_SAVE_PREFIX = "deck_game_save";
+    private static final String GAME_SAVE_DELIMITER = ";";
+    private static final String GAME_SAVE_FILE_EXTENSION = ".json";
+
+    private static final String GAME_SAVE_FILE_NAME_FORMAT = GAME_SAVE_PREFIX + GAME_SAVE_DELIMITER + "%s" + GAME_SAVE_DELIMITER + "%d" + GAME_SAVE_DELIMITER + GAME_SAVE_FILE_EXTENSION;
+
+    private static final String PLAYERS_NAME = "players";
+    private static final String LEFT_PLAYERS_NAME = "left_players";
+
     public String SaveName;
     public Date SavedDate;
 
@@ -33,15 +43,11 @@ public final class GameSave
         this( saveName, new Date() );
     }
 
-    private static final String GAME_SAVE_FOLDER = "deck_game_saves";
-    private static final String GAME_SAVE_PREFIX = "deck_game_save";
-    private static final String GAME_SAVE_DELIMITER = ";";
-    private static final String GAME_SAVE_FILE_EXTENSION = ".json";
-
-    private static final String GAME_SAVE_FILE_NAME_FORMAT = GAME_SAVE_PREFIX + GAME_SAVE_DELIMITER + "%s" + GAME_SAVE_DELIMITER + "%d" + GAME_SAVE_DELIMITER + GAME_SAVE_FILE_EXTENSION;
-
-    private static final String PLAYERS_NAME = "players";
-    private static final String LEFT_PLAYERS_NAME = "left_players";
+    @Override
+    public String toString()
+    {
+        return SaveName + " - " + SavedDate.toString();
+    }
 
     public static GameSave parseGameSaveFileName( String gameSaveFileName )
     {
@@ -61,12 +67,19 @@ public final class GameSave
             }
         } );
 
-        final GameSave[] gameSaves = new GameSave[ filesNames.length ];
-        for( int i = 0; i < filesNames.length; i++ )
+        if( filesNames != null )
         {
-            gameSaves[ i ] = GameSave.parseGameSaveFileName( filesNames[ i ] );
+            final GameSave[] gameSaves = new GameSave[ filesNames.length ];
+            for( int i = 0; i < filesNames.length; i++ )
+            {
+                gameSaves[ i ] = GameSave.parseGameSaveFileName( filesNames[ i ] );
+            }
+            return gameSaves;
         }
-        return gameSaves;
+        else
+        {
+            return new GameSave[ 0 ];
+        }
     }
 
     private static String getGameSaveFileName( GameSave gameSave )

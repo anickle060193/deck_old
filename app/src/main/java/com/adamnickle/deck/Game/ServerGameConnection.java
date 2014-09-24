@@ -203,6 +203,12 @@ public class ServerGameConnection extends GameConnection
         if( GameSave.openGameSave( context, gameSave, players, players ) )
         {
             Player[] currentPlayers = mPlayers.values().toArray( new Player[ mPlayers.size() ] );
+
+            for( Player player : currentPlayers )
+            {
+                this.clearPlayerHand( MOCK_SERVER_ADDRESS, player.getID() );
+            }
+
             mPlayers.clear();
             mLeftPlayers = players;
 
@@ -278,7 +284,11 @@ public class ServerGameConnection extends GameConnection
         {
             mPlayers.get( senderID ).removeCards( cards );
         }
-        mPlayers.get( receiverID ).addCards( cards );
+        Player receiver = mPlayers.get( receiverID );
+        if( receiver != null )
+        {
+            receiver.addCards( cards );
+        }
 
         if( receiverID.equals( getLocalPlayerID() ) )
         {

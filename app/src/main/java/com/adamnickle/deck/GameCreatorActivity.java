@@ -1,11 +1,11 @@
 package com.adamnickle.deck;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 
 
-public class GameCreatorActivity extends ActionBarActivity
+public class GameCreatorActivity extends Activity
 {
     private static final String TAG = "GameCreatorActivity";
 

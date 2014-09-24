@@ -302,11 +302,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                             {
                                 if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
                                 {
-                                    mGameUiView.showPopup( "Save Successful", "Game save was successful." );
+                                    mGameUiView.displayNotification( "Game save successful." );
                                 }
                                 else
                                 {
-                                    mGameUiView.showPopup( "Save Unsuccessful", "Game save was not successful." );
+                                    mGameUiView.displayNotification( "Game save not successful." );
                                 }
                             }
                         } ).show();
@@ -334,11 +334,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                             {
                                 if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
                                 {
-                                    mGameUiView.showPopup( "Game Open Successful", "Game open was successful." );
+                                    mGameUiView.displayNotification( "Game open successful." );
                                 }
                                 else
                                 {
-                                    mGameUiView.showPopup( "Save Open Unsuccessful", "Game open was not successful." );
+                                    mGameUiView.displayNotification( "Game open not successful." );
                                 }
                                 dialogInterface.dismiss();
                             }
@@ -555,9 +555,13 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             {
                 notification = "You cleared your hand.";
             }
+            else if( commanderID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
+            {
+                notification = "The server host cleared your hand.";
+            }
             else
             {
-                notification = mPlayers.get( commanderID ).getName() + " cleared your hand";
+                notification = mPlayers.get( commanderID ).getName() + " cleared your hand.";
             }
             mGameUiView.displayNotification( notification );
         }

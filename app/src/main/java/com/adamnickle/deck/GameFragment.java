@@ -272,6 +272,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         }
                     } ).show();
                 }
+                return true;
             }
 
             case R.id.actionSaveGame:

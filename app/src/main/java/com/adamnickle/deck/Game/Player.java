@@ -4,6 +4,8 @@ import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.Interfaces.CardHolderListener;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,12 +15,12 @@ public class Player
 {
     protected String mID;
     protected String mName;
-    private final ArrayList< Card > mHand;
-    private PlayerListener mListener;
+    protected final ArrayList< Card > mCards;
+    protected CardHolderListener mListener;
 
     private Player()
     {
-        mHand = new ArrayList< Card >();
+        mCards = new ArrayList< Card >();
     }
 
     public Player( String deviceID, String name )
@@ -28,9 +30,9 @@ public class Player
         mName = name;
     }
 
-    public void setPlayerListener( PlayerListener playerListener )
+    public void setCardHolderListener( CardHolderListener cardHolderListener )
     {
-        mListener = playerListener;
+        mListener = cardHolderListener;
     }
 
     public String getID()
@@ -50,12 +52,12 @@ public class Player
 
     public int getCardCount()
     {
-        return mHand.size();
+        return mCards.size();
     }
 
     public boolean hasCard( Card card )
     {
-        return mHand.contains( card );
+        return mCards.contains( card );
     }
 
     public boolean removeCard( Card card )
@@ -64,7 +66,7 @@ public class Player
         {
             mListener.onCardRemoved( mID, card );
         }
-        return mHand.remove( card );
+        return mCards.remove( card );
     }
 
     public boolean removeCards( Card[] cards )
@@ -73,7 +75,7 @@ public class Player
         {
             mListener.onCardsRemoved( mID, cards );
         }
-        return mHand.removeAll( Arrays.asList( cards ) );
+        return mCards.removeAll( Arrays.asList( cards ) );
     }
 
     public boolean addCard( Card card )
@@ -82,7 +84,7 @@ public class Player
         {
             mListener.onCardAdded( mID, card );
         }
-        return mHand.add( card );
+        return mCards.add( card );
     }
 
     public boolean addCards( Card[] cards )
@@ -91,21 +93,21 @@ public class Player
         {
             mListener.onCardsAdded( mID, cards );
         }
-        return mHand.addAll( Arrays.asList( cards ) );
+        return mCards.addAll( Arrays.asList( cards ) );
     }
 
-    public void clearHand()
+    public void clearCards()
     {
         if( mListener != null )
         {
-            mListener.onHandCleared( mID );
+            mListener.onCardsCleared( mID );
         }
-        mHand.clear();
+        mCards.clear();
     }
 
     public Card[] getCards()
     {
-        return mHand.toArray( new Card[ mHand.size() ] );
+        return mCards.toArray( new Card[ mCards.size() ] );
     }
 
     @Override
@@ -142,7 +144,7 @@ public class Player
         writer.name( "player_id" ).value( getID() );
         writer.name( "player_name" ).value( getName() );
         writer.name( "cards" ).beginArray();
-        for( Card card : mHand )
+        for( Card card : mCards )
         {
             card.writeToJson( writer );
         }
@@ -183,14 +185,5 @@ public class Player
         reader.endObject();
 
         return player;
-    }
-
-    public interface PlayerListener
-    {
-        public void onCardRemoved( String playerID, Card card );
-        public void onCardsRemoved( String playerID, Card[] cards );
-        public void onCardAdded( String playerID, Card card );
-        public void onCardsAdded( String playerID, Card[] cards );
-        public void onHandCleared( String playerID );
     }
 }

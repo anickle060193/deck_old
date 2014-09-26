@@ -262,13 +262,13 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         {
                             if( i == 0 )
                             {
-                                mGameUiView.sortCards( CardCollection.SortingType.SORT_BY_RANK );
+                                mGameUiView.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_RANK );
                             }
                             else if( i == 1 )
                             {
-                                mGameUiView.sortCards( CardCollection.SortingType.SORT_BY_SUIT );
+                                mGameUiView.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_SUIT );
                             }
-                            mGameUiView.layoutCards();
+                            mGameUiView.layoutCards( mLocalPlayer.getID() );
                         }
                     } ).show();
                 }
@@ -363,7 +363,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         }
                         else
                         {
-                            mGameUiView.resetCard( card );
+                            mGameUiView.resetCard( mLocalPlayer.getID(), card );
                         }
                     }
                 } ).setOnCancelListener( new DialogInterface.OnCancelListener()
@@ -371,7 +371,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     @Override
                     public void onCancel( DialogInterface dialogInterface )
                     {
-                        mGameUiView.resetCard( card );
+                        mGameUiView.resetCard( mLocalPlayer.getID(), card );
                     }
                 } ).show();
                 return true;
@@ -392,7 +392,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mGameUiView = gameUiView;
         if( mLocalPlayer != null )
         {
-            mLocalPlayer.setPlayerListener( mGameUiView.getPlayerListener() );
+            mLocalPlayer.setCardHolderListener( mGameUiView.getPlayerListener() );
         }
     }
 
@@ -425,10 +425,13 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onPlayerDisconnect( String playerID )
     {
-        Player player = mPlayers.remove( playerID );
-        if( player != null && mGameUiView != null )
+        if( mGameConnection.isGameStarted() )
         {
-            mGameUiView.displayNotification( player.getName() + " left game." );
+            Player player = mPlayers.remove( playerID );
+            if( player != null && mGameUiView != null )
+            {
+                mGameUiView.displayNotification( player.getName() + " left game." );
+            }
         }
     }
 
@@ -443,7 +446,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mLocalPlayer = new Player( mGameConnection.getLocalPlayerID(), "ME" );
         if( mGameUiView != null )
         {
-            mLocalPlayer.setPlayerListener( mGameUiView.getPlayerListener() );
+            mLocalPlayer.setCardHolderListener( mGameUiView.getPlayerListener() );
         }
         mPlayers.put( mLocalPlayer.getID(), mLocalPlayer );
 
@@ -524,7 +527,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onClearPlayerHand( String commanderID, String commandeeID )
     {
-        mLocalPlayer.clearHand();
+        mLocalPlayer.clearCards();
         if( mGameUiView != null )
         {
             String notification;

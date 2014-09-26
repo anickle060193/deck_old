@@ -13,7 +13,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
-import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.EditText;
@@ -22,12 +21,14 @@ import android.widget.Toast;
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.DeckSettings;
-import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deck.Interfaces.CardHolderListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -37,7 +38,8 @@ public class GameView extends GameUiView
 
     private GestureDetectorCompat mDetector;
     private final LinkedList< CardDrawable > mCardDrawables;
-    private SparseArray< CardDrawable > mMovingCardDrawables;
+    private HashMap< Integer, CardDrawable > mMovingCardDrawables;
+    private HashMap< String, ArrayList< CardDrawable > > mCardDrawablesByOwners;
 
     private final Activity mParentActivity;
     private GameUiListener mListener;
@@ -51,7 +53,8 @@ public class GameView extends GameUiView
         mParentActivity = activity;
         mDetector = new GestureDetectorCompat( activity, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
-        mMovingCardDrawables = new SparseArray< CardDrawable >();
+        mMovingCardDrawables = new HashMap< Integer, CardDrawable >();
+        mCardDrawablesByOwners = new HashMap< String, ArrayList< CardDrawable > >();
         mGameGestureListener = mDefaultGameGestureListener;
 
         mToast = Toast.makeText( activity.getApplicationContext(), "", Toast.LENGTH_SHORT );
@@ -135,9 +138,9 @@ public class GameView extends GameUiView
 
             case MotionEvent.ACTION_CANCEL:
             {
-                for( int i = 0; i < mMovingCardDrawables.size(); i++ )
+                for( CardDrawable cardDrawable : mMovingCardDrawables.values() )
                 {
-                    mMovingCardDrawables.valueAt( i ).setIsHeld( false );
+                    cardDrawable.setIsHeld( false );
                 }
                 mMovingCardDrawables.clear();
                 break;
@@ -180,11 +183,16 @@ public class GameView extends GameUiView
                 final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
                 if( cardDrawable != null )
                 {
-                    cardDrawable.setVelocity( velocityX, velocityY );
-
                     if( mGameGestureListener != null )
                     {
-                        mGameGestureListener.onCardFling( event1, event2, cardDrawable );
+                        if( !mGameGestureListener.onCardFling( event1, event2, cardDrawable, velocityX, velocityY ) )
+                        {
+                            return mDefaultGameGestureListener.onCardFling( event1, event2, cardDrawable, velocityX, velocityY );
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -204,11 +212,16 @@ public class GameView extends GameUiView
                 CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
                 if( cardDrawable != null )
                 {
-                    cardDrawable.update( (int) x, (int) y );
-
                     if( mGameGestureListener != null )
                     {
-                        mGameGestureListener.onCardMove( e1, e2, cardDrawable );
+                        if( !mGameGestureListener.onCardMove( e1, e2, cardDrawable, x, y ) )
+                        {
+                            return mDefaultGameGestureListener.onCardMove( e1, e2, cardDrawable, x, y );
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -227,7 +240,14 @@ public class GameView extends GameUiView
                 {
                     if( mGameGestureListener != null )
                     {
-                        mGameGestureListener.onCardSingleTap( event, cardDrawable );
+                        if( !mGameGestureListener.onCardSingleTap( event, cardDrawable ) )
+                        {
+                            return mDefaultGameGestureListener.onCardSingleTap( event, cardDrawable );
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                     break;
                 }
@@ -242,7 +262,6 @@ public class GameView extends GameUiView
             final int x = (int) event.getX();
             final int y = (int) event.getY();
 
-            boolean foundCard = false;
             for( CardDrawable cardDrawable : mCardDrawables )
             {
                 if( cardDrawable != null && cardDrawable.contains( x, y ) )
@@ -251,35 +270,60 @@ public class GameView extends GameUiView
 
                     if( mGameGestureListener != null )
                     {
-                        foundCard = true;
-                        mGameGestureListener.onCardDoubleTap( event, cardDrawable );
+                        if( !mGameGestureListener.onCardDoubleTap( event, cardDrawable ))
+                        {
+                            return mDefaultGameGestureListener.onCardDoubleTap( event, cardDrawable );
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                     break;
                 }
             }
 
-            if( !foundCard )
+            if( mGameGestureListener != null )
             {
-                if( mGameGestureListener != null )
+                if( !mGameGestureListener.onGameDoubleTap( event ) )
                 {
-                    mGameGestureListener.onGameDoubleTap( event );
+                    return mDefaultGameGestureListener.onGameDoubleTap( event );
+                }
+                else
+                {
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
     };
 
     private GameGestureListener mDefaultGameGestureListener = new GameGestureListener()
     {
         @Override
-        public void onCardSingleTap( MotionEvent event, CardDrawable cardDrawable )
+        public boolean onCardMove( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float x, float y )
         {
-            cardDrawable.flipFaceUp();
+            cardDrawable.update( (int) x, (int) y );
+            return true;
         }
 
         @Override
-        public void onGameDoubleTap( MotionEvent event )
+        public boolean onCardFling( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float velocityX, float velocityY )
+        {
+            cardDrawable.setVelocity( velocityX, velocityY );
+            return true;
+        }
+
+        @Override
+        public boolean onCardSingleTap( MotionEvent event, CardDrawable cardDrawable )
+        {
+            cardDrawable.flipFaceUp();
+            return true;
+        }
+
+        @Override
+        public boolean onGameDoubleTap( MotionEvent event )
         {
             new AlertDialog.Builder( getContext() )
                     .setTitle( "Pick background" )
@@ -299,6 +343,7 @@ public class GameView extends GameUiView
                         }
                     } )
                     .show();
+            return true;
         }
     };
 
@@ -345,17 +390,26 @@ public class GameView extends GameUiView
         mGameGestureListener = gameGestureListener;
     }
 
-    private final Player.PlayerListener mPlayerListener = new Player.PlayerListener()
+    private final CardHolderListener mCardHolderListener = new CardHolderListener()
     {
         @Override
         public void onCardRemoved( String playerID, Card card )
         {
-            for( CardDrawable cardDrawable : mCardDrawables )
+            ArrayList<CardDrawable> cardDrawables = mCardDrawablesByOwners.get( playerID );
+            if( cardDrawables != null )
             {
-                if( cardDrawable.getCard().equals( card ) )
+                CardDrawable removeCardDrawable = null;
+                for( CardDrawable cardDrawable : cardDrawables )
                 {
-                    mCardDrawables.remove( cardDrawable );
-                    break;
+                    if( cardDrawable.getCard().equals( card ) )
+                    {
+                        removeCardDrawable = cardDrawable;
+                        break;
+                    }
+                }
+                if( removeCardDrawable != null )
+                {
+                    mCardDrawables.remove( removeCardDrawable );
                 }
             }
         }
@@ -365,16 +419,20 @@ public class GameView extends GameUiView
         {
             Arrays.sort( cards, new Card.CardComparator( CardCollection.SortingType.SORT_BY_CARD_NUMBER ) );
 
-            Iterator<CardDrawable> cardDrawables = mCardDrawables.iterator();
-            int removedCards = 0;
-            while( cardDrawables.hasNext() && ( removedCards < cards.length ) )
+            final ArrayList<CardDrawable> cardDrawables = mCardDrawablesByOwners.get( playerID );
+            final Iterator<CardDrawable> cardDrawableIterator = cardDrawables.iterator();
+            final ArrayList< CardDrawable > removedCards = new ArrayList< CardDrawable >();
+
+            while( cardDrawableIterator.hasNext() && ( removedCards.size() < cards.length ) )
             {
-                if( Arrays.binarySearch( cards, cardDrawables.next().getCard() ) >= 0 )
+                final CardDrawable cardDrawable = cardDrawableIterator.next();
+                if( Arrays.binarySearch( cards, cardDrawable.getCard() ) >= 0 )
                 {
-                    cardDrawables.remove();
-                    removedCards++;
+                    removedCards.add( cardDrawable );
+                    cardDrawableIterator.remove();
                 }
             }
+            mCardDrawables.removeAll( removedCards );
         }
 
         @Override
@@ -393,20 +451,20 @@ public class GameView extends GameUiView
         }
 
         @Override
-        public void onHandCleared( String playerID )
+        public void onCardsCleared( String cardHolderID )
         {
             mCardDrawables.clear();
         }
     };
 
     @Override
-    public Player.PlayerListener getPlayerListener()
+    public CardHolderListener getPlayerListener()
     {
-        return mPlayerListener;
+        return mCardHolderListener;
     }
 
     @Override
-    public synchronized void resetCard( Card card )
+    public synchronized void resetCard( String cardHolderID, Card card )
     {
         for( CardDrawable cardDrawable : mCardDrawables )
         {
@@ -419,13 +477,13 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public synchronized void sortCards( CardCollection.SortingType sortingType )
+    public synchronized void sortCards( String cardHolderID, CardCollection.SortingType sortingType )
     {
         Collections.sort( mCardDrawables, new CardDrawable.CardDrawableComparator( sortingType ) );
     }
 
     @Override
-    public synchronized void layoutCards()
+    public synchronized void layoutCards( String cardHolderID )
     {
         if( mCardDrawables.size() == 0 )
         {

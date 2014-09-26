@@ -359,4 +359,12 @@ public class CardDrawable
             return mCardComparator.compare( cardDrawable.getCard(), cardDrawable2.getCard() );
         }
     }
+
+    @Override
+    protected void finalize() throws Throwable
+    {
+        mBitmap.recycle();
+
+        super.finalize();
+    }
 }

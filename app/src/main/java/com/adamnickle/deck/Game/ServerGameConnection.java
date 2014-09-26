@@ -317,7 +317,7 @@ public class ServerGameConnection extends GameConnection
         Player player = mPlayers.get( toBeClearedDeviceID );
         if( player != null )
         {
-            player.clearHand();
+            player.clearCards();
         }
 
         if( toBeClearedDeviceID.equals( getLocalPlayerID() ) )

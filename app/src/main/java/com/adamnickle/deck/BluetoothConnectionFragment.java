@@ -506,10 +506,7 @@ public class BluetoothConnectionFragment extends Connection
                 mAcceptThread.cancel();
                 mAcceptThread = null;
             }
-        }
 
-        if( getConnectionType() == ConnectionType.CLIENT )
-        {
             setState( State.CONNECTED );
         }
         else
@@ -519,12 +516,13 @@ public class BluetoothConnectionFragment extends Connection
 
         ConnectedThread connectedThread = new ConnectedThread( socket );
         mConnectedThreads.add( connectedThread );
-        connectedThread.start();
 
         if( mListener != null )
         {
             mListener.onDeviceConnect( connectedThread.getID(), device.getName() );
         }
+
+        connectedThread.start();
     }
 
     private void write( String deviceID, byte[] out )

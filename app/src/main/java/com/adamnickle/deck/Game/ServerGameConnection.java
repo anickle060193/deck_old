@@ -114,7 +114,7 @@ public class ServerGameConnection extends GameConnection
                 if( !player.getID().equals( getLocalPlayerID() ) )
                 {
                     newPlayerMessage.setReceiverID( player.getID() );
-                    this.sendMessageToDevice( newPlayerMessage, MOCK_SERVER_ADDRESS, player.getID() );
+                    this.sendMessageToDevice( newPlayerMessage, deviceID, player.getID() );
                 }
             }
 
@@ -122,7 +122,7 @@ public class ServerGameConnection extends GameConnection
             {
                 // Send new player to local player
                 newPlayerMessage.setReceiverID( getLocalPlayerID() );
-                this.sendMessageToDevice( newPlayerMessage, MOCK_SERVER_ADDRESS, getLocalPlayerID() );
+                this.sendMessageToDevice( newPlayerMessage, deviceID, getLocalPlayerID() );
             }
         }
 

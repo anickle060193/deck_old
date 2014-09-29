@@ -68,8 +68,7 @@ public class GameActivity extends Activity
 
                 getFragmentManager()
                         .beginTransaction()
-                        .replace( R.id.bottom, gameFragment )
-                        .replace( R.id.top, tableFragment )
+                        .replace( android.R.id.content, gameFragment )
                         .commit();
             }
             catch( ClassCastException e )

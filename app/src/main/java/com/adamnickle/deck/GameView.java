@@ -37,14 +37,14 @@ public class GameView extends GameUiView
     private static final float MINIMUM_VELOCITY = 400.0f;
 
     private GestureDetectorCompat mDetector;
-    private final LinkedList< CardDrawable > mCardDrawables;
-    private HashMap< Integer, CardDrawable > mMovingCardDrawables;
-    private HashMap< String, ArrayList< CardDrawable > > mCardDrawablesByOwners;
+    protected final LinkedList< CardDrawable > mCardDrawables;
+    protected HashMap< Integer, CardDrawable > mMovingCardDrawables;
+    protected HashMap< String, ArrayList< CardDrawable > > mCardDrawablesByOwners;
 
-    private final Activity mParentActivity;
-    private GameUiListener mListener;
-    private final Toast mToast;
-    private GameGestureListener mGameGestureListener;
+    protected final Activity mParentActivity;
+    protected GameUiListener mListener;
+    protected final Toast mToast;
+    protected GameGestureListener mGameGestureListener;
 
     public GameView( Activity activity )
     {
@@ -61,19 +61,14 @@ public class GameView extends GameUiView
 
         final String background = PreferenceManager.getDefaultSharedPreferences( getContext().getApplicationContext() ).getString( DeckSettings.BACKGROUND, "White" );
         final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
-        for( int i = 0; i < backgrounds.length; i++ )
-        {
-            if( backgrounds[ i ].equals( background ) )
-            {
-                setGameBackground( i );
-                break;
-            }
-        }
+        setGameBackground( Arrays.asList( backgrounds ).indexOf( background ) );
     }
 
     @Override
     protected void onAttachedToWindow()
     {
+        super.onAttachedToWindow();
+
         postDelayed( new Runnable()
         {
             @Override
@@ -347,7 +342,7 @@ public class GameView extends GameUiView
         }
     };
 
-    private void setGameBackground( int drawableIndex )
+    protected void setGameBackground( int drawableIndex )
     {
         if( drawableIndex == 0 )
         {
@@ -438,27 +433,58 @@ public class GameView extends GameUiView
         @Override
         public void onCardAdded( String playerID, Card card )
         {
-            mCardDrawables.addFirst( new CardDrawable( GameView.this, mListener, card ) );
+            final CardDrawable cardDrawable = new CardDrawable( GameView.this, mListener, playerID, card );
+            mCardDrawables.addFirst( cardDrawable );
+
+            ArrayList<CardDrawable> cardDrawables;
+            if( !mCardDrawablesByOwners.containsKey( playerID ) )
+            {
+                cardDrawables = new ArrayList< CardDrawable >();
+                mCardDrawablesByOwners.put( playerID, cardDrawables );
+            }
+            else
+            {
+                cardDrawables = mCardDrawablesByOwners.get( playerID );
+            }
+            cardDrawables.add( cardDrawable );
         }
 
         @Override
         public void onCardsAdded( String playerID, Card[] cards )
         {
+            ArrayList<CardDrawable> cardDrawables;
+            if( !mCardDrawablesByOwners.containsKey( playerID ) )
+            {
+                cardDrawables = new ArrayList< CardDrawable >();
+                mCardDrawablesByOwners.put( playerID, cardDrawables );
+            }
+            else
+            {
+                cardDrawables = mCardDrawablesByOwners.get( playerID );
+            }
+
+
             for( Card card : cards )
             {
-                this.onCardAdded( playerID, card );
+                final CardDrawable cardDrawable = new CardDrawable( GameView.this, mListener, playerID, card );
+                mCardDrawables.add( cardDrawable );
+                cardDrawables.add( cardDrawable );
             }
         }
 
         @Override
         public void onCardsCleared( String cardHolderID )
         {
-            mCardDrawables.clear();
+            final ArrayList< CardDrawable > cardDrawables = mCardDrawablesByOwners.remove( cardHolderID );
+            if( cardDrawables != null )
+            {
+                mCardDrawables.removeAll( cardDrawables );
+            }
         }
     };
 
     @Override
-    public CardHolderListener getPlayerListener()
+    public CardHolderListener getCardHolderListener()
     {
         return mCardHolderListener;
     }

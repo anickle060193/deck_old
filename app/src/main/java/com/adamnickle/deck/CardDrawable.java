@@ -38,6 +38,7 @@ public class CardDrawable
     private final GameUiListener mListener;
     private final Card mCard;
 
+    private String mOwnerID;
     private Bitmap mBitmap;
     private Rect mDrawRect;
     private int mWidth;
@@ -53,9 +54,10 @@ public class CardDrawable
     private boolean mSent;
     private boolean mIsFaceUp;
 
-    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, Card card, int x, int y )
+    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, int x, int y )
     {
         mIsBitmapLoaded = false;
+        mOwnerID = ownerID;
         mCard = card;
         mGameUiView = parentView;
         mListener = gameUiListener;
@@ -115,9 +117,9 @@ public class CardDrawable
         }
     }
 
-    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, Card card )
+    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card )
     {
-        this( parentView, gameUiListener, card, 0, 0 );
+        this( parentView, gameUiListener, ownerID, card, 0, 0 );
         resetCardDrawable();
     }
 
@@ -137,6 +139,11 @@ public class CardDrawable
                 }
             }
         }
+    }
+
+    public String getOwnerID()
+    {
+        return mOwnerID;
     }
 
     public Card getCard()
@@ -209,7 +216,7 @@ public class CardDrawable
         updateBounds();
         mLastUpdate = now;
 
-        if( !mListener.canSendCard() )
+        if( !mListener.canSendCard( mOwnerID, this.getCard() ) )
         {
             switch( hasHitWall() )
             {
@@ -241,7 +248,7 @@ public class CardDrawable
             {
                 if( !mSent )
                 {
-                    if( !mListener.onAttemptSendCard( getCard() ) )
+                    if( !mListener.onAttemptSendCard( mOwnerID, getCard() ) )
                     {
                         resetCardDrawable();
                     }

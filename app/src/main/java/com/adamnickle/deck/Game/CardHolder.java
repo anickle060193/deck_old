@@ -11,19 +11,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class Player
+public class CardHolder
 {
+    private static final String JSON_ID = "id";
+    private static final String JSON_NAME = "name";
+    private static final String JSON_CARDS = "cards";
+
     protected String mID;
     protected String mName;
     protected final ArrayList< Card > mCards;
     protected CardHolderListener mListener;
 
-    private Player()
+    private CardHolder()
     {
         mCards = new ArrayList< Card >();
     }
 
-    public Player( String deviceID, String name )
+    public CardHolder( String deviceID, String name )
     {
         this();
         mID = deviceID;
@@ -123,7 +127,7 @@ public class Player
             return false;
         }
 
-        return mID.equals( ( (Player) o ).mID );
+        return mID.equals( ( (CardHolder) o ).mID );
     }
 
     @Override
@@ -141,9 +145,9 @@ public class Player
     public void writeToJson( JsonWriter writer ) throws IOException
     {
         writer.beginObject();
-        writer.name( "player_id" ).value( getID() );
-        writer.name( "player_name" ).value( getName() );
-        writer.name( "cards" ).beginArray();
+        writer.name( JSON_ID ).value( getID() );
+        writer.name( JSON_NAME ).value( getName() );
+        writer.name( JSON_CARDS ).beginArray();
         for( Card card : mCards )
         {
             card.writeToJson( writer );
@@ -152,23 +156,23 @@ public class Player
         writer.endObject();
     }
 
-    public static Player readFromJson( JsonReader reader ) throws IOException
+    public static CardHolder readFromJson( JsonReader reader ) throws IOException
     {
-        Player player = new Player();
+        CardHolder player = new CardHolder();
 
         reader.beginObject();
         while( reader.hasNext() )
         {
             String name = reader.nextName();
-            if( name.equals( "player_id" ) )
+            if( name.equals( JSON_ID ) )
             {
                 player.mID = reader.nextString();
             }
-            else if( name.equals( "player_name" ) )
+            else if( name.equals( JSON_NAME ) )
             {
                 player.mName = reader.nextString();
             }
-            else if( name.equals( "cards" ) && reader.peek() != JsonToken.NULL )
+            else if( name.equals( JSON_CARDS ) && reader.peek() != JsonToken.NULL )
             {
                 reader.beginArray();
                 while( reader.hasNext() )

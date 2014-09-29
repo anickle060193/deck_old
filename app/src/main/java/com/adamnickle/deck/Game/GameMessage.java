@@ -133,19 +133,19 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         super.put( Key.IS_DEALER, isDealer );
     }
 
-    public Player[] getCurrentPlayers()
+    public CardHolder[] getCurrentPlayers()
     {
         final String[] playerIDs = (String[]) super.get( Key.CURRENT_PLAYER_IDS );
         final String[] playerNames = (String[]) super.get( Key.CURRENT_PLAYER_NAMES );
-        final Player[] players = new Player[ playerIDs.length ];
+        final CardHolder[] players = new CardHolder[ playerIDs.length ];
         for( int i = 0; i < playerIDs.length; i++ )
         {
-            players[ i ] = new Player( playerIDs[ i ], playerNames[ i ] );
+            players[ i ] = new CardHolder( playerIDs[ i ], playerNames[ i ] );
         }
         return players;
     }
 
-    public void putCurrentPlayers( final Player[] players )
+    public void putCurrentPlayers( final CardHolder[] players )
     {
         final String[] playerIDs = new String[ players.length ];
         final String[] playerNames = new String[ players.length ];

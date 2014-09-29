@@ -12,6 +12,8 @@ import com.adamnickle.deck.Game.ServerGameConnection;
 import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
 
+import java.security.InvalidParameterException;
+
 
 public class GameActivity extends Activity
 {
@@ -22,6 +24,7 @@ public class GameActivity extends Activity
     {
         super.onCreate( savedInstanceState );
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
+        setContentView( R.layout.activity_game );
 
         if( savedInstanceState == null )
         {
@@ -39,25 +42,34 @@ public class GameActivity extends Activity
                         .commit();
 
                 final GameFragment gameFragment = new GameFragment();
+                final TableFragment tableFragment = new TableFragment();
 
                 GameConnection gameConnection = null;
                 switch( connectionType )
                 {
                     case CLIENT:
-                        gameConnection = new ClientGameConnection( mConnection, gameFragment );
+                        gameConnection = new ClientGameConnection( mConnection );
                         break;
 
                     case SERVER:
-                        gameConnection = new ServerGameConnection( mConnection, gameFragment );
+                        gameConnection = new ServerGameConnection( mConnection );
                         break;
+
+                    default:
+                        throw new InvalidParameterException( "Invalid connection type: " + connectionType );
                 }
                 mConnection.setConnectionListener( gameConnection );
 
+                gameConnection.addGameConnectionListener( gameFragment );
+                gameConnection.addGameConnectionListener( tableFragment );
+
                 gameFragment.setGameConnection( gameConnection );
+                tableFragment.setGameConnection( gameConnection );
 
                 getFragmentManager()
                         .beginTransaction()
-                        .replace( android.R.id.content, gameFragment )
+                        .replace( R.id.bottom, gameFragment )
+                        .replace( R.id.top, tableFragment )
                         .commit();
             }
             catch( ClassCastException e )

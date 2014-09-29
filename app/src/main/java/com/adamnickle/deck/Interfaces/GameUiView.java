@@ -20,7 +20,7 @@ public abstract class GameUiView extends View
 
     public abstract void setGameUiListener( GameUiListener gameUiListener );
     public abstract void setGameGestureListener( GameGestureListener gameGestureListener );
-    public abstract CardHolderListener getPlayerListener();
+    public abstract CardHolderListener getCardHolderListener();
     public abstract void resetCard( String cardHolderID, Card card );
     public abstract void sortCards( String cardHolderID, CardCollection.SortingType sortingType );
     public abstract void layoutCards( String cardHolderID );

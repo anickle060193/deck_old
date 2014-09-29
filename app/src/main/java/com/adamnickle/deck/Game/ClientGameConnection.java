@@ -11,9 +11,9 @@ public class ClientGameConnection extends GameConnection
 {
     private String mActualServerAddress;
 
-    public ClientGameConnection( Connection connection, GameConnectionListener listener )
+    public ClientGameConnection( Connection connection )
     {
-        super( connection, listener );
+        super( connection );
     }
 
     /**
@@ -25,13 +25,19 @@ public class ClientGameConnection extends GameConnection
     public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
         mActualServerAddress = deviceID;
-        mListener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
+        for( GameConnectionListener listener : mListeners )
+        {
+            listener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
+        }
     }
 
     @Override
     public synchronized void onConnectionLost( String deviceID )
     {
-        mListener.onServerDisconnect( deviceID );
+        for( GameConnectionListener listener : mListeners )
+        {
+            listener.onServerDisconnect( deviceID );
+        }
     }
 
     /**
@@ -61,11 +67,25 @@ public class ClientGameConnection extends GameConnection
     }
 
     @Override
+    public void sendMessageToDevice( GameMessage message, String senderID, String receiverID )
+    {
+        if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            final GameConnectionListener listener = this.findAppropriateListener( message.getMessageType(), senderID, receiverID );
+            this.onMessageHandle( listener, senderID, receiverID, message );
+        }
+        else
+        {
+            final byte[] data = GameMessage.serializeMessage( message );
+            mConnection.sendDataToDevice( mActualServerAddress, data );
+        }
+    }
+
+    @Override
     public void requestCard( String requesterID, String requesteeID )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD_REQUEST, requesterID, requesteeID );
-        final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        this.sendMessageToDevice( message, requesterID, requesteeID );
     }
 
     @Override
@@ -73,8 +93,7 @@ public class ClientGameConnection extends GameConnection
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD, senderID, receiverID );
         message.putCard( card, removingFromHand );
-        final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        this.sendMessageToDevice( message, senderID, receiverID );
     }
 
     @Override
@@ -82,16 +101,14 @@ public class ClientGameConnection extends GameConnection
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARDS, senderID, receiverID );
         message.putCards( cards, removingFromHand );
-        final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        this.sendMessageToDevice( message, senderID, receiverID );
     }
 
     @Override
     public void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_HAND, commandingDeviceID, toBeClearedDeviceID );
-        final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        this.sendMessageToDevice( message, commandingDeviceID, toBeClearedDeviceID );
     }
 
     @Override
@@ -99,8 +116,7 @@ public class ClientGameConnection extends GameConnection
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_DEALER, setterID, setteeID );
         message.putIsDealer( isDealer );
-        final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        this.sendMessageToDevice( message, setterID, setteeID );
     }
 
     @Override
@@ -108,7 +124,6 @@ public class ClientGameConnection extends GameConnection
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_PLAYER_NAME, senderID, receiverID );
         message.putName( name );
-        final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        this.sendMessageToDevice( message, senderID, receiverID );
     }
 }

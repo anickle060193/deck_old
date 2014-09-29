@@ -87,7 +87,7 @@ public final class GameSave
         return String.format( GAME_SAVE_FILE_NAME_FORMAT, gameSave.SaveName, gameSave.SavedDate.getTime() );
     }
 
-    public static boolean openGameSave( Context context, GameSave gameSave, HashMap<String, Player> players, HashMap<String, Player> leftPlayers )
+    public static boolean openGameSave( Context context, GameSave gameSave, HashMap<String, CardHolder > players, HashMap<String, CardHolder > leftPlayers )
     {
         boolean success = true;
         InputStreamReader inputStreamReader = null;
@@ -108,7 +108,7 @@ public final class GameSave
                     reader.beginArray();
                     while( reader.hasNext() )
                     {
-                        Player player = Player.readFromJson( reader );
+                        CardHolder player = CardHolder.readFromJson( reader );
                         players.put( player.getID(), player );
                     }
                     reader.endArray();
@@ -118,7 +118,7 @@ public final class GameSave
                     reader.beginArray();
                     while( reader.hasNext() )
                     {
-                        Player player = Player.readFromJson( reader );
+                        CardHolder player = CardHolder.readFromJson( reader );
                         leftPlayers.put( player.getID(), player );
                     }
                     reader.endArray();
@@ -158,7 +158,7 @@ public final class GameSave
         return success;
     }
 
-    public static boolean saveGame( Context context, GameSave gameSave, Player[] players, Player[] leftPlayers )
+    public static boolean saveGame( Context context, GameSave gameSave, CardHolder[] players, CardHolder[] leftPlayers )
     {
         boolean success = true;
         OutputStreamWriter outputStreamWriter = null;
@@ -182,14 +182,14 @@ public final class GameSave
             writer.beginObject();
 
             writer.name( PLAYERS_NAME ).beginArray();
-            for( Player player : players )
+            for( CardHolder player : players )
             {
                 player.writeToJson( writer );
             }
             writer.endArray();
 
             writer.name( LEFT_PLAYERS_NAME ).beginArray();
-            for( Player player : leftPlayers )
+            for( CardHolder player : leftPlayers )
             {
                 player.writeToJson( writer );
             }

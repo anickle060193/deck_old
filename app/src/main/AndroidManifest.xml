@@ -10,6 +10,14 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+        Deck application icon created using Inkscape.
+        Deck application icon font is ChunkFive.
+        Deck application icon drawables created using
+            Android Asset Studio - Launcher Icon Generator
+            http://romannurik.github.io/AndroidAssetStudio/icons-launcher.html
+    -->
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"

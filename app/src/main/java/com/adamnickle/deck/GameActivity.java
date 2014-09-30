@@ -93,30 +93,33 @@ public class GameActivity extends Activity
     @Override
     public void onBackPressed()
     {
-        String message = null;
-        switch( mConnection.getConnectionType() )
+        if( mConnection != null && mConnection.isConnected() )
         {
-            case CLIENT:
-                message = "Close current Game? This will disconnect you from server.";
-                break;
+            String message = null;
+            switch( mConnection.getConnectionType() )
+            {
+                case CLIENT:
+                    message = "Close current Game? This will disconnect you from server.";
+                    break;
 
-            case SERVER:
-                message = "Close current Game? This will disconnect all players.";
-                break;
-        }
+                case SERVER:
+                    message = "Close current Game? This will disconnect all players.";
+                    break;
+            }
 
-        new AlertDialog.Builder( this )
-                .setTitle( "Close Game" )
-                .setMessage( message )
-                .setPositiveButton( "OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialogInterface, int i )
+            new AlertDialog.Builder( this )
+                    .setTitle( "Close Game" )
+                    .setMessage( message )
+                    .setPositiveButton( "OK", new DialogInterface.OnClickListener()
                     {
-                        GameActivity.this.finish();
-                    }
-                } )
-                .setNegativeButton( "Cancel", null )
-                .show();
+                        @Override
+                        public void onClick( DialogInterface dialogInterface, int i )
+                        {
+                            GameActivity.this.finish();
+                        }
+                    } )
+                    .setNegativeButton( "Cancel", null )
+                    .show();
+        }
     }
 }

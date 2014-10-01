@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/actionSaveGame"
         android:title="@string/actionSaveGameText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/actionOpenGame"
         android:title="@string/actionOpenGameText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 </menu>

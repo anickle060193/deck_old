@@ -25,8 +25,6 @@
     <string name="actionClearPlayerHandsText">Clear Player Hands</string>
     <string name="actionDealSingleCardText">Deal Single Card</string>
     <string name="actionRequestCardFromPlayerText">Request Card From Player</string>
-    <string name="drawer_open">Drawer Open</string>
-    <string name="drawer_closed">Drawer Closed</string>
     <string name="actionSetDealerText">Set Dealer</string>
     <string name="actionShuffleCardsText">Shuffle Cards</string>
     <string name="subMenuConnectionText">Connection</string>

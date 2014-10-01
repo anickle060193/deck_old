@@ -1,120 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:key="pref_game_creator_screen" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <EditTextPreference
-        android:key="pref_game_name"
-        android:title="Game name"
-        android:defaultValue="New Game"
-        android:inputType="textAutoComplete|textCapWords"
-        android:persistent="false" />
+        android:key="pref_draw_pile_count"
+        android:title="Number of draw piles"
+        android:defaultValue="0"
+        android:inputType="number" />
 
-    <PreferenceCategory
-        android:title="Player Settings"
-        android:key="pref_players_category">
-
-        <EditTextPreference
-            android:key="pref_min_players"
-            android:title="Minimum required players"
-            android:defaultValue="2"
-            android:inputType="number"
-            android:persistent="false" />
-
-        <EditTextPreference
-            android:key="pref_max_players"
-            android:title="Maximum allowed players"
-            android:defaultValue="4"
-            android:inputType="number"
-            android:persistent="false" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="Card Settings"
-        android:key="pref_card_category">
-
-        <CheckBoxPreference
-            android:key="pref_deal_full_amount"
-            android:title="Deal full deck"
-            android:summary="Deal all cards, evenly, to all players"
-            android:defaultValue="true"
-            android:disableDependentsState="true"
-            android:persistent="false" />
-
-        <EditTextPreference
-            android:key="pref_initial_cards_per_player"
-            android:title="Initial amount of cards dealt to each player"
-            android:defaultValue="0"
-            android:inputType="number"
-            android:dependency="pref_deal_full_amount"
-            android:persistent="false" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="Card Points Settings"
-        android:key="pref_card_points_category">
-
-        <CheckBoxPreference
-            android:key="pref_track_points"
-            android:title="Track player points"
-            android:defaultValue="false"
-            android:persistent="false" />
-
-        <ListPreference
-            android:key="pref_points_value_style"
-            android:title="Card points value style"
-            android:entries="@array/points_value_styles"
-            android:entryValues="@array/points_value_styles"
-            android:defaultValue="Face Value"
-            android:dependency="pref_track_points"
-            android:persistent="false"/>
-
-        <PreferenceScreen
-            android:key="pref_custom_points_value_screen"
-            android:title="Custom card point values"
-            android:dependency="pref_points_value_style" >
-
-            <ListPreference
-                android:key="pref_card_points_set_method"
-                android:title="Method of assigning point value"
-                android:entries="@array/card_set_points_method"
-                android:entryValues="@array/card_set_points_method"
-                android:persistent="false" />
-
-            <PreferenceCategory
-                android:key="pref_suits_category"
-                android:title="Suits" />
-
-            <PreferenceCategory
-                android:key="pref_ranks_category"
-                android:title="Ranks" />
-
-            <PreferenceCategory
-                android:key="pref_cards_category"
-                android:title="Cards" >
-
-                <PreferenceScreen
-                    android:key="pref_cards_spades_screen"
-                    android:title="Spades" />
-
-                <PreferenceScreen
-                    android:key="pref_cards_hearts_screen"
-                    android:title="Hearts" />
-
-                <PreferenceScreen
-                    android:key="pref_cards_clubs_screen"
-                    android:title="Clubs" />
-
-                <PreferenceScreen
-                    android:key="pref_cards_diamonds_screen"
-                    android:title="Diamonds" />
-
-            </PreferenceCategory>
-
-        </PreferenceScreen>
-
-    </PreferenceCategory>
+    <EditTextPreference
+        android:key="pref_discard_pile_count"
+        android:title="Number of discard piles"
+        android:defaultValue="0"
+        android:inputType="number" />
 
 </PreferenceScreen>

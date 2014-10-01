@@ -10,9 +10,6 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.EditText;
@@ -36,7 +33,7 @@ public class GameView extends GameUiView
 {
     private static final float MINIMUM_VELOCITY = 400.0f;
 
-    private GestureDetectorCompat mDetector;
+    private GestureDetector mDetector;
     protected final LinkedList< CardDrawable > mCardDrawables;
     protected HashMap< Integer, CardDrawable > mMovingCardDrawables;
     protected HashMap< String, ArrayList< CardDrawable > > mCardDrawablesByOwners;
@@ -51,7 +48,7 @@ public class GameView extends GameUiView
         super( activity );
 
         mParentActivity = activity;
-        mDetector = new GestureDetectorCompat( activity, mGestureListener );
+        mDetector = new GestureDetector( activity, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
         mMovingCardDrawables = new HashMap< Integer, CardDrawable >();
         mCardDrawablesByOwners = new HashMap< String, ArrayList< CardDrawable > >();
@@ -96,21 +93,21 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public synchronized boolean onTouchEvent( @NonNull MotionEvent event )
+    public synchronized boolean onTouchEvent( MotionEvent event )
     {
         mDetector.onTouchEvent( event );
 
-        final int action = MotionEventCompat.getActionMasked( event );
+        final int action = event.getActionMasked();
         switch( action )
         {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
             {
 
-                final int pointerIndex = MotionEventCompat.getActionIndex( event );
-                final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
-                final float x = MotionEventCompat.getX( event, pointerIndex );
-                final float y = MotionEventCompat.getY( event, pointerIndex );
+                final int pointerIndex = event.getActionIndex();
+                final int pointerId = event.getPointerId( pointerIndex );
+                final float x = event.getX( pointerIndex );
+                final float y = event.getY( pointerIndex );
 
                 CardDrawable activeCardDrawable = null;
                 for( CardDrawable cardDrawable : mCardDrawables )
@@ -144,8 +141,8 @@ public class GameView extends GameUiView
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
             {
-                final int pointerIndex = MotionEventCompat.getActionIndex( event );
-                final int pointerId = MotionEventCompat.getPointerId( event, pointerIndex );
+                final int pointerIndex = event.getActionIndex();
+                final int pointerId = event.getPointerId( pointerIndex );
                 final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
                 if( cardDrawable != null )
                 {
@@ -173,8 +170,8 @@ public class GameView extends GameUiView
             final float velocity = (float) Math.sqrt( velocityX * velocityX + velocityY * velocityY );
             if( velocity > MINIMUM_VELOCITY )
             {
-                final int pointerIndex = MotionEventCompat.getActionIndex( event2 );
-                final int pointerId = MotionEventCompat.getPointerId( event2, pointerIndex );
+                final int pointerIndex = event2.getActionIndex();
+                final int pointerId = event2.getPointerId( pointerIndex );
                 final CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
                 if( cardDrawable != null )
                 {
@@ -198,11 +195,11 @@ public class GameView extends GameUiView
         @Override
         public boolean onScroll( MotionEvent e1, MotionEvent e2, float distanceX, float distanceY )
         {
-            for( int i = 0; i < MotionEventCompat.getPointerCount( e2 ); i++ )
+            for( int i = 0; i < e2.getPointerCount(); i++ )
             {
-                final int pointerId = MotionEventCompat.getPointerId( e2, i );
-                final float x = MotionEventCompat.getX( e2, i );
-                final float y = MotionEventCompat.getY( e2, i );
+                final int pointerId = e2.getPointerId( i );
+                final float x = e2.getX( i );
+                final float y = e2.getY( i );
 
                 CardDrawable cardDrawable = mMovingCardDrawables.get( pointerId );
                 if( cardDrawable != null )

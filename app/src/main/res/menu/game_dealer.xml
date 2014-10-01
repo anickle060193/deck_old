@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/actionClearPlayerHands"
         android:title="@string/actionClearPlayerHandsText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/setDealer"
         android:title="@string/actionSetDealerText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/shuffleCards"
         android:title="@string/actionShuffleCardsText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/actionDealCards"
         android:title="@string/actionDealCardsText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/actionDealSingleCard"
         android:title="@string/actionDealSingleCardText"
-        app:showAsAction="never" />
+        android:showAsAction="never" />
 
 </menu>

@@ -1,62 +1,22 @@
 package com.adamnickle.deck.Game;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.content.Context;
+import android.preference.PreferenceManager;
 
-
-public class GameSettings implements Parcelable
+public abstract class GameSettings
 {
-    public String GameName;
-    public int MinimumPlayers;
-    public int MaximumPlayers;
-    public boolean TrackPoints;
-    public int[] CardPointValues;
-    public boolean DealFullDeck;
-    public int InitialCardsPerPlayer;
+    private GameSettings() { }
 
-    public boolean DrawPile;
-    public boolean DiscardPile;
-    public boolean Teams;
-    public boolean AcesHigh;
-    public int CardRankingType;
+    public static final String KEY_PREF_DRAW_PILE_COUNT = "pref_draw_pile_count";
+    public static final String KEY_PREF_DISCARD_PILE_COUNT = "pref_discard_pile_count";
 
-    public GameSettings()
+    public static int getDrawPileCount( Context context )
     {
-        GameName = "New Game";
-        MinimumPlayers = 2;
-        MaximumPlayers = 4;
-        TrackPoints = false;
-        CardPointValues = null;
-        DealFullDeck = true;
-        InitialCardsPerPlayer = 0;
+        return Integer.parseInt( PreferenceManager.getDefaultSharedPreferences( context ).getString( KEY_PREF_DRAW_PILE_COUNT, "0" ) );
     }
 
-    public GameSettings( Parcel in )
+    public static int getDiscardPileCount( Context context )
     {
-        GameName = in.readString();
-        MinimumPlayers = in.readInt();
-        MaximumPlayers = in.readInt();
-        TrackPoints = in.readInt() == 1;
-        in.readIntArray( CardPointValues );
-        DealFullDeck = in.readInt() == 1;
-        InitialCardsPerPlayer = in.readInt();
-    }
-
-    @Override
-    public int describeContents()
-    {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel( Parcel parcel, int flags )
-    {
-        parcel.writeString( GameName );
-        parcel.writeInt( MinimumPlayers );
-        parcel.writeInt( MaximumPlayers );
-        parcel.writeInt( TrackPoints ? 1 : 0 );
-        parcel.writeIntArray( CardPointValues );
-        parcel.writeInt( DealFullDeck ? 1 : 0 );
-        parcel.writeInt( InitialCardsPerPlayer );
+        return Integer.parseInt( PreferenceManager.getDefaultSharedPreferences( context ).getString( KEY_PREF_DISCARD_PILE_COUNT, "0" ) );
     }
 }

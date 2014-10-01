@@ -17,7 +17,12 @@ import java.security.InvalidParameterException;
 
 public class GameActivity extends Activity
 {
+    private static final int CREATE_GAME_CODE = 1;
+
     private Connection mConnection;
+    private GameConnection mGameConnection;
+    private GameFragment mGameFragment;
+    private TableFragment mTableFragment;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -41,35 +46,44 @@ public class GameActivity extends Activity
                         .add( mConnection, mConnection.getClass().getName() )
                         .commit();
 
-                final GameFragment gameFragment = new GameFragment();
-                final TableFragment tableFragment = new TableFragment();
+                mGameFragment = new GameFragment();
+                mTableFragment = new TableFragment();
 
-                GameConnection gameConnection = null;
+                mGameConnection = null;
                 switch( connectionType )
                 {
                     case CLIENT:
-                        gameConnection = new ClientGameConnection( mConnection );
+                        mGameConnection = new ClientGameConnection( mConnection );
                         break;
 
                     case SERVER:
-                        gameConnection = new ServerGameConnection( mConnection );
+                        mGameConnection = new ServerGameConnection( mConnection );
                         break;
 
                     default:
                         throw new InvalidParameterException( "Invalid connection type: " + connectionType );
                 }
-                mConnection.setConnectionListener( gameConnection );
+                mConnection.setConnectionListener( mGameConnection );
 
-                gameConnection.addGameConnectionListener( gameFragment );
-                gameConnection.addGameConnectionListener( tableFragment );
+                mGameConnection.addGameConnectionListener( mGameFragment );
+                mGameConnection.addGameConnectionListener( mTableFragment );
 
-                gameFragment.setGameConnection( gameConnection );
-                tableFragment.setGameConnection( gameConnection );
+                mGameFragment.setGameConnection( mGameConnection );
+                mTableFragment.setGameConnection( mGameConnection );
 
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace( android.R.id.content, gameFragment )
-                        .commit();
+                switch( connectionType )
+                {
+                    case CLIENT:
+                        getFragmentManager()
+                                .beginTransaction()
+                                .replace( android.R.id.content, mGameFragment )
+                                .commit();
+                        break;
+
+                    case SERVER:
+                        startActivityForResult( new Intent( this, GameCreatorActivity.class ), CREATE_GAME_CODE );
+                        break;
+                }
             }
             catch( ClassCastException e )
             {
@@ -87,6 +101,30 @@ public class GameActivity extends Activity
             {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult( int requestCode, int resultCode, Intent data )
+    {
+        switch( requestCode )
+        {
+            case CREATE_GAME_CODE:
+                if( resultCode == Activity.RESULT_OK )
+                {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .replace( android.R.id.content, mGameFragment )
+                            .commit();
+                }
+                else
+                {
+                    this.finish();
+                }
+                break;
+
+            default:
+                super.onActivityResult( requestCode, resultCode, data );
         }
     }
 
@@ -120,6 +158,10 @@ public class GameActivity extends Activity
                     } )
                     .setNegativeButton( "Cancel", null )
                     .show();
+        }
+        else
+        {
+            super.onBackPressed();
         }
     }
 }

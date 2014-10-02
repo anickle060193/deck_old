@@ -17,8 +17,6 @@ import java.security.InvalidParameterException;
 
 public class GameActivity extends Activity
 {
-    private static final int CREATE_GAME_CODE = 1;
-
     private Connection mConnection;
     private GameConnection mGameConnection;
     private GameFragment mGameFragment;
@@ -71,19 +69,11 @@ public class GameActivity extends Activity
                 mGameFragment.setGameConnection( mGameConnection );
                 mTableFragment.setGameConnection( mGameConnection );
 
-                switch( connectionType )
-                {
-                    case CLIENT:
-                        getFragmentManager()
-                                .beginTransaction()
-                                .replace( android.R.id.content, mGameFragment )
-                                .commit();
-                        break;
-
-                    case SERVER:
-                        startActivityForResult( new Intent( this, GameCreatorActivity.class ), CREATE_GAME_CODE );
-                        break;
-                }
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace( R.id.top, mTableFragment )
+                        .replace( R.id.bottom, mGameFragment )
+                        .commit();
             }
             catch( ClassCastException e )
             {
@@ -101,30 +91,6 @@ public class GameActivity extends Activity
             {
                 e.printStackTrace();
             }
-        }
-    }
-
-    @Override
-    protected void onActivityResult( int requestCode, int resultCode, Intent data )
-    {
-        switch( requestCode )
-        {
-            case CREATE_GAME_CODE:
-                if( resultCode == Activity.RESULT_OK )
-                {
-                    getFragmentManager()
-                            .beginTransaction()
-                            .replace( android.R.id.content, mGameFragment )
-                            .commit();
-                }
-                else
-                {
-                    this.finish();
-                }
-                break;
-
-            default:
-                super.onActivityResult( requestCode, resultCode, data );
         }
     }
 
@@ -161,7 +127,7 @@ public class GameActivity extends Activity
         }
         else
         {
-            super.onBackPressed();
+            GameActivity.this.finish();
         }
     }
 }

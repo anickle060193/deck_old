@@ -51,8 +51,8 @@ public class CardDrawable
     private float mVelocityY;
     private Runnable mPositionUpdateRunnable;
     private long mLastUpdate;
-    private boolean mSent;
     private boolean mIsFaceUp;
+    private boolean mAskedToSend;
 
     public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, int x, int y )
     {
@@ -64,7 +64,7 @@ public class CardDrawable
         mX = x;
         mY = y;
         mIsFaceUp = false;
-        mSent = false;
+        mAskedToSend = false;
 
         mPositionUpdateRunnable = new Runnable()
         {
@@ -202,7 +202,6 @@ public class CardDrawable
         updateBounds();
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
-        mSent = false;
     }
 
     private synchronized void updateWithVelocity()
@@ -246,18 +245,9 @@ public class CardDrawable
         {
             if( !isOnScreen() )
             {
-                if( !mSent )
+                if( !mListener.onAttemptSendCard( mOwnerID, getCard() ) )
                 {
-                    if( !mListener.onAttemptSendCard( mOwnerID, getCard() ) )
-                    {
-                        resetCardDrawable();
-                    }
-                }
-                else
-                {
-                    mVelocityX = 0.0f;
-                    mVelocityY = 0.0f;
-                    mSent = true;
+                    resetCardDrawable();
                 }
                 return;
             }
@@ -341,8 +331,9 @@ public class CardDrawable
             return;
         }
 
-        mX = x;
-        mY = y;
+        mX = Math.min( Math.max( x, 0 ), mGameUiView.getWidth() );
+        mY = Math.min( Math.max( y, 0 ), mGameUiView.getHeight() );
+
         updateBounds();
     }
 

@@ -32,20 +32,17 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
     private void initializePreferences()
     {
         PreferenceManager.setDefaultValues( this.getActivity(), R.xml.game_creator_preferences, true );
+        Preference preference;
 
-        bindPreferenceSummaryToValue( findPreference( GameSettings.KEY_PREF_DRAW_PILE_COUNT ) );
-        bindPreferenceSummaryToValue( findPreference( GameSettings.KEY_PREF_DISCARD_PILE_COUNT ) );
+        preference = findPreference( GameSettings.KEY_PREF_ENABLE_TABLE_VIEW );
+        bindPreferenceSummaryToValue( preference, PreferenceManager.getDefaultSharedPreferences( preference.getContext() ).getBoolean( GameSettings.KEY_PREF_ENABLE_TABLE_VIEW, true ) );
     }
 
-    private void bindPreferenceSummaryToValue( Preference preference )
+    private void bindPreferenceSummaryToValue( Preference preference, Object defaultValue )
     {
         preference.setOnPreferenceChangeListener( this );
 
-        this.onPreferenceChange(
-                preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences( preference.getContext() )
-                        .getString( preference.getKey(), "" ) );
+        this.onPreferenceChange( preference, defaultValue );
     }
 
     @Override
@@ -79,13 +76,16 @@ public class GameCreatorFragment extends PreferenceFragment implements Preferenc
     public boolean onPreferenceChange( Preference preference, Object newValue )
     {
         final String key = preference.getKey();
-        if( GameSettings.KEY_PREF_DRAW_PILE_COUNT.equals( key ) )
+        if( GameSettings.KEY_PREF_ENABLE_TABLE_VIEW.equals( key ) )
         {
-            preference.setSummary( Integer.parseInt( (String) newValue ) + " piles" );
-        }
-        else if( GameSettings.KEY_PREF_DISCARD_PILE_COUNT.equals( key ) )
-        {
-            preference.setSummary( Integer.parseInt( (String) newValue ) + " piles" );
+            if( (Boolean) newValue )
+            {
+                preference.setSummary( "Players will be able to view the table from their devices." );
+            }
+            else
+            {
+                preference.setSummary( "Players will not be able to view the table from their devices." );
+            }
         }
         return true;
     }

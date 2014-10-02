@@ -5,6 +5,7 @@ import android.content.Context;
 import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
+import com.adamnickle.deck.TableFragment;
 
 import java.util.HashMap;
 
@@ -31,7 +32,7 @@ public class ServerGameConnection extends GameConnection
         {
             switch( message.getMessageType() )
             {
-                case MESSAGE_SET_PLAYER_NAME:
+                case MESSAGE_SET_NAME:
                     final String newName = message.getPlayerName();
                     for( CardHolder player : mPlayers.values() )
                     {
@@ -41,19 +42,39 @@ public class ServerGameConnection extends GameConnection
                         }
                         else
                         {
-                            this.sendPlayerName( originalSenderID, player.getID(), newName );
+                            this.sendCardHolderName( originalSenderID, player.getID(), newName );
                         }
                     }
                     break;
 
-                case MESSAGE_CARD:
+                case MESSAGE_RECEIVE_CARD:
                     //TODO Server received card from player
+                    break;
+
+                case MESSAGE_CARD_HOLDERS:
+                    final CardHolder[] cardHolders = message.getCardHolders();
+                    for( CardHolder cardHolder : mPlayers.values() )
+                    {
+                        this.sendCardHolders( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolders );
+                    }
                     break;
             }
         }
         else if( receiverID.equals( getLocalPlayerID() ) )
         {
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
+        }
+        else if( receiverID.equals( TableFragment.TABLE_ID ) )
+        {
+            super.onMessageHandle( listener, originalSenderID, receiverID, message );
+
+            for( CardHolder cardHolder : mPlayers.values() )
+            {
+                if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) && !cardHolder.getID().equals( getLocalPlayerID() ) )
+                {
+                    this.sendMessageToDevice( message, originalSenderID, cardHolder.getID() );
+                }
+            }
         }
         else
         {
@@ -62,7 +83,7 @@ public class ServerGameConnection extends GameConnection
 
             switch( message.getMessageType() )
             {
-                case MESSAGE_CARD:
+                case MESSAGE_RECEIVE_CARD:
                     mPlayers.get( receiverID ).addCard( message.getCard() );
                     if( message.getFromPlayerHand() )
                     {
@@ -70,7 +91,7 @@ public class ServerGameConnection extends GameConnection
                     }
                     break;
 
-                case MESSAGE_CARDS:
+                case MESSAGE_RECEIVE_CARDS:
                     mPlayers.get( receiverID ).addCards( message.getCards() );
                     if( message.getFromPlayerHand() )
                     {
@@ -101,8 +122,8 @@ public class ServerGameConnection extends GameConnection
         {
             // Send the new player information about already connected players
             final CardHolder[] players = mPlayers.values().toArray( new CardHolder[ mPlayers.size() ] );
-            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CURRENT_PLAYERS, MOCK_SERVER_ADDRESS, newPlayer.getID() );
-            message.putCurrentPlayers( players );
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD_HOLDERS, MOCK_SERVER_ADDRESS, newPlayer.getID() );
+            message.putCardHolders( players );
             this.sendMessageToDevice( message, MOCK_SERVER_ADDRESS, newPlayer.getID() );
 
             final GameMessage newPlayerMessage = new GameMessage( GameMessage.MessageType.MESSAGE_NEW_PLAYER, deviceID, null );
@@ -126,7 +147,7 @@ public class ServerGameConnection extends GameConnection
             }
         }
 
-        mPlayers.put( deviceID, new CardHolder( deviceID, deviceName ) );
+        mPlayers.put( deviceID, newPlayer );
     }
 
     @Override
@@ -160,18 +181,18 @@ public class ServerGameConnection extends GameConnection
         if( !isGameStarted() )
         {
             mConnection.startConnection();
-            this.onDeviceConnect( getLocalPlayerID(), getDefaultLocalPlayerName() );
-            for( GameConnectionListener listener : mListeners )
-            {
-                listener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
-            }
         }
     }
 
     @Override
     public boolean saveGame( Context context, String saveName )
     {
-        return GameSave.saveGame( context, new GameSave( saveName ), mPlayers.values().toArray( new CardHolder[ mPlayers.size() ] ), mLeftPlayers.values().toArray( new CardHolder[ mLeftPlayers.size() ] ) );
+        return GameSave.saveGame(
+                context,
+                new GameSave( saveName ),
+                mPlayers.values().toArray( new CardHolder[ mPlayers.size() ] ),
+                mLeftPlayers.values().toArray( new CardHolder[ mLeftPlayers.size() ] )
+        );
     }
 
     @Override
@@ -185,7 +206,7 @@ public class ServerGameConnection extends GameConnection
 
             for( CardHolder player : currentPlayers )
             {
-                this.clearPlayerHand( MOCK_SERVER_ADDRESS, player.getID() );
+                this.clearCards( MOCK_SERVER_ADDRESS, player.getID() );
             }
 
             mPlayers.clear();
@@ -206,9 +227,9 @@ public class ServerGameConnection extends GameConnection
     @Override
     public void sendMessageToDevice( GameMessage message, String senderID, String receiverID )
     {
-        if( receiverID.equals( getLocalPlayerID() ) || receiverID.equals( MOCK_SERVER_ADDRESS ) )
+        if( receiverID.equals( getLocalPlayerID() ) || receiverID.equals( MOCK_SERVER_ADDRESS ) || receiverID.equals( TableFragment.TABLE_ID ) )
         {
-            final GameConnectionListener listener = this.findAppropriateListener( message.getMessageType(), senderID, receiverID );
+            final GameConnectionListener listener = this.findAppropriateListener( message );
             this.onMessageHandle( listener, senderID, receiverID, message );
         }
         else
@@ -219,24 +240,25 @@ public class ServerGameConnection extends GameConnection
     }
 
     @Override
-    public void requestCard( String requesterID, String requesteeID )
-    {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD_REQUEST, requesterID, requesteeID );
-        this.sendMessageToDevice( message, requesterID, requesteeID );
-    }
-
-    @Override
     public void sendCard( String senderID, String receiverID, Card card, boolean removingFromHand )
     {
         if( removingFromHand )
         {
             mPlayers.get( senderID ).removeCard( card );
+
+            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_REMOVE_CARD, MOCK_SERVER_ADDRESS, senderID );
+            message.putCard( card, true );
+            for( CardHolder cardHolder : mPlayers.values() )
+            {
+                if( !cardHolder.getID().equals( senderID ) )
+                {
+                    this.sendMessageToDevice( message, senderID, cardHolder.getID() );
+                }
+            }
         }
         mPlayers.get( receiverID ).addCard( card );
 
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD, senderID, receiverID );
-        message.putCard( card, removingFromHand );
-        this.sendMessageToDevice( message, senderID, receiverID );
+        super.sendCard( senderID, receiverID, card, removingFromHand );
     }
 
     @Override
@@ -252,13 +274,11 @@ public class ServerGameConnection extends GameConnection
             receiver.addCards( cards );
         }
 
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARDS, senderID, receiverID );
-        message.putCards( cards, removingFromHand );
-        this.sendMessageToDevice( message, senderID, receiverID );
+        super.sendCards( senderID, receiverID, cards, removingFromHand );
     }
 
     @Override
-    public void clearPlayerHand( String commandingDeviceID, String toBeClearedDeviceID )
+    public void clearCards( String commandingDeviceID, String toBeClearedDeviceID )
     {
         CardHolder player = mPlayers.get( toBeClearedDeviceID );
         if( player != null )
@@ -266,23 +286,14 @@ public class ServerGameConnection extends GameConnection
             player.clearCards();
         }
 
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_HAND, commandingDeviceID, toBeClearedDeviceID );
-        this.sendMessageToDevice( message, commandingDeviceID, toBeClearedDeviceID );
+        super.clearCards( commandingDeviceID, toBeClearedDeviceID );
     }
 
     @Override
     public void setDealer( String setterID, String setteeID, boolean isDealer )
     {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_DEALER, setterID, setteeID );
-        message.putIsDealer( isDealer );
-        this.sendMessageToDevice( message, setterID, setteeID );
-    }
+        //TODO do something
 
-    @Override
-    public void sendPlayerName( String senderID, String receiverID, String name )
-    {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_PLAYER_NAME, senderID, receiverID );
-        message.putName( name );
-        this.sendMessageToDevice( message, senderID, receiverID );
+        super.setDealer( setterID, setteeID, isDealer );
     }
 }

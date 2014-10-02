@@ -362,6 +362,7 @@ public class BluetoothConnectionFragment extends Connection
                 {
                     mAcceptThread = new AcceptThread();
                     mAcceptThread.start();
+                    mListener.onConnectionStarted();
                 }
                 break;
         }
@@ -508,6 +509,7 @@ public class BluetoothConnectionFragment extends Connection
             }
 
             setState( State.CONNECTED );
+            mListener.onConnectionStarted();
         }
         else
         {

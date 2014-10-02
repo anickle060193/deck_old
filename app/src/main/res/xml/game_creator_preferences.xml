@@ -2,16 +2,9 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <EditTextPreference
-        android:key="pref_draw_pile_count"
-        android:title="Number of draw piles"
-        android:defaultValue="0"
-        android:inputType="number" />
-
-    <EditTextPreference
-        android:key="pref_discard_pile_count"
-        android:title="Number of discard piles"
-        android:defaultValue="0"
-        android:inputType="number" />
+    <CheckBoxPreference
+        android:key="pref_enable_table_view"
+        android:title="Enable table view"
+        android:defaultValue="true"/>
 
 </PreferenceScreen>

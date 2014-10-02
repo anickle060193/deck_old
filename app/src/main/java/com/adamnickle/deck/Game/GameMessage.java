@@ -12,15 +12,16 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
 {
     public enum MessageType
     {
-        MESSAGE_CARD,
-        MESSAGE_CARDS,
+        MESSAGE_RECEIVE_CARD,
+        MESSAGE_RECEIVE_CARDS,
+        MESSAGE_REMOVE_CARD,
         MESSAGE_CARD_REQUEST,
-        MESSAGE_CLEAR_HAND,
+        MESSAGE_CLEAR_CARDS,
         MESSAGE_NEW_PLAYER,
-        MESSAGE_SET_PLAYER_NAME,
+        MESSAGE_SET_NAME,
         MESSAGE_PLAYER_LEFT,
         MESSAGE_SET_DEALER,
-        MESSAGE_CURRENT_PLAYERS,
+        MESSAGE_CARD_HOLDERS,
     }
 
     protected enum Key
@@ -43,6 +44,12 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         put( Key.MESSAGE_TYPE, messageType );
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
+    }
+
+    public GameMessage( GameMessage message )
+    {
+        super( Key.class );
+        this.putAll( message );
     }
 
     public static byte[] serializeMessage( final GameMessage gameMessage )
@@ -133,7 +140,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         super.put( Key.IS_DEALER, isDealer );
     }
 
-    public CardHolder[] getCurrentPlayers()
+    public CardHolder[] getCardHolders()
     {
         final String[] playerIDs = (String[]) super.get( Key.CURRENT_PLAYER_IDS );
         final String[] playerNames = (String[]) super.get( Key.CURRENT_PLAYER_NAMES );
@@ -145,7 +152,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         return players;
     }
 
-    public void putCurrentPlayers( final CardHolder[] players )
+    public void putCardHolders( final CardHolder[] players )
     {
         final String[] playerIDs = new String[ players.length ];
         final String[] playerNames = new String[ players.length ];

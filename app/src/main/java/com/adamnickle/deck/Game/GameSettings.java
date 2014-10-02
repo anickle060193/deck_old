@@ -7,16 +7,10 @@ public abstract class GameSettings
 {
     private GameSettings() { }
 
-    public static final String KEY_PREF_DRAW_PILE_COUNT = "pref_draw_pile_count";
-    public static final String KEY_PREF_DISCARD_PILE_COUNT = "pref_discard_pile_count";
+    public static final String KEY_PREF_ENABLE_TABLE_VIEW = "pref_enable_table_view";
 
-    public static int getDrawPileCount( Context context )
+    public static boolean getTableViewEnabled( Context context )
     {
-        return Integer.parseInt( PreferenceManager.getDefaultSharedPreferences( context ).getString( KEY_PREF_DRAW_PILE_COUNT, "0" ) );
-    }
-
-    public static int getDiscardPileCount( Context context )
-    {
-        return Integer.parseInt( PreferenceManager.getDefaultSharedPreferences( context ).getString( KEY_PREF_DISCARD_PILE_COUNT, "0" ) );
+        return PreferenceManager.getDefaultSharedPreferences( context ).getBoolean( KEY_PREF_ENABLE_TABLE_VIEW, true );
     }
 }

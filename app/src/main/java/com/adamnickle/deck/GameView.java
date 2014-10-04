@@ -382,7 +382,7 @@ public class GameView extends GameUiView
         mGameGestureListener = gameGestureListener;
     }
 
-    private final CardHolderListener mCardHolderListener = new CardHolderListener()
+    protected final CardHolderListener mDefaultCardHolderListener = new CardHolderListener()
     {
         @Override
         public void onCardRemoved( String playerID, Card card )
@@ -483,7 +483,7 @@ public class GameView extends GameUiView
     @Override
     public CardHolderListener getCardHolderListener()
     {
-        return mCardHolderListener;
+        return mDefaultCardHolderListener;
     }
 
     @Override

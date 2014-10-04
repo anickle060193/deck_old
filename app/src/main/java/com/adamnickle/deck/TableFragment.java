@@ -94,10 +94,13 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     @Override
     public void onCardHolderConnect( String ID, String name )
     {
-        mTable = new CardHolder( ID, name );
-        if( mGameUiView != null )
+        if( ID.equals( TABLE_ID ) )
         {
-            mTable.setCardHolderListener( mGameUiView.getCardHolderListener() );
+            mTable = new CardHolder( ID, name );
+            if( mGameUiView != null )
+            {
+                mTable.setCardHolderListener( mGameUiView.getCardHolderListener() );
+            }
         }
     }
 
@@ -116,13 +119,10 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     @Override
     public void onGameStarted()
     {
+        this.onCardHolderConnect( TABLE_ID, TABLE_NAME );
         if( mGameConnection.isServer() )
         {
             mGameConnection.onDeviceConnect( TABLE_ID, TABLE_NAME );
-        }
-        else
-        {
-            this.onCardHolderConnect( TABLE_ID, TABLE_NAME );
         }
     }
 

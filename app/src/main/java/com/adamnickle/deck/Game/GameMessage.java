@@ -15,6 +15,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         MESSAGE_RECEIVE_CARD,
         MESSAGE_RECEIVE_CARDS,
         MESSAGE_REMOVE_CARD,
+        MESSAGE_REMOVE_CARDS,
         MESSAGE_CARD_REQUEST,
         MESSAGE_CLEAR_CARDS,
         MESSAGE_NEW_PLAYER,
@@ -35,7 +36,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         IS_DEALER,
         CURRENT_PLAYER_IDS,
         CURRENT_PLAYER_NAMES,
-        FROM_PLAYER_HAND,
     }
 
     public GameMessage( final MessageType messageType, final String originalSenderID, final String receiverID )
@@ -44,12 +44,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         put( Key.MESSAGE_TYPE, messageType );
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
-    }
-
-    public GameMessage( GameMessage message )
-    {
-        super( Key.class );
-        this.putAll( message );
     }
 
     public static byte[] serializeMessage( final GameMessage gameMessage )
@@ -114,10 +108,9 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         return new Card( (Integer) super.get( Key.CARD_NUMBER ) );
     }
 
-    public void putCard( final Card card, boolean fromPlayerHand )
+    public void putCard( final Card card )
     {
         super.put( Key.CARD_NUMBER, card.getCardNumber() );
-        putFromPlayerHand( fromPlayerHand );
     }
 
     public String getPlayerName()
@@ -177,7 +170,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         return cards;
     }
 
-    public void putCards( final Card[] cards, boolean fromPlayerHand )
+    public void putCards( final Card[] cards )
     {
         final int[] cardNumbers = new int[ cards.length ];
         for( int i = 0; i < cards.length; i++ )
@@ -185,16 +178,5 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
             cardNumbers[ i ] = cards[ i ].getCardNumber();
         }
         super.put( Key.CARD_NUMBERS, cardNumbers );
-        putFromPlayerHand( fromPlayerHand );
-    }
-
-    public boolean getFromPlayerHand()
-    {
-        return (Boolean)super.get( Key.FROM_PLAYER_HAND );
-    }
-
-    public void putFromPlayerHand( boolean fromPlayerHand )
-    {
-        super.put( Key.FROM_PLAYER_HAND, fromPlayerHand );
     }
 }

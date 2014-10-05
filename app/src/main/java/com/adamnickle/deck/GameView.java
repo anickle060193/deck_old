@@ -391,11 +391,14 @@ public class GameView extends GameUiView
             if( cardDrawables != null )
             {
                 CardDrawable removeCardDrawable = null;
-                for( CardDrawable cardDrawable : cardDrawables )
+                Iterator<CardDrawable> cardDrawableIterator = cardDrawables.iterator();
+                while( cardDrawableIterator.hasNext() )
                 {
+                    CardDrawable cardDrawable = cardDrawableIterator.next();
                     if( cardDrawable.getCard().equals( card ) )
                     {
                         removeCardDrawable = cardDrawable;
+                        cardDrawableIterator.remove();
                         break;
                     }
                 }

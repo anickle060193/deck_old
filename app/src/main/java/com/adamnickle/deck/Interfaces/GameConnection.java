@@ -149,6 +149,13 @@ public abstract class GameConnection implements ConnectionListener
                 listener.onCardRemove( originalSenderID, receiverID, card );
                 break;
             }
+
+            case MESSAGE_REMOVE_CARDS:
+            {
+                final Card[] cards = message.getCards();
+                listener.onCardsRemove( originalSenderID, receiverID, cards );
+                break;
+            }
         }
     }
 
@@ -203,18 +210,32 @@ public abstract class GameConnection implements ConnectionListener
         this.sendMessageToDevice( message, requesterID, requesteeID );
     }
 
-    public void sendCard( String senderID, String receiverID, Card card, boolean removingFromHand )
+    public void sendCard( String senderID, String receiverID, Card card )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_RECEIVE_CARD, senderID, receiverID );
-        message.putCard( card, removingFromHand );
+        message.putCard( card );
         this.sendMessageToDevice( message, senderID, receiverID );
     }
 
-    public void sendCards( String senderID, String receiverID, Card[] cards, boolean removingFromHand )
+    public void sendCards( String senderID, String receiverID, Card[] cards )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_RECEIVE_CARDS, senderID, receiverID );
-        message.putCards( cards, removingFromHand );
+        message.putCards( cards );
         this.sendMessageToDevice( message, senderID, receiverID );
+    }
+
+    public void removeCard( String removerID, String removedFromID, Card card )
+    {
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_REMOVE_CARD, removerID, removedFromID );
+        message.putCard( card );
+        this.sendMessageToDevice( message, removerID, removedFromID );
+    }
+
+    public void removeCards( String removerID, String removedFromID, Card[] cards )
+    {
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_REMOVE_CARDS, removerID, removedFromID );
+        message.putCards( cards );
+        this.sendMessageToDevice( message, removerID, removedFromID );
     }
 
     public void clearCards( String commandingDeviceID, String toBeClearedDeviceID )

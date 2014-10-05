@@ -72,10 +72,10 @@ public class ClientGameConnection extends GameConnection
     }
 
     @Override
-    public void sendCard( String senderID, String receiverID, Card card, boolean removingFromHand )
+    public void sendCard( String senderID, String receiverID, Card card )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_RECEIVE_CARD, senderID, receiverID );
-        message.putCard( card, removingFromHand );
+        message.putCard( card );
         this.sendMessageToDevice( message, senderID, receiverID );
     }
 }

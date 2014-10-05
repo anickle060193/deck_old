@@ -46,6 +46,11 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         }
 
         this.setGameUiInterface( mTableView );
+        if( mTable != null )
+        {
+            mTable.setCardHolderListener( mGameUiView.getCardHolderListener() );
+        }
+
         return mTableView;
     }
 
@@ -54,7 +59,8 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     {
         if( this.canSendCard( senderID, card ) )
         {
-            mGameConnection.sendCard( senderID, mGameConnection.getLocalPlayerID(), card, true );
+            mGameConnection.removeCard( mTable.getID(), mTable.getID(), card );
+            mGameConnection.sendCard( senderID, mGameConnection.getLocalPlayerID(), card );
             return true;
         }
         else
@@ -153,13 +159,19 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     @Override
     public void onCardReceive( String senderID, String receiverID, Card card )
     {
-        mTable.addCard( card );
+        if( receiverID.equals( mTable.getID() ) )
+        {
+            mTable.addCard( card );
+        }
     }
 
     @Override
     public void onCardsReceive( String senderID, String receiverID, Card[] cards )
     {
-        mTable.addCards( cards );
+        if( receiverID.equals( mTable.getID() ) )
+        {
+            mTable.addCards( cards );
+        }
     }
 
     @Override
@@ -172,6 +184,15 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
+    public void onCardsRemove( String removerID, String removedID, Card[] cards )
+    {
+        if( removedID.equals( mTable.getID() ) )
+        {
+            mTable.removeCards( cards );
+        }
+    }
+
+    @Override
     public void onCardRequested( String requesterID, String requesteeID )
     {
 
@@ -180,7 +201,10 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     @Override
     public void onClearCards( String commanderID, String commandeeID )
     {
-        mTable.clearCards();
+        if( commandeeID.equals( mTable.getID() ) )
+        {
+            mTable.clearCards();
+        }
     }
 
     @Override

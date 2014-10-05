@@ -167,7 +167,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
                             for( int i = 0; i < cardsDealt.length; i++ )
                             {
-                                mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ], false );
+                                mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ] );
                             }
                         }
                     } ).show();
@@ -211,7 +211,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         public void onClick( DialogInterface dialogInterface, int index )
                         {
                             final String playerID = playerIDs[ index ];
-                            mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), false );
+                            mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard() );
                             dialogInterface.dismiss();
                         }
                     } ).show();
@@ -360,9 +360,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     final CardHolder player = players[ i ];
                     if( player != null )
                     {
-                        mLocalPlayer.removeCard( card );
-                        mGameConnection.sendCard( mLocalPlayer.getID(), player.getID(), card, true );
-                        mCanSendCard = Math.max( --mCanSendCard, 0 );
+                        mGameConnection.removeCard( mLocalPlayer.getID(), mLocalPlayer.getID(), card );
+                        mGameConnection.sendCard( mLocalPlayer.getID(), player.getID(), card );
+                        mCanSendCard = Math.max( --mCanSendCard, 0 ); //TODO Move mCanSendCard into GameConnection
                     }
                     else
                     {
@@ -517,88 +517,115 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onCardReceive( String senderID, String receiverID, Card card )
     {
-        mLocalPlayer.addCard( card );
+        if( receiverID.equals( mLocalPlayer.getID() ) )
+        {
+            mLocalPlayer.addCard( card );
+        }
     }
 
     @Override
     public void onCardsReceive( String senderID, String receiverID, Card[] cards )
     {
-        mLocalPlayer.addCards( cards );
+        if( receiverID.equals( mLocalPlayer.getID() ) )
+        {
+            mLocalPlayer.addCards( cards );
+        }
     }
 
     @Override
     public void onCardRemove( String removerID, String removedID, Card card )
     {
-        mCardHolders.get( removedID ).removeCard( card );
+        if( removedID.equals( mLocalPlayer.getID() ) )
+        {
+            mCardHolders.get( removedID ).removeCard( card );
+        }
+    }
+
+    @Override
+    public void onCardsRemove( String removerID, String removedID, Card[] cards )
+    {
+        if( removedID.equals( mLocalPlayer.getID() ) )
+        {
+            mCardHolders.get( removedID ).removeCards( cards );
+        }
     }
 
     @Override
     public void onCardRequested( String requesterID, String requesteeID )
     {
-        mCanSendCard++;
-        if( mGameUiView != null )
+        if( requesteeID.equals( mLocalPlayer.getID() ) )
         {
-            String notification;
-            if( requesterID.equals( mLocalPlayer.getID() ) )
+            mCanSendCard++;
+            if( mGameUiView != null )
             {
-                notification = "You requested a card from yourself";
+                String notification;
+                if( requesterID.equals( mLocalPlayer.getID() ) )
+                {
+                    notification = "You requested a card from yourself";
+                }
+                else
+                {
+                    notification = mCardHolders.get( requesterID ).getName() + " requested a card";
+                }
+                mGameUiView.displayNotification( notification );
             }
-            else
-            {
-                notification = mCardHolders.get( requesterID ).getName() + " requested a card";
-            }
-            mGameUiView.displayNotification( notification );
         }
     }
 
     @Override
     public void onClearCards( String commanderID, String commandeeID )
     {
-        mLocalPlayer.clearCards();
-        if( mGameUiView != null )
+        if( commandeeID.equals( mLocalPlayer.getID() ) )
         {
-            String notification;
-            if( commanderID.equals( mLocalPlayer.getID() ) )
+            mLocalPlayer.clearCards();
+            if( mGameUiView != null )
             {
-                notification = "You cleared your hand.";
+                String notification;
+                if( commanderID.equals( mLocalPlayer.getID() ) )
+                {
+                    notification = "You cleared your hand.";
+                }
+                else if( commanderID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
+                {
+                    notification = "The server host cleared your hand.";
+                }
+                else
+                {
+                    notification = mCardHolders.get( commanderID ).getName() + " cleared your hand.";
+                }
+                mGameUiView.displayNotification( notification );
             }
-            else if( commanderID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
-            {
-                notification = "The server host cleared your hand.";
-            }
-            else
-            {
-                notification = mCardHolders.get( commanderID ).getName() + " cleared your hand.";
-            }
-            mGameUiView.displayNotification( notification );
         }
     }
 
     @Override
     public void onSetDealer( String setterID, String setID, boolean isDealer )
     {
-        mIsDealer = isDealer;
-        if( mGameUiView != null )
+        if( setID.equals( mLocalPlayer.getID() ) )
         {
-            String notification;
-            if( mIsDealer )
+            mIsDealer = isDealer;
+            if( mGameUiView != null )
             {
-                notification = mCardHolders.get( setterID ).getName() + " made you dealer.";
+                String notification;
+                if( mIsDealer )
+                {
+                    notification = mCardHolders.get( setterID ).getName() + " made you dealer.";
+                }
+                else
+                {
+                    notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
+                }
+                mGameUiView.displayNotification( notification );
             }
-            else
+            getActivity().runOnUiThread( new Runnable()
             {
-                notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
-            }
-            mGameUiView.displayNotification( notification );
+                @Override
+                public void run()
+                {
+                    getActivity().invalidateOptionsMenu();
+                }
+            } );
         }
-        getActivity().runOnUiThread( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                getActivity().invalidateOptionsMenu();
-            }
-        } );
     }
 
     @Override

@@ -80,25 +80,32 @@ public class ServerGameConnection extends GameConnection
         {
             // Otherwise, pass on to actual receiver device
             mConnection.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
+        }
 
-            switch( message.getMessageType() )
-            {
-                case MESSAGE_RECEIVE_CARD:
-                    mPlayers.get( receiverID ).addCard( message.getCard() );
-                    if( message.getFromPlayerHand() )
-                    {
-                        mPlayers.get( originalSenderID ).removeCard( message.getCard() );
-                    }
-                    break;
+        switch( message.getMessageType() )
+        {
+            case MESSAGE_RECEIVE_CARD:
+                mPlayers.get( receiverID ).addCard( message.getCard() );
+                break;
 
-                case MESSAGE_RECEIVE_CARDS:
-                    mPlayers.get( receiverID ).addCards( message.getCards() );
-                    if( message.getFromPlayerHand() )
-                    {
-                        mPlayers.get( originalSenderID ).removeCards( message.getCards() );
-                    }
-                    break;
-            }
+            case MESSAGE_RECEIVE_CARDS:
+                mPlayers.get( receiverID ).addCards( message.getCards() );
+                break;
+
+            case MESSAGE_REMOVE_CARD:
+                mPlayers.get( originalSenderID ).removeCard( message.getCard() );
+                break;
+
+            case MESSAGE_REMOVE_CARDS:
+                mPlayers.get( originalSenderID ).removeCards( message.getCards() );
+                break;
+
+            case MESSAGE_CLEAR_CARDS:
+                for( CardHolder cardHolder : mPlayers.values() )
+                {
+                    cardHolder.clearCards();
+                }
+                break;
         }
     }
 
@@ -106,14 +113,7 @@ public class ServerGameConnection extends GameConnection
     public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
         CardHolder newPlayer = mLeftPlayers.remove( deviceID );
-        if( newPlayer != null )
-        {
-            if( newPlayer.getCardCount() > 0 )
-            {
-                this.sendCards( MOCK_SERVER_ADDRESS, newPlayer.getID(), newPlayer.getCards(), false );
-            }
-        }
-        else
+        if( newPlayer == null )
         {
             newPlayer = new CardHolder( deviceID, deviceName );
         }
@@ -148,6 +148,11 @@ public class ServerGameConnection extends GameConnection
         }
 
         mPlayers.put( deviceID, newPlayer );
+
+        if( newPlayer.getCardCount() > 0 )
+        {
+            this.sendCards( MOCK_SERVER_ADDRESS, newPlayer.getID(), newPlayer.getCards() );
+        }
     }
 
     @Override
@@ -240,51 +245,25 @@ public class ServerGameConnection extends GameConnection
     }
 
     @Override
-    public void sendCard( String senderID, String receiverID, Card card, boolean removingFromHand )
+    public void sendCard( String senderID, String receiverID, Card card )
     {
-        if( removingFromHand )
-        {
-            mPlayers.get( senderID ).removeCard( card );
-
-            final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_REMOVE_CARD, MOCK_SERVER_ADDRESS, senderID );
-            message.putCard( card, true );
-            for( CardHolder cardHolder : mPlayers.values() )
-            {
-                if( !cardHolder.getID().equals( senderID ) )
-                {
-                    this.sendMessageToDevice( message, senderID, cardHolder.getID() );
-                }
-            }
-        }
         mPlayers.get( receiverID ).addCard( card );
 
-        super.sendCard( senderID, receiverID, card, removingFromHand );
+        super.sendCard( senderID, receiverID, card );
     }
 
     @Override
-    public void sendCards( String senderID, String receiverID, Card[] cards, boolean removingFromHand )
+    public void sendCards( String senderID, String receiverID, Card[] cards )
     {
-        if( removingFromHand )
-        {
-            mPlayers.get( senderID ).removeCards( cards );
-        }
-        CardHolder receiver = mPlayers.get( receiverID );
-        if( receiver != null )
-        {
-            receiver.addCards( cards );
-        }
+        mPlayers.get( receiverID ).addCards( cards );
 
-        super.sendCards( senderID, receiverID, cards, removingFromHand );
+        super.sendCards( senderID, receiverID, cards );
     }
 
     @Override
     public void clearCards( String commandingDeviceID, String toBeClearedDeviceID )
     {
-        CardHolder player = mPlayers.get( toBeClearedDeviceID );
-        if( player != null )
-        {
-            player.clearCards();
-        }
+        mPlayers.get( toBeClearedDeviceID ).clearCards();
 
         super.clearCards( commandingDeviceID, toBeClearedDeviceID );
     }

@@ -347,7 +347,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
      * GameUiListener Methods
      *******************************************************************/
     @Override
-    public boolean onAttemptSendCard( String senderID, final Card card )
+    public boolean onAttemptSendCard( final String senderID, final Card card )
     {
         if( this.canSendCard( mLocalPlayer.getID(), card ) )
         {
@@ -360,8 +360,8 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     final CardHolder player = players[ i ];
                     if( player != null )
                     {
-                        mGameConnection.removeCard( mLocalPlayer.getID(), mLocalPlayer.getID(), card );
-                        mGameConnection.sendCard( mLocalPlayer.getID(), player.getID(), card );
+                        mGameConnection.removeCard( senderID, senderID, card );
+                        mGameConnection.sendCard( senderID, player.getID(), card );
                         mCanSendCard = Math.max( --mCanSendCard, 0 ); //TODO Move mCanSendCard into GameConnection
                     }
                     else
@@ -448,6 +448,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         if( mGameConnection.isGameStarted() )
         {
             CardHolder player = mCardHolders.remove( ID );
+            mPlayers.remove( player );
             if( player != null && mGameUiView != null )
             {
                 mGameUiView.displayNotification( player.getName() + " left game." );

@@ -8,6 +8,7 @@ import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.TableFragment;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class ServerGameConnection extends GameConnection
 {
@@ -68,7 +69,7 @@ public class ServerGameConnection extends GameConnection
         {
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
 
-            for( CardHolder cardHolder : mPlayers.values() )
+            for( CardHolder cardHolder : mPlayers.values() ) //TODO Fix so not sent to player instead of table
             {
                 if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) && !cardHolder.getID().equals( getLocalPlayerID() ) )
                 {
@@ -82,22 +83,23 @@ public class ServerGameConnection extends GameConnection
             mConnection.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
         }
 
+        final CardHolder player = mPlayers.get( message.getReceiverID() );
         switch( message.getMessageType() )
         {
             case MESSAGE_RECEIVE_CARD:
-                mPlayers.get( receiverID ).addCard( message.getCard() );
+                player.addCard( message.getCard() );
                 break;
 
             case MESSAGE_RECEIVE_CARDS:
-                mPlayers.get( receiverID ).addCards( message.getCards() );
+                player.addCards( message.getCards() );
                 break;
 
             case MESSAGE_REMOVE_CARD:
-                mPlayers.get( originalSenderID ).removeCard( message.getCard() );
+                player.removeCard( message.getCard() );
                 break;
 
             case MESSAGE_REMOVE_CARDS:
-                mPlayers.get( originalSenderID ).removeCards( message.getCards() );
+                player.removeCards( message.getCards() );
                 break;
 
             case MESSAGE_CLEAR_CARDS:
@@ -105,6 +107,7 @@ public class ServerGameConnection extends GameConnection
                 {
                     cardHolder.clearCards();
                 }
+                mLeftPlayers.clear();
                 break;
         }
     }
@@ -151,7 +154,9 @@ public class ServerGameConnection extends GameConnection
 
         if( newPlayer.getCardCount() > 0 )
         {
-            this.sendCards( MOCK_SERVER_ADDRESS, newPlayer.getID(), newPlayer.getCards() );
+            Card[] cards = newPlayer.getCards();
+            newPlayer.clearCards();
+            this.sendCards( MOCK_SERVER_ADDRESS, newPlayer.getID(), cards );
         }
     }
 
@@ -207,20 +212,24 @@ public class ServerGameConnection extends GameConnection
 
         if( GameSave.openGameSave( context, gameSave, players, players ) )
         {
-            CardHolder[] currentPlayers = mPlayers.values().toArray( new CardHolder[ mPlayers.size() ] );
-
-            for( CardHolder player : currentPlayers )
+            for( CardHolder player : mPlayers.values() )
             {
                 this.clearCards( MOCK_SERVER_ADDRESS, player.getID() );
             }
+            mLeftPlayers.clear();
 
-            mPlayers.clear();
-            mLeftPlayers = players;
-
-            for( CardHolder player : currentPlayers )
+            Iterator<CardHolder> cardHolderIterator = players.values().iterator();
+            while( cardHolderIterator.hasNext() )
             {
-                this.onDeviceConnect( player.getID(), player.getName() );
+                CardHolder cardHolder = cardHolderIterator.next();
+                if( mPlayers.containsKey( cardHolder.getID() ) )
+                {
+                    this.sendCards( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolder.getCards() );
+                    cardHolderIterator.remove();
+                }
             }
+
+            mLeftPlayers = players;
             return true;
         }
         else
@@ -241,38 +250,34 @@ public class ServerGameConnection extends GameConnection
         {
             final byte[] data = GameMessage.serializeMessage( message );
             mConnection.sendDataToDevice( receiverID, data );
+
+            final CardHolder player = mPlayers.get( message.getReceiverID() );
+            switch( message.getMessageType() )
+            {
+                case MESSAGE_RECEIVE_CARD:
+                    player.addCard( message.getCard() );
+                    break;
+
+                case MESSAGE_RECEIVE_CARDS:
+                    player.addCards( message.getCards() );
+                    break;
+
+                case MESSAGE_REMOVE_CARD:
+                    player.removeCard( message.getCard() );
+                    break;
+
+                case MESSAGE_REMOVE_CARDS:
+                    player.removeCards( message.getCards() );
+                    break;
+
+                case MESSAGE_CLEAR_CARDS:
+                    for( CardHolder cardHolder : mPlayers.values() )
+                    {
+                        cardHolder.clearCards();
+                    }
+                    mLeftPlayers.clear();
+                    break;
+            }
         }
-    }
-
-    @Override
-    public void sendCard( String senderID, String receiverID, Card card )
-    {
-        mPlayers.get( receiverID ).addCard( card );
-
-        super.sendCard( senderID, receiverID, card );
-    }
-
-    @Override
-    public void sendCards( String senderID, String receiverID, Card[] cards )
-    {
-        mPlayers.get( receiverID ).addCards( cards );
-
-        super.sendCards( senderID, receiverID, cards );
-    }
-
-    @Override
-    public void clearCards( String commandingDeviceID, String toBeClearedDeviceID )
-    {
-        mPlayers.get( toBeClearedDeviceID ).clearCards();
-
-        super.clearCards( commandingDeviceID, toBeClearedDeviceID );
-    }
-
-    @Override
-    public void setDealer( String setterID, String setteeID, boolean isDealer )
-    {
-        //TODO do something
-
-        super.setDealer( setterID, setteeID, isDealer );
     }
 }

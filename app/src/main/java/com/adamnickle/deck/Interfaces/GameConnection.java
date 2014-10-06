@@ -75,7 +75,7 @@ public abstract class GameConnection implements ConnectionListener
         final GameConnectionListener listener = findAppropriateListener( message );
         if( listener != null )
         {
-            onMessageHandle( listener, originalSenderID, receiverID, message );
+            this.onMessageHandle( listener, originalSenderID, receiverID, message );
         }
     }
 

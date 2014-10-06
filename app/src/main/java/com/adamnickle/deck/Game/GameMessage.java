@@ -38,12 +38,15 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         CURRENT_PLAYER_NAMES,
     }
 
+    public boolean Handled;
+
     public GameMessage( final MessageType messageType, final String originalSenderID, final String receiverID )
     {
         super( Key.class );
         put( Key.MESSAGE_TYPE, messageType );
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
+        Handled = false;
     }
 
     public static byte[] serializeMessage( final GameMessage gameMessage )

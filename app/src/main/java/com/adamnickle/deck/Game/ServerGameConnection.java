@@ -23,6 +23,37 @@ public class ServerGameConnection extends GameConnection
         mLeftPlayers = new HashMap< String, CardHolder >();
     }
 
+    private void handleCardChanges( GameMessage message )
+    {
+        final CardHolder cardHolder = mPlayers.get( message.getReceiverID() );
+        if( !message.Handled )
+        {
+            switch( message.getMessageType() )
+            {
+                case MESSAGE_RECEIVE_CARD:
+                    cardHolder.addCard( message.getCard() );
+                    break;
+
+                case MESSAGE_RECEIVE_CARDS:
+                    cardHolder.addCards( message.getCards() );
+                    break;
+
+                case MESSAGE_REMOVE_CARD:
+                    cardHolder.removeCard( message.getCard() );
+                    break;
+
+                case MESSAGE_REMOVE_CARDS:
+                    cardHolder.removeCards( message.getCards() );
+                    break;
+
+                case MESSAGE_CLEAR_CARDS:
+                    cardHolder.clearCards();
+                    break;
+            }
+            message.Handled = true;
+        }
+    }
+
     /*******************************************************************
      * ConnectionListener Methods
      *******************************************************************/
@@ -83,33 +114,7 @@ public class ServerGameConnection extends GameConnection
             mConnection.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
         }
 
-        final CardHolder player = mPlayers.get( message.getReceiverID() );
-        switch( message.getMessageType() )
-        {
-            case MESSAGE_RECEIVE_CARD:
-                player.addCard( message.getCard() );
-                break;
-
-            case MESSAGE_RECEIVE_CARDS:
-                player.addCards( message.getCards() );
-                break;
-
-            case MESSAGE_REMOVE_CARD:
-                player.removeCard( message.getCard() );
-                break;
-
-            case MESSAGE_REMOVE_CARDS:
-                player.removeCards( message.getCards() );
-                break;
-
-            case MESSAGE_CLEAR_CARDS:
-                for( CardHolder cardHolder : mPlayers.values() )
-                {
-                    cardHolder.clearCards();
-                }
-                mLeftPlayers.clear();
-                break;
-        }
+        this.handleCardChanges( message );
     }
 
     @Override
@@ -250,34 +255,8 @@ public class ServerGameConnection extends GameConnection
         {
             final byte[] data = GameMessage.serializeMessage( message );
             mConnection.sendDataToDevice( receiverID, data );
-
-            final CardHolder player = mPlayers.get( message.getReceiverID() );
-            switch( message.getMessageType() )
-            {
-                case MESSAGE_RECEIVE_CARD:
-                    player.addCard( message.getCard() );
-                    break;
-
-                case MESSAGE_RECEIVE_CARDS:
-                    player.addCards( message.getCards() );
-                    break;
-
-                case MESSAGE_REMOVE_CARD:
-                    player.removeCard( message.getCard() );
-                    break;
-
-                case MESSAGE_REMOVE_CARDS:
-                    player.removeCards( message.getCards() );
-                    break;
-
-                case MESSAGE_CLEAR_CARDS:
-                    for( CardHolder cardHolder : mPlayers.values() )
-                    {
-                        cardHolder.clearCards();
-                    }
-                    mLeftPlayers.clear();
-                    break;
-            }
         }
+
+        this.handleCardChanges( message );
     }
 }

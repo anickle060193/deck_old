@@ -1,0 +1,54 @@
+---
+layout: post
+title: "Deck Development Time Log"
+date: 2014-09-01
+---
+
+| Date        | Start Time | Stop Time | Interruption | Delta       | Activity      |
+|:------------|:-----------|:----------|:-------------|:------------|:--------------|
+| 8/28/2014   | 11:06 PM   | 11:59 PM  | 0 mins       | 0.88 hours  | Documentation |
+| 8/29/2014   | 3:30 PM    | 4:14 PM   | 0 mins       | 0.73 hours  | Documentation |
+| 8/29/2014   | 4:20 PM    | 4:40 PM   | 0 mins       | 0.33 hours  | Coding        |
+| 8/29/2014   | 4:40 PM    | 5:36 PM   | 0 mins       | 0.93 hours  | Testing       |
+| 8/29/2014   | 8:28 PM    | 9:32 PM   | 0 mins       | 1.07 hours  | Coding        |
+| 8/29/2014   | 9:35 PM    | 10:07 PM  | 0 mins       | 0.53 hours  | Testing       |
+| 8/29/2014   | 10:08 PM   | 11:13 PM  | 10 mins      | 0.92 hours  | Coding        |
+| 8/30/2014   | 7:14 PM    | 7:57 PM   | 5 mins       | 0.63 hours  | Planning      |
+| 8/30/2014   | 10:06 PM   | 11:57 PM  | 15 mins      | 1.6 hours   | Planning      |
+| 8/31/2014   | 1:06 AM    | 2:53 AM   | 20 mins      | 1.45 hours  | Planning      |
+| 8/31/2014   | 1:13 PM    | 2:52 PM   | 15 mins      | 1.4 hours   | Coding        |
+| 8/31/2014   | 7:20 PM    | 8:28 PM   | 0 mins       | 1.13 hours  | Coding        |
+| 8/31/2014   | 10:36 PM   | 11:10 PM  | 0 mins       | 0.57 hours  | Coding        |
+| 9/1/2014    | 2:04 PM    | 2:31 PM   | 5 mins       | 0.37 hours  | Planning      |
+| 9/1/2014    | 2:31 PM    | 3:14 PM   | 5 mins       | 0.63 hours  | Coding        |
+| 9/1/2014    | 3:45 PM    | 5:18 PM   | 15 mins      | 1.3 hours   | Coding        |
+| 9/1/2014    | 10:08 PM   | 11:59 PM  | 10 mins      | 1.68 hours  | Coding        |
+| 9/2/2014    | 12:02 AM   | 12:39 AM  | 0 mins       | 0.62 hours  | Testing       |
+| 9/2/2014    | 10:06 AM   | 11:00 AM  | 5 mins       | 0.82 hours  | Coding        |
+| 9/2/2014    | 11:10 PM   | 11:31 PM  | 5 mins       | 0.27 hours  | Coding        |
+| 9/2/2014    | 11:31 PM   | 12:11 AM  | 8 mins       | 0.53 hours  | Testing       |
+| 9/3/2014    | 2:16 PM    | 2:48 PM   | 0 mins       | 0.53 hours  | Planning      |
+| 9/3/2014    | 10:05 PM   | 11:41 PM  | 15 mins      | 1.35 hours  | Coding        |
+| 9/4/2014    | 4:24 PM    | 5:30 PM   | 20 mins      | 0.77 hours  | Planning      |
+| 9/4/2014    | 6:30 PM    | 6:52 PM   | 0 mins       | 0.37 hours  | Planning      |
+| 9/4/2014    | 6:52 PM    | 8:20 PM   | 10 mins      | 1.3 hours   | Coding        |
+| 9/4/2014    | 8:48 PM    | 11:53 PM  | 15 mins      | 2.83 hours  | Testing       |
+| 9/5/2014    | 6:59 PM    | 7:59 PM   | 5 mins       | 0.92 hours  | Coding        |
+| 9/6/2014    | 2:04 PM    | 3:53 PM   | 5 mins       | 1.73 hours  | Coding        |
+| 9/6/2014    | 7:54 PM    | 9:15 PM   | 10 mins      | 1.18 hours  | Coding        |
+| 9/6/2014    | 9:57 PM    | 11:40 PM  | 25 mins      | 1.3 hours   | Coding        |
+| 9/7/2014    | 5:03 PM    | 6:00 PM   | 5 mins       | 0.87 hours  | Coding        |
+| 9/8/2014    | 1:55 PM    | 2:50 PM   | 5 mins       | 0.83 hours  | Testing       |
+| 9/8/2014    | 8:30 PM    | 9:50 PM   | 20 mins      | 1.0 hours   | Coding        |
+| 9/8/2014    | 10:20 PM   | 11:59 PM  | 10 mins      | 1.48 hours  | Coding        |
+| 9/9/2014    | 9:44 PM    | 10:31 PM  | 5 mins       | 0.7 hours   | Testing       |
+| 9/10/2014   | 12:51 PM   | 1:39 PM   | 15 mins      | 0.55 hours  | Planning      |
+| 9/10/2014   | 11:19 PM   | 12:32 AM  | 15 mins      | 0.98 hours  | Planning      |
+| 9/11/2014   | 10:05 AM   | 10:51 AM  | 5 mins       | 0.68 hours  | Coding        |
+| 9/11/2014   | 3:22 PM    | 4:45 PM   | 15 mins      | 1.13 hours  | Coding        |
+| 9/11/2014   | 9:53 PM    | 12:07 AM  | 45 mins      | 1.48 hours  | Testing       |
+| 9/15/2014   | 9:14 PM    | 11:34 PM  | 15 mins      | 2.08 hours  | Testing       |
+| 9/15/2014   | 11:36 PM   | 12:36 AM  | 5 mins       | 0.92 hours  | Coding        |
+| 9/15/2014   | 12:39 AM   | 1:10 AM   | 5 mins       | 0.43 hours  | Testing       |
+|             |            |           |              |             |               |
+| Total Time: |            |           |              | 43.83 hours |               |

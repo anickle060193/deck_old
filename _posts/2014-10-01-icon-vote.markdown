@@ -1,0 +1,7 @@
+---
+layout: post
+title: "Vote for Deck Application Icon"
+date: 2014-10-01
+---
+
+<iframe src="https://docs.google.com/forms/d/1iIkFmpAbl896mMq7ovVvZPzDACi2p9ROGazYHIQlyr0/viewform?embedded=true" width="700" height="1575" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>

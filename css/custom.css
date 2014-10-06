@@ -1,0 +1,42 @@
+table
+{
+	display: table;
+	border-collapse: collapse;
+	border-spacing: 2px;
+	border-color: gray;
+}
+
+table th
+{
+	color: #ffffff;
+	background-color: #555555;
+	border: 1px solid #555555;
+	padding: 3px;
+	vertical-align: top;
+	text-align: left;
+}
+
+table td
+{
+	border: 1px solid #d4d4d4;
+	padding: 5px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	vertical-align: top;
+}
+
+table tr:nth-child(odd)
+{
+	background-color: #f1f1f1;
+}
+
+img.icon
+{
+	width: 40px;
+	height: 40px;
+}
+
+a.site-title:hover
+{
+	text-decoration: none;
+}

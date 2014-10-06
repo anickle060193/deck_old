@@ -1,0 +1,9 @@
+# Site settings
+title: Deck
+email: anickle060193@gmail.com
+description: This is the main site for the development of my virtual card deck application for android.
+baseurl: "/deck"
+github_username: anickle060193
+
+# Build settings
+markdown: kramdown

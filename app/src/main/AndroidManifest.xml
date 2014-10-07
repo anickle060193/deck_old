@@ -43,6 +43,7 @@
         <activity
             android:name=".GameActivity"
             android:hardwareAccelerated="true"
+            android:theme="@style/AppTheme.Game"
             android:label="@string/game_activity_title">
         </activity>
 

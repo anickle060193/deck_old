@@ -8,16 +8,17 @@
     android:gravity="top"
     sothree:panelHeight="0dp"
     sothree:fadeColor="@android:color/transparent"
-    android:id="@+id/sliding_panel_layout" >
+    android:id="@+id/sliding_panel_layout"
+    android:paddingTop="?android:attr/actionBarSize" >
 
     <FrameLayout
         android:id="@+id/game"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <FrameLayout
         android:id="@+id/table"
         android:layout_width="match_parent"
-        android:layout_height="300dp" />
+        android:layout_height="300dp"/>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

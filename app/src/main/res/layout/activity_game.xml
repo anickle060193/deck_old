@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="top"
+    sothree:panelHeight="0dp"
+    sothree:fadeColor="@android:color/transparent"
+    android:id="@+id/sliding_panel_layout" >
 
     <FrameLayout
-        android:id="@+id/top"
+        android:id="@+id/game"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent" />
 
     <FrameLayout
-        android:id="@+id/bottom"
+        android:id="@+id/table"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="300dp" />
 
-</LinearLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

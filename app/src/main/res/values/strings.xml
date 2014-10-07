@@ -33,5 +33,6 @@
     <string name="actionSaveGameText">Save Game</string>
     <string name="actionOpenGameText">Open Game</string>
     <string name="actionDoneText">Done</string>
+    <string name="actionToggleTableText">Toggle Table</string>
 
 </resources>

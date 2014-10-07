@@ -43,7 +43,7 @@
         <activity
             android:name=".GameActivity"
             android:hardwareAccelerated="true"
-            android:label="@string/game_activity_title" >
+            android:label="@string/game_activity_title">
         </activity>
 
         <meta-data
@@ -52,7 +52,7 @@
 
         <activity
             android:name=".DeckSettingsActivity"
-            android:label="@string/title_activity_deck_settings"
+            android:label="Settings"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

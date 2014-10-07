@@ -52,9 +52,8 @@ public class CardDrawable
     private Runnable mPositionUpdateRunnable;
     private long mLastUpdate;
     private boolean mIsFaceUp;
-    private boolean mAskedToSend;
 
-    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, int x, int y )
+    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, int x, int y, final float scalingFactor )
     {
         mIsBitmapLoaded = false;
         mOwnerID = ownerID;
@@ -64,7 +63,6 @@ public class CardDrawable
         mX = x;
         mY = y;
         mIsFaceUp = false;
-        mAskedToSend = false;
 
         mPositionUpdateRunnable = new Runnable()
         {
@@ -86,8 +84,8 @@ public class CardDrawable
             public void run()
             {
                 mBitmap = BitmapFactory.decodeResource( mGameUiView.getResources(), mCard.getResource(), null );
-                mWidth = mBitmap.getWidth();
-                mHeight = mBitmap.getHeight();
+                mWidth = (int) ( mBitmap.getWidth() * scalingFactor );
+                mHeight = (int) ( mBitmap.getHeight() * scalingFactor );
 
                 mX -= mWidth / 2.0f;
                 mY -= mHeight / 2.0f;
@@ -117,10 +115,15 @@ public class CardDrawable
         }
     }
 
+    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, float scalingFactor )
+    {
+        this( parentView, gameUiListener, ownerID, card, 0, 0, scalingFactor );
+        resetCardDrawable();
+    }
+
     public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card )
     {
-        this( parentView, gameUiListener, ownerID, card, 0, 0 );
-        resetCardDrawable();
+        this( parentView, gameUiListener, ownerID, card, 1.0f );
     }
 
     public void draw( Canvas canvas )

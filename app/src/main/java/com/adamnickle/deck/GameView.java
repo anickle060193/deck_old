@@ -52,7 +52,7 @@ public class GameView extends GameUiView
         mCardDrawables = new LinkedList< CardDrawable >();
         mMovingCardDrawables = new HashMap< Integer, CardDrawable >();
         mCardDrawablesByOwners = new HashMap< String, ArrayList< CardDrawable > >();
-        mGameGestureListener = mDefaultGameGestureListener;
+        this.setGameGestureListener( new GameGestureListener() );
 
         mToast = Toast.makeText( activity.getApplicationContext(), "", Toast.LENGTH_SHORT );
 
@@ -103,7 +103,6 @@ public class GameView extends GameUiView
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
             {
-
                 final int pointerIndex = event.getActionIndex();
                 final int pointerId = event.getPointerId( pointerIndex );
                 final float x = event.getX( pointerIndex );
@@ -177,14 +176,7 @@ public class GameView extends GameUiView
                 {
                     if( mGameGestureListener != null )
                     {
-                        if( !mGameGestureListener.onCardFling( event1, event2, cardDrawable, velocityX, velocityY ) )
-                        {
-                            return mDefaultGameGestureListener.onCardFling( event1, event2, cardDrawable, velocityX, velocityY );
-                        }
-                        else
-                        {
-                            return true;
-                        }
+                        return mGameGestureListener.onCardFling( event1, event2, cardDrawable, velocityX, velocityY );
                     }
                 }
             }
@@ -206,14 +198,7 @@ public class GameView extends GameUiView
                 {
                     if( mGameGestureListener != null )
                     {
-                        if( !mGameGestureListener.onCardMove( e1, e2, cardDrawable, x, y ) )
-                        {
-                            return mDefaultGameGestureListener.onCardMove( e1, e2, cardDrawable, x, y );
-                        }
-                        else
-                        {
-                            return true;
-                        }
+                        return mGameGestureListener.onCardMove( e1, e2, cardDrawable, x, y );
                     }
                 }
             }
@@ -232,14 +217,7 @@ public class GameView extends GameUiView
                 {
                     if( mGameGestureListener != null )
                     {
-                        if( !mGameGestureListener.onCardSingleTap( event, cardDrawable ) )
-                        {
-                            return mDefaultGameGestureListener.onCardSingleTap( event, cardDrawable );
-                        }
-                        else
-                        {
-                            return true;
-                        }
+                        return mGameGestureListener.onCardSingleTap( event, cardDrawable );
                     }
                     break;
                 }
@@ -262,14 +240,7 @@ public class GameView extends GameUiView
 
                     if( mGameGestureListener != null )
                     {
-                        if( !mGameGestureListener.onCardDoubleTap( event, cardDrawable ))
-                        {
-                            return mDefaultGameGestureListener.onCardDoubleTap( event, cardDrawable );
-                        }
-                        else
-                        {
-                            return true;
-                        }
+                        return mGameGestureListener.onCardDoubleTap( event, cardDrawable );
                     }
                     break;
                 }
@@ -277,68 +248,14 @@ public class GameView extends GameUiView
 
             if( mGameGestureListener != null )
             {
-                if( !mGameGestureListener.onGameDoubleTap( event ) )
-                {
-                    return mDefaultGameGestureListener.onGameDoubleTap( event );
-                }
-                else
-                {
-                    return true;
-                }
+                return mGameGestureListener.onGameDoubleTap( event );
             }
 
             return false;
         }
     };
 
-    private GameGestureListener mDefaultGameGestureListener = new GameGestureListener()
-    {
-        @Override
-        public boolean onCardMove( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float x, float y )
-        {
-            cardDrawable.update( (int) x, (int) y );
-            return true;
-        }
-
-        @Override
-        public boolean onCardFling( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float velocityX, float velocityY )
-        {
-            cardDrawable.setVelocity( velocityX, velocityY );
-            return true;
-        }
-
-        @Override
-        public boolean onCardSingleTap( MotionEvent event, CardDrawable cardDrawable )
-        {
-            cardDrawable.flipFaceUp();
-            return true;
-        }
-
-        @Override
-        public boolean onGameDoubleTap( MotionEvent event )
-        {
-            new AlertDialog.Builder( getContext() )
-                    .setTitle( "Pick background" )
-                    .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialogInterface, int index )
-                        {
-                            final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
-                            final String background = backgrounds[ index ];
-                            PreferenceManager
-                                    .getDefaultSharedPreferences( getContext().getApplicationContext() )
-                                    .edit()
-                                    .putString( DeckSettings.BACKGROUND, background )
-                                    .commit();
-                            setGameBackground( index );
-                        }
-                    } )
-                    .show();
-            return true;
-        }
-    };
-
+    @Override
     protected void setGameBackground( int drawableIndex )
     {
         if( drawableIndex == 0 )

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--
+    Icons made by Freepik from http://www.flaticon.com are licensed by Creative Commons 3.0 (http://creativecommons.org/licenses/by/3.0/).
+    -->
+
     <string-array name="backgrounds">
         <item>White</item>
         <item>Argyle</item>

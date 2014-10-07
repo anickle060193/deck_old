@@ -18,7 +18,7 @@ public class TableView extends GameView
     private static final float SCALING_FACTOR = 0.5f;
 
     private int mNextX = 150;
-    private int mNextY = 300;
+    private int mNextY = 200;
 
     public TableView( Activity activity )
     {

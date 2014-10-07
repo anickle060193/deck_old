@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 
 import com.adamnickle.deck.Game.ClientGameConnection;
@@ -23,7 +24,7 @@ public class GameActivity extends Activity
     private GameConnection mGameConnection;
     private GameFragment mGameFragment;
     private TableFragment mTableFragment;
-    private SlidingUpPanelLayout mSlidingTablePanel;
+    private SlidingUpPanelLayout mSlidingPanelLayout;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -32,7 +33,22 @@ public class GameActivity extends Activity
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.activity_game );
 
-        mSlidingTablePanel = (SlidingUpPanelLayout) findViewById( R.id.sliding_panel_layout );
+        mSlidingPanelLayout = (SlidingUpPanelLayout) findViewById( R.id.sliding_panel_layout );
+        mSlidingPanelLayout.setSlidingEnabled( false );
+        mSlidingPanelLayout.setPanelSlideListener( new SlidingUpPanelLayout.SimplePanelSlideListener()
+        {
+            @Override
+            public void onPanelCollapsed( View panel )
+            {
+                mSlidingPanelLayout.setSlidingEnabled( false );
+            }
+
+            @Override
+            public void onPanelExpanded( View panel )
+            {
+                mSlidingPanelLayout.setSlidingEnabled( false );
+            }
+        } );
 
         if( savedInstanceState == null )
         {
@@ -106,13 +122,15 @@ public class GameActivity extends Activity
         switch( item.getItemId() )
         {
             case R.id.actionToggleTable:
-                if( mSlidingTablePanel.isPanelExpanded() )
+                if( mSlidingPanelLayout.isPanelExpanded() )
                 {
-                    mSlidingTablePanel.collapsePanel();
+                    mSlidingPanelLayout.setSlidingEnabled( true );
+                    mSlidingPanelLayout.collapsePanel();
                 }
                 else
                 {
-                    mSlidingTablePanel.expandPanel();
+                    mSlidingPanelLayout.setSlidingEnabled( true );
+                    mSlidingPanelLayout.expandPanel();
                 }
                 return true;
 

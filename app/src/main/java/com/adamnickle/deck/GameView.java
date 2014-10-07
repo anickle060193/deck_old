@@ -2,6 +2,7 @@ package com.adamnickle.deck;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -9,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -32,6 +34,7 @@ import java.util.LinkedList;
 public class GameView extends GameUiView
 {
     private static final float MINIMUM_VELOCITY = 400.0f;
+    private static final long CARD_RECEIVE_VIBRATION = 20L;
 
     private GestureDetector mDetector;
     protected final LinkedList< CardDrawable > mCardDrawables;
@@ -43,6 +46,8 @@ public class GameView extends GameUiView
     protected final Toast mToast;
     protected GameGestureListener mGameGestureListener;
 
+    private Vibrator mVibrator;
+
     public GameView( Activity activity )
     {
         super( activity );
@@ -53,6 +58,8 @@ public class GameView extends GameUiView
         mMovingCardDrawables = new HashMap< Integer, CardDrawable >();
         mCardDrawablesByOwners = new HashMap< String, ArrayList< CardDrawable > >();
         this.setGameGestureListener( new GameGestureListener() );
+
+        mVibrator = (Vibrator) mParentActivity.getSystemService( Context.VIBRATOR_SERVICE );
 
         mToast = Toast.makeText( activity.getApplicationContext(), "", Toast.LENGTH_SHORT );
 
@@ -364,6 +371,8 @@ public class GameView extends GameUiView
                 cardDrawables = mCardDrawablesByOwners.get( playerID );
             }
             cardDrawables.add( cardDrawable );
+
+            mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
         }
 
         @Override
@@ -387,6 +396,8 @@ public class GameView extends GameUiView
                 mCardDrawables.add( cardDrawable );
                 cardDrawables.add( cardDrawable );
             }
+
+            mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
         }
 
         @Override

@@ -37,14 +37,13 @@ public class GameView extends GameUiView
     private static final long CARD_RECEIVE_VIBRATION = 20L;
 
     private GestureDetector mDetector;
+    private GameGestureListener mGameGestureListener;
     protected final LinkedList< CardDrawable > mCardDrawables;
     protected HashMap< Integer, CardDrawable > mMovingCardDrawables;
     protected HashMap< String, ArrayList< CardDrawable > > mCardDrawablesByOwners;
 
-    protected final Activity mParentActivity;
     protected GameUiListener mListener;
     protected final Toast mToast;
-    protected GameGestureListener mGameGestureListener;
 
     private Vibrator mVibrator;
 
@@ -52,7 +51,6 @@ public class GameView extends GameUiView
     {
         super( activity );
 
-        mParentActivity = activity;
         mDetector = new GestureDetector( activity, mGestureListener );
         mCardDrawables = new LinkedList< CardDrawable >();
         mMovingCardDrawables = new HashMap< Integer, CardDrawable >();
@@ -167,6 +165,10 @@ public class GameView extends GameUiView
         @Override
         public boolean onDown( MotionEvent event )
         {
+            if( mGameGestureListener != null )
+            {
+                return mGameGestureListener.onDown( event );
+            }
             return true;
         }
 
@@ -188,7 +190,7 @@ public class GameView extends GameUiView
                 }
             }
 
-            return true;
+            return mGameGestureListener != null && mGameGestureListener.onBackgroundFling( event1, event2, velocityX, velocityY );
         }
 
         @Override
@@ -209,7 +211,8 @@ public class GameView extends GameUiView
                     }
                 }
             }
-            return true;
+
+            return mGameGestureListener != null && mGameGestureListener.onMove( e1, e2, distanceX, distanceY );
         }
 
         @Override
@@ -230,7 +233,8 @@ public class GameView extends GameUiView
                 }
             }
 
-            return true;
+            return mGameGestureListener != null && mGameGestureListener.onBackgroundSingleTap( event );
+
         }
 
         @Override
@@ -253,12 +257,7 @@ public class GameView extends GameUiView
                 }
             }
 
-            if( mGameGestureListener != null )
-            {
-                return mGameGestureListener.onGameDoubleTap( event );
-            }
-
-            return false;
+            return mGameGestureListener != null && mGameGestureListener.onGameDoubleTap( event );
         }
     };
 
@@ -284,6 +283,12 @@ public class GameView extends GameUiView
                 setBackground( background );
             }
         }
+    }
+
+    @Override
+    protected CardDrawable createCardDrawable( String cardHolderID, Card card )
+    {
+        return new CardDrawable( GameView.this, mListener, cardHolderID, card );
     }
 
     public void onOrientationChange()
@@ -357,7 +362,7 @@ public class GameView extends GameUiView
         @Override
         public void onCardAdded( String playerID, Card card )
         {
-            final CardDrawable cardDrawable = new CardDrawable( GameView.this, mListener, playerID, card );
+            final CardDrawable cardDrawable = createCardDrawable( playerID, card );
             mCardDrawables.addFirst( cardDrawable );
 
             ArrayList<CardDrawable> cardDrawables;
@@ -392,7 +397,7 @@ public class GameView extends GameUiView
 
             for( Card card : cards )
             {
-                final CardDrawable cardDrawable = new CardDrawable( GameView.this, mListener, playerID, card );
+                final CardDrawable cardDrawable = createCardDrawable( playerID, card );
                 mCardDrawables.add( cardDrawable );
                 cardDrawables.add( cardDrawable );
             }

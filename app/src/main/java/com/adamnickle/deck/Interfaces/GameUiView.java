@@ -1,7 +1,7 @@
 package com.adamnickle.deck.Interfaces;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.PreferenceManager;
 import android.view.MotionEvent;
@@ -12,13 +12,27 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.R;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 
 public abstract class GameUiView extends View
 {
-    public GameUiView( Context context )
+    protected final Activity mParentActivity;
+    protected SlidingUpPanelLayout mSlidingContainerView;
+
+    public GameUiView( Activity parentActivity )
     {
-        super( context );
+        super( parentActivity );
+
+        mParentActivity = parentActivity;
+    }
+
+    @Override
+    protected void onAttachedToWindow()
+    {
+        super.onAttachedToWindow();
+
+        mSlidingContainerView = (SlidingUpPanelLayout)mParentActivity.findViewById( R.id.sliding_panel_layout );
     }
 
     public abstract void setGameUiListener( GameUiListener gameUiListener );
@@ -33,6 +47,7 @@ public abstract class GameUiView extends View
     public abstract void displayNotification( String notification );
 
     protected abstract void setGameBackground( int drawableIndex );
+    protected abstract CardDrawable createCardDrawable( String cardHolderID, Card card );
 
     public static abstract class OnEditTextDialogClickListener
     {
@@ -42,15 +57,35 @@ public abstract class GameUiView extends View
 
     public class GameGestureListener
     {
+        public boolean onDown( MotionEvent event )
+        {
+            if( mSlidingContainerView != null && mSlidingContainerView.isPanelExpanded() )
+            {
+                mSlidingContainerView.setSlidingEnabled( true );
+                mSlidingContainerView.collapsePanel();
+            }
+            return true;
+        }
+
         public boolean onCardFling( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float velocityX, float velocityY )
         {
             cardDrawable.setVelocity( velocityX, velocityY );
             return true;
         }
 
-        public boolean onCardMove( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float x, float y )
+        public boolean onBackgroundFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY )
         {
-            cardDrawable.update( (int) x, (int) y );
+            return true;
+        }
+
+        public boolean onCardMove( MotionEvent e1, MotionEvent e2, CardDrawable cardDrawable, float dx, float dy )
+        {
+            cardDrawable.update( (int) dx, (int) dy );
+            return true;
+        }
+
+        public boolean onMove( MotionEvent e1, MotionEvent e2, float dx, float dy )
+        {
             return true;
         }
 
@@ -60,9 +95,14 @@ public abstract class GameUiView extends View
             return true;
         }
 
+        public boolean onBackgroundSingleTap( MotionEvent event )
+        {
+            return true;
+        }
+
         public boolean onCardDoubleTap( MotionEvent event, CardDrawable cardDrawable )
         {
-            return false;
+            return true;
         }
 
         public boolean onGameDoubleTap( MotionEvent event )

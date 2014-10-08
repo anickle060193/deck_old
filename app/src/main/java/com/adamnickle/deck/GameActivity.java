@@ -34,6 +34,7 @@ public class GameActivity extends Activity
         setContentView( R.layout.activity_game );
 
         mSlidingPanelLayout = (SlidingUpPanelLayout) findViewById( R.id.sliding_panel_layout );
+        mSlidingPanelLayout.setDragView( null );
         mSlidingPanelLayout.setSlidingEnabled( false );
         mSlidingPanelLayout.setPanelSlideListener( new SlidingUpPanelLayout.SimplePanelSlideListener()
         {

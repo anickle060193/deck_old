@@ -12,7 +12,7 @@ import android.view.MenuItem;
 
 import com.adamnickle.deck.Game.DeckSettings;
 
-public class DeckSettingsActivity extends Activity implements Preference.OnPreferenceChangeListener
+public class DeckSettingsActivity extends Activity
 {
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -24,36 +24,7 @@ public class DeckSettingsActivity extends Activity implements Preference.OnPrefe
                 .commit();
     }
 
-    @Override
-    public boolean onPreferenceChange( Preference preference, Object value )
-    {
-        String stringValue = value.toString();
-
-        if( preference instanceof ListPreference )
-        {
-            ListPreference listPreference = (ListPreference) preference;
-            int index = listPreference.findIndexOfValue( stringValue );
-            preference.setSummary( index >= 0 ? listPreference.getEntries()[ index ].toString() : null );
-
-        }
-        else
-        {
-            preference.setSummary( stringValue );
-        }
-        return true;
-    }
-
-    private void bindPreferenceSummaryToValue( Preference preference )
-    {
-        preference.setOnPreferenceChangeListener( this );
-
-        this.onPreferenceChange( preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences( preference.getContext() )
-                        .getString( preference.getKey(), "" ) );
-    }
-
-    public class DeckPreferenceFragment extends PreferenceFragment
+    public static class DeckPreferenceFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener
     {
         @Override
         public void onCreate( Bundle savedInstanceState )
@@ -65,6 +36,35 @@ public class DeckSettingsActivity extends Activity implements Preference.OnPrefe
 
             bindPreferenceSummaryToValue( findPreference( DeckSettings.PLAYER_NAME ) );
             bindPreferenceSummaryToValue( findPreference( DeckSettings.BACKGROUND ) );
+        }
+
+        private void bindPreferenceSummaryToValue( Preference preference )
+        {
+            preference.setOnPreferenceChangeListener( this );
+
+            this.onPreferenceChange( preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences( preference.getContext() )
+                            .getString( preference.getKey(), "" ) );
+        }
+
+        @Override
+        public boolean onPreferenceChange( Preference preference, Object value )
+        {
+            String stringValue = value.toString();
+
+            if( preference instanceof ListPreference )
+            {
+                ListPreference listPreference = (ListPreference) preference;
+                int index = listPreference.findIndexOfValue( stringValue );
+                preference.setSummary( index >= 0 ? listPreference.getEntries()[ index ].toString() : null );
+
+            }
+            else
+            {
+                preference.setSummary( stringValue );
+            }
+            return true;
         }
 
         @Override

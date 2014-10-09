@@ -6,14 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 
 import com.adamnickle.deck.Game.ClientGameConnection;
 import com.adamnickle.deck.Game.ServerGameConnection;
 import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.security.InvalidParameterException;
 
@@ -24,7 +22,7 @@ public class GameActivity extends Activity
     private GameConnection mGameConnection;
     private GameFragment mGameFragment;
     private TableFragment mTableFragment;
-    private SlidingUpPanelLayout mSlidingPanelLayout;
+    private SlidingFrameLayout mTableView;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -33,23 +31,7 @@ public class GameActivity extends Activity
         requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.activity_game );
 
-        mSlidingPanelLayout = (SlidingUpPanelLayout) findViewById( R.id.sliding_panel_layout );
-        mSlidingPanelLayout.setDragView( null );
-        mSlidingPanelLayout.setSlidingEnabled( false );
-        mSlidingPanelLayout.setPanelSlideListener( new SlidingUpPanelLayout.SimplePanelSlideListener()
-        {
-            @Override
-            public void onPanelCollapsed( View panel )
-            {
-                mSlidingPanelLayout.setSlidingEnabled( false );
-            }
-
-            @Override
-            public void onPanelExpanded( View panel )
-            {
-                mSlidingPanelLayout.setSlidingEnabled( false );
-            }
-        } );
+        mTableView = (SlidingFrameLayout) findViewById( R.id.table );
 
         if( savedInstanceState == null )
         {
@@ -123,16 +105,7 @@ public class GameActivity extends Activity
         switch( item.getItemId() )
         {
             case R.id.actionToggleTable:
-                if( mSlidingPanelLayout.isPanelExpanded() )
-                {
-                    mSlidingPanelLayout.setSlidingEnabled( true );
-                    mSlidingPanelLayout.collapsePanel();
-                }
-                else
-                {
-                    mSlidingPanelLayout.setSlidingEnabled( true );
-                    mSlidingPanelLayout.expandPanel();
-                }
+                mTableView.toggleState();
                 return true;
 
             default:

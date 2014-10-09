@@ -12,13 +12,13 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.R;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.adamnickle.deck.SlidingFrameLayout;
 
 
 public abstract class GameUiView extends View
 {
     protected final Activity mParentActivity;
-    protected SlidingUpPanelLayout mSlidingContainerView;
+    protected SlidingFrameLayout mTableView;
 
     public GameUiView( Activity parentActivity )
     {
@@ -32,7 +32,7 @@ public abstract class GameUiView extends View
     {
         super.onAttachedToWindow();
 
-        mSlidingContainerView = (SlidingUpPanelLayout)mParentActivity.findViewById( R.id.sliding_panel_layout );
+        mTableView = (SlidingFrameLayout) mParentActivity.findViewById( R.id.table );
     }
 
     public abstract void setGameUiListener( GameUiListener gameUiListener );
@@ -59,10 +59,9 @@ public abstract class GameUiView extends View
     {
         public boolean onDown( MotionEvent event )
         {
-            if( mSlidingContainerView != null && mSlidingContainerView.isPanelExpanded() )
+            if( mTableView != null )
             {
-                mSlidingContainerView.setSlidingEnabled( true );
-                mSlidingContainerView.collapsePanel();
+                mTableView.collapseFrame();
             }
             return true;
         }

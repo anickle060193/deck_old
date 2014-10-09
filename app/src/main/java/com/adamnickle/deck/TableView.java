@@ -2,6 +2,7 @@ package com.adamnickle.deck;
 
 
 import android.app.Activity;
+import android.os.Build;
 import android.view.MotionEvent;
 
 import com.adamnickle.deck.Game.Card;
@@ -13,8 +14,16 @@ public class TableView extends GameView
     public TableView( Activity activity )
     {
         super( activity );
-        setBackgroundColor( getResources().getColor( R.color.ModerateCyan ) );
         this.setGameGestureListener( mGameGestureListener );
+
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
+        {
+            super.setBackground( getResources().getDrawable( R.drawable.table_shadow ) );
+        }
+        else
+        {
+            super.setBackgroundDrawable( getResources().getDrawable( R.drawable.table_shadow ) );
+        }
     }
 
     @Override

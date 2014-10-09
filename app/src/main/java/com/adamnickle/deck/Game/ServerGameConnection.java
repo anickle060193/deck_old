@@ -94,13 +94,28 @@ public class ServerGameConnection extends GameConnection
         }
         else if( receiverID.equals( getLocalPlayerID() ) )
         {
+            switch( message.getMessageType() )
+            {
+                case MESSAGE_RECEIVE_CARD:
+                    final String cardHolderID = message.getRemovedFromID();
+                    if( mPlayers.get( cardHolderID ).hasCard( message.getCard() ) )
+                    {
+                        this.removeCard( message.getOriginalSenderID(), cardHolderID, message.getCard() );
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+            }
+
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
         }
         else if( receiverID.equals( TableFragment.TABLE_ID ) )
         {
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
 
-            for( CardHolder cardHolder : mPlayers.values() ) //TODO Fix so not sent to player instead of table
+            for( CardHolder cardHolder : mPlayers.values() )
             {
                 if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) && !cardHolder.getID().equals( getLocalPlayerID() ) )
                 {

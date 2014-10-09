@@ -36,6 +36,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         IS_DEALER,
         CURRENT_PLAYER_IDS,
         CURRENT_PLAYER_NAMES,
+        REMOVED_FROM_ID,
     }
 
     public boolean Handled;
@@ -181,5 +182,15 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
             cardNumbers[ i ] = cards[ i ].getCardNumber();
         }
         super.put( Key.CARD_NUMBERS, cardNumbers );
+    }
+
+    public String getRemovedFromID()
+    {
+        return (String) super.get( Key.REMOVED_FROM_ID );
+    }
+
+    public void putRemovedFromID( String removedFromID )
+    {
+        super.put( Key.REMOVED_FROM_ID, removedFromID );
     }
 }

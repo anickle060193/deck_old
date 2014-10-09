@@ -91,7 +91,6 @@ public class SlidingFrameLayout extends FrameLayout
     protected void onAttachedToWindow()
     {
         super.onAttachedToWindow();
-        collapseFrame();
     }
 
     public void collapseFrame()

@@ -2,7 +2,6 @@ package com.adamnickle.deck;
 
 
 import android.app.Activity;
-import android.os.Build;
 import android.view.MotionEvent;
 
 import com.adamnickle.deck.Game.Card;
@@ -15,15 +14,6 @@ public class TableView extends GameView
     {
         super( activity );
         this.setGameGestureListener( mGameGestureListener );
-
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
-        {
-            super.setBackground( getResources().getDrawable( R.drawable.table_shadow ) );
-        }
-        else
-        {
-            super.setBackgroundDrawable( getResources().getDrawable( R.drawable.table_shadow ) );
-        }
     }
 
     @Override
@@ -57,12 +47,14 @@ public class TableView extends GameView
         public boolean onMove( MotionEvent e1, MotionEvent e2, float dx, float dy )
         {
             return super.onMove( e1, e2, dx, dy );
+            //TODO animate TableView dragging
         }
 
         @Override
         public boolean onBackgroundFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY )
         {
             return super.onBackgroundFling( e1, e2, velocityX, velocityY );
+            //TODO animate TableView closing
         }
     };
 }

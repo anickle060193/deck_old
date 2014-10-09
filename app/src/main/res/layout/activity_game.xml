@@ -13,6 +13,8 @@
     <com.adamnickle.deck.SlidingFrameLayout
         android:id="@+id/table"
         android:layout_width="match_parent"
-        android:layout_height="300dp"/>
+        android:layout_height="300dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/table_shadow"/>
 
 </FrameLayout>

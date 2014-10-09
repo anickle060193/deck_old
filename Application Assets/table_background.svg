@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="New document 1">
+   sodipodi:docname="table_background.svg">
   <defs
      id="defs4">
     <linearGradient
@@ -36,9 +36,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="52.591067"
-     inkscape:cx="22.701185"
-     inkscape:cy="40.523693"
+     inkscape:zoom="43.654694"
+     inkscape:cx="23.714844"
+     inkscape:cy="37.7423"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -78,7 +78,7 @@
        width="8"
        id="rect4262"
        style="color:#000000;fill:#000000;fill-opacity:0;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -88,7 +88,7 @@
        height="1"
        x="18"
        y="1025.3623"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -98,7 +98,7 @@
        width="8"
        id="rect4266"
        style="color:#000000;fill:#000000;fill-opacity:0;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -108,7 +108,7 @@
        height="1"
        x="18"
        y="1023.3622"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -118,7 +118,7 @@
        width="8"
        id="rect4270"
        style="color:#000000;fill:#000000;fill-opacity:0.04705882;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -128,7 +128,7 @@
        height="1"
        x="18"
        y="1021.3622"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -138,7 +138,7 @@
        width="8"
        id="rect4274"
        style="color:#000000;fill:#000000;fill-opacity:0.15686275;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -148,7 +148,7 @@
        height="1"
        x="18"
        y="1019.3622"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -158,7 +158,7 @@
        width="8"
        id="rect4278"
        style="color:#000000;fill:#000000;fill-opacity:0.29019608;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
@@ -168,25 +168,25 @@
        height="1"
        x="18"
        y="1017.3622"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
        style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="rect4326"
-       width="8"
+       width="6"
        height="1"
-       x="18"
-       y="1007.3622"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       x="19"
+       y="1008.3622"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        y="1010.3622"
-       x="27"
+       x="26"
        height="6"
        width="1"
        id="rect4328"
@@ -197,14 +197,14 @@
        width="6"
        height="1"
        x="19"
-       y="1028.3622"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       y="1027.3623"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
        y="1009.3622"
        x="18"
        height="8"
@@ -214,10 +214,10 @@
     <rect
        inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       inkscape:export-filename="D:\Adam\Desktop\table_shadow.png"
-       y="1009.3622"
-       x="16"
-       height="8"
+       inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\app\src\main\res\drawable\table_shadow.9.png"
+       y="1010.3622"
+       x="17"
+       height="6"
        width="1"
        id="rect4328-5"
        style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />

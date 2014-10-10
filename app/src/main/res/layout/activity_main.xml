@@ -33,9 +33,7 @@
         android:text="Join Game"
         android:id="@+id/joinGameButton"
         android:layout_below="@+id/startGameButton"
-        android:layout_alignLeft="@+id/startGameButton"
         android:layout_alignStart="@+id/startGameButton"
-        android:layout_alignRight="@+id/startGameButton"
         android:layout_alignEnd="@+id/startGameButton" />
 
     <Button
@@ -44,9 +42,7 @@
         android:text="Settings"
         android:id="@+id/settingsButton"
         android:layout_below="@+id/joinGameButton"
-        android:layout_alignRight="@+id/joinGameButton"
-        android:layout_alignEnd="@+id/joinGameButton"
-        android:layout_alignLeft="@+id/joinGameButton"
-        android:layout_alignStart="@+id/joinGameButton"/>
+        android:layout_alignStart="@+id/joinGameButton"
+        android:layout_alignEnd="@+id/joinGameButton" />
 
 </RelativeLayout>

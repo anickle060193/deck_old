@@ -1,6 +1,8 @@
 package com.adamnickle.deck.Game;
 
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,6 +50,56 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         put( Key.ORIGINAL_SENDER_ID, originalSenderID );
         put( Key.RECEIVER_ID, receiverID );
         Handled = false;
+    }
+
+    @Override
+    public String toString()
+    {
+        try
+        {
+            StringBuilder s = new StringBuilder();
+            s.append( "@" ).append( System.identityHashCode( this ) ).append( " =\n{\n\t" );
+            for( Entry< Key, Object > entry : this.entrySet() )
+            {
+                final Key key = entry.getKey();
+                final Object object = entry.getValue();
+                s.append( key ).append( " = " );
+                switch( key )
+                {
+                    case CARD_NUMBERS:
+                        final int[] cardNumbers = (int[]) object;
+                        for( int cardNumber : cardNumbers )
+                        {
+                            s.append( cardNumber ).append( ", " );
+                        }
+                        break;
+
+                    case CURRENT_PLAYER_IDS:
+                    case CURRENT_PLAYER_NAMES:
+                        final String[] objects = (String[]) object;
+                        for( String string : objects )
+                        {
+                            s.append( string ).append( ", " );
+                        }
+                        break;
+
+                    default:
+                        if( object != null )
+                        {
+                            s.append( object.toString() ).append( "," );
+                        }
+                        break;
+                }
+                s.append( "\n\t" );
+            }
+            s.replace( s.length() - 1, s.length() - 1, "}" );
+            return s.toString();
+        }
+        catch( Exception exception )
+        {
+            Crashlytics.logException( exception );
+            return super.toString();
+        }
     }
 
     public static byte[] serializeMessage( final GameMessage gameMessage )

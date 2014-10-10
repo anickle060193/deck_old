@@ -59,8 +59,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     {
         if( this.canSendCard( senderID, card ) )
         {
-            mGameConnection.removeCard( mTable.getID(), mTable.getID(), card );
-            mGameConnection.sendCard( senderID, mGameConnection.getLocalPlayerID(), card );
+            mGameConnection.sendCard( senderID, mGameConnection.getLocalPlayerID(), card, senderID );
             return true;
         }
         else

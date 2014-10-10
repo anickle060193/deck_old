@@ -1,6 +1,7 @@
 package com.adamnickle.deck;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -211,7 +212,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         public void onClick( DialogInterface dialogInterface, int index )
                         {
                             final String playerID = playerIDs[ index ];
-                            mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard() );
+                            mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), null );
                             dialogInterface.dismiss();
                         }
                     } ).show();
@@ -360,8 +361,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     final CardHolder player = players[ i ];
                     if( player != null )
                     {
-                        mGameConnection.removeCard( senderID, senderID, card );
-                        mGameConnection.sendCard( senderID, player.getID(), card );
+                        mGameConnection.sendCard( senderID, player.getID(), card, senderID );
                         mCanSendCard = Math.max( --mCanSendCard, 0 ); //TODO Move mCanSendCard into GameConnection
                     }
                     else
@@ -490,7 +490,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         {
             mGameUiView.displayNotification( "Disconnected from server." );
         }
-        getActivity().finish();
+        Activity activity = getActivity();
+        if( activity != null )
+        {
+            activity.finish();
+        }
     }
 
     @Override

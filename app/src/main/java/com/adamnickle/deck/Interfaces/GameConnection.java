@@ -7,6 +7,7 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.GameMessage;
 import com.adamnickle.deck.Game.GameSave;
+import com.crashlytics.android.Crashlytics;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -66,10 +67,13 @@ public abstract class GameConnection implements ConnectionListener
      * ConnectionListener Methods
      *******************************************************************/
     @Override
-    public final void onMessageReceive( String senderID, int bytes, byte[] allData )
+    public synchronized final void onMessageReceive( String senderID, int bytes, byte[] allData )
     {
         final byte[] data = Arrays.copyOf( allData, bytes );
         final GameMessage message = GameMessage.deserializeMessage( data );
+
+        Crashlytics.log( "RECEIVED: " + message.toString() );
+
         final String originalSenderID = message.getOriginalSenderID();
         final String receiverID = message.getReceiverID();
         final GameConnectionListener listener = findAppropriateListener( message );
@@ -80,7 +84,7 @@ public abstract class GameConnection implements ConnectionListener
     }
 
     @Override
-    public void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
+    public synchronized void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
     {
         switch( message.getMessageType() )
         {
@@ -210,10 +214,11 @@ public abstract class GameConnection implements ConnectionListener
         this.sendMessageToDevice( message, requesterID, requesteeID );
     }
 
-    public void sendCard( String senderID, String receiverID, Card card )
+    public void sendCard( String senderID, String receiverID, Card card, String removedFromID )
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_RECEIVE_CARD, senderID, receiverID );
         message.putCard( card );
+        message.putRemovedFromID( removedFromID );
         this.sendMessageToDevice( message, senderID, receiverID );
     }
 

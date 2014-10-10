@@ -6,6 +6,7 @@ import com.adamnickle.deck.Interfaces.Connection;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.TableFragment;
+import com.crashlytics.android.Crashlytics;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,9 +29,15 @@ public class ServerGameConnection extends GameConnection
         final CardHolder cardHolder = mPlayers.get( message.getReceiverID() );
         if( !message.Handled )
         {
+            message.Handled = true;
             switch( message.getMessageType() )
             {
                 case MESSAGE_RECEIVE_CARD:
+                    final CardHolder removedFromCardHolder = mPlayers.get( message.getRemovedFromID() );
+                    if( removedFromCardHolder != null )
+                    {
+                        this.removeCard( message.getOriginalSenderID(), removedFromCardHolder.getID(), message.getCard() );
+                    }
                     cardHolder.addCard( message.getCard() );
                     break;
 
@@ -50,7 +57,6 @@ public class ServerGameConnection extends GameConnection
                     cardHolder.clearCards();
                     break;
             }
-            message.Handled = true;
         }
     }
 
@@ -58,8 +64,19 @@ public class ServerGameConnection extends GameConnection
      * ConnectionListener Methods
      *******************************************************************/
     @Override
-    public void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
+    public synchronized void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
     {
+        switch( message.getMessageType() )
+        {
+            case MESSAGE_RECEIVE_CARD:
+                final String cardHolderID = message.getRemovedFromID();
+                if( cardHolderID != null && !mPlayers.get( cardHolderID ).hasCard( message.getCard() ) )
+                {
+                    return;
+                }
+                break;
+        }
+
         if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
         {
             switch( message.getMessageType() )
@@ -94,21 +111,6 @@ public class ServerGameConnection extends GameConnection
         }
         else if( receiverID.equals( getLocalPlayerID() ) )
         {
-            switch( message.getMessageType() )
-            {
-                case MESSAGE_RECEIVE_CARD:
-                    final String cardHolderID = message.getRemovedFromID();
-                    if( mPlayers.get( cardHolderID ).hasCard( message.getCard() ) )
-                    {
-                        this.removeCard( message.getOriginalSenderID(), cardHolderID, message.getCard() );
-                    }
-                    else
-                    {
-                        return;
-                    }
-                    break;
-            }
-
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
         }
         else if( receiverID.equals( TableFragment.TABLE_ID ) )
@@ -117,7 +119,7 @@ public class ServerGameConnection extends GameConnection
 
             for( CardHolder cardHolder : mPlayers.values() )
             {
-                if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) && !cardHolder.getID().equals( getLocalPlayerID() ) )
+                if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) )
                 {
                     this.sendMessageToDevice( message, originalSenderID, cardHolder.getID() );
                 }
@@ -125,7 +127,6 @@ public class ServerGameConnection extends GameConnection
         }
         else
         {
-            // Otherwise, pass on to actual receiver device
             mConnection.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
         }
 
@@ -261,6 +262,8 @@ public class ServerGameConnection extends GameConnection
     @Override
     public void sendMessageToDevice( GameMessage message, String senderID, String receiverID )
     {
+        Crashlytics.log( "SENDING: " + message.toString() );
+
         if( receiverID.equals( getLocalPlayerID() ) || receiverID.equals( MOCK_SERVER_ADDRESS ) || receiverID.equals( TableFragment.TABLE_ID ) )
         {
             final GameConnectionListener listener = this.findAppropriateListener( message );

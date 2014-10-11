@@ -36,7 +36,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "com.android.support:support-v4:20.+"
 
     compile 'com.crashlytics.android:crashlytics:1.+'
-    compile "com.android.support:support-v4:20.+"
 }

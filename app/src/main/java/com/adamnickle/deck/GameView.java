@@ -520,6 +520,13 @@ public class GameView extends GameUiView
     }
 
     @Override
+    public AlertDialog.Builder createBlankAlertDialog( String title )
+    {
+        return new AlertDialog.Builder( mParentActivity )
+                .setTitle( title );
+    }
+
+    @Override
     public AlertDialog.Builder createSelectItemDialog( String title, Object[] items, DialogInterface.OnClickListener listener )
     {
         String[] itemNames;

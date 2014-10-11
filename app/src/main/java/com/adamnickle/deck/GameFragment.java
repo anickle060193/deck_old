@@ -2,6 +2,7 @@ package com.adamnickle.deck;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
@@ -283,10 +286,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     }
                     else
                     {
-                        mGameUiView.createSelectItemDialog( "Select game save:", gameSaves, new DialogInterface.OnClickListener()
+                        final AlertDialog.Builder dialogBuilder = mGameUiView.createBlankAlertDialog( "Select game save:" );
+                        final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity(), gameSaves );
+                        dialogBuilder.setView( gameSaveListView );
+                        final AlertDialog dialog = dialogBuilder.create();
+                        gameSaveListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
                         {
                             @Override
-                            public void onClick( DialogInterface dialogInterface, int i )
+                            public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
                             {
                                 if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
                                 {
@@ -296,9 +303,10 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                                 {
                                     mGameUiView.displayNotification( "Game open not successful." );
                                 }
-                                dialogInterface.dismiss();
+                                dialog.dismiss();
                             }
-                        } ).show();
+                        } );
+                        dialog.show();
                     }
                 }
                 return true;

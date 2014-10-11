@@ -91,7 +91,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
                 }
                 s.append( "\n\t" );
             }
-            s.replace( s.length() - 1, s.length() - 1, "}" );
+            s.deleteCharAt( s.length() - 1 ).append( "}" );
             return s.toString();
         }
         catch( Exception exception )

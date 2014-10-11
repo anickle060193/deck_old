@@ -42,6 +42,7 @@ public abstract class GameUiView extends View
     public abstract void sortCards( String cardHolderID, CardCollection.SortingType sortingType );
     public abstract void layoutCards( String cardHolderID );
     public abstract AlertDialog.Builder createEditTextDialog( String title, String preSetText, String positiveButtonText, String negativeButtonText, OnEditTextDialogClickListener onClickListener  );
+    public abstract AlertDialog.Builder createBlankAlertDialog( String title );
     public abstract AlertDialog.Builder createSelectItemDialog( String title, Object items[], DialogInterface.OnClickListener listener );
     public abstract void showPopup( String title, String message );
     public abstract void displayNotification( String notification );

@@ -1,10 +1,21 @@
 package com.adamnickle.deck.Game;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.text.format.DateFormat;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.adamnickle.deck.R;
 
 import java.io.File;
 import java.io.FileReader;
@@ -222,5 +233,85 @@ public final class GameSave
             }
         }
         return success;
+    }
+
+    public static ListView getGameSaveListView( Context context, GameSave[] gameSaves )
+    {
+        final GameSaveArrayAdapter gameSaveArrayAdapter = new GameSaveArrayAdapter( context, R.layout.game_save_list_item, gameSaves );
+        final ListView listView = new ListView( context );
+        listView.setAdapter( gameSaveArrayAdapter );
+        return listView;
+    }
+
+    public static class GameSaveArrayAdapter extends ArrayAdapter<GameSave>
+    {
+        private final GameSave[] mGameSaves;
+        private final int mRowLayoutResource;
+
+        public GameSaveArrayAdapter( Context context, int layoutResourceId, GameSave[] gameSaves )
+        {
+            super( context, layoutResourceId, gameSaves );
+            mGameSaves = gameSaves;
+            mRowLayoutResource = layoutResourceId;
+        }
+
+        private static class GameSaveHolder
+        {
+            TextView GameSaveNameTextView;
+            TextView GameSaveDateTimeTextView;
+            ImageButton GameSaveInfoButton;
+        }
+
+        @Override
+        public View getView( int position, View convertView, ViewGroup parent )
+        {
+            final GameSaveHolder gameSaveHolder;
+
+            if( convertView == null )
+            {
+                LayoutInflater inflater = LayoutInflater.from( getContext() );
+                convertView = inflater.inflate( mRowLayoutResource, parent, false );
+                gameSaveHolder = new GameSaveHolder();
+                gameSaveHolder.GameSaveNameTextView = (TextView) convertView.findViewById( R.id.gameSaveName );
+                gameSaveHolder.GameSaveDateTimeTextView = (TextView) convertView.findViewById( R.id.gameSaveDateTime );
+                gameSaveHolder.GameSaveInfoButton = (ImageButton) convertView.findViewById( R.id.infoButton );
+                convertView.setTag( gameSaveHolder );
+            }
+            else
+            {
+                gameSaveHolder = (GameSaveHolder) convertView.getTag();
+            }
+
+            final GameSave gameSave = mGameSaves[ position ];
+            gameSaveHolder.GameSaveNameTextView.setText( gameSave.SaveName );
+            gameSaveHolder.GameSaveDateTimeTextView.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.SavedDate ) );
+            gameSaveHolder.GameSaveInfoButton.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View view )
+                {
+                    final HashMap< String, CardHolder > cardHolders = new HashMap< String, CardHolder >();
+                    if( GameSave.openGameSave( getContext(), gameSave, cardHolders, cardHolders ) )
+                    {
+                        StringBuilder s = new StringBuilder();
+                        s.append( DateFormat.format( "h:mm aa - MMM d, yyyy", gameSave.SavedDate ) ).append( "\n\n" );
+                        s.append( "Players:\n" );
+                        for( CardHolder cardHolder : cardHolders.values() )
+                        {
+                            s.append( "\t" ).append( cardHolder.getName() ).append( "\n" );
+                        }
+                        s.deleteCharAt( s.length() - 1 );
+
+                        new AlertDialog.Builder( getContext() )
+                                .setTitle( gameSave.SaveName )
+                                .setMessage( s.toString() )
+                                .setPositiveButton( "Close", null )
+                                .show();
+                    }
+                }
+            } );
+
+            return convertView;
+        }
     }
 }

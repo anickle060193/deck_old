@@ -9,11 +9,16 @@ import com.adamnickle.deck.Game.Card;
 public class TableView extends GameView
 {
     private static final float SCALING_FACTOR = 0.5f;
+    private static float FLING_VELOCITY = 400;
+
+    private final SlidingFrameLayout mSlidingTable;
 
     public TableView( Activity activity )
     {
         super( activity );
         this.setGameGestureListener( mGameGestureListener );
+        mSlidingTable = (SlidingFrameLayout) activity.findViewById( R.id.table );
+        FLING_VELOCITY *= getResources().getDisplayMetrics().density;
     }
 
     @Override
@@ -44,17 +49,13 @@ public class TableView extends GameView
         }
 
         @Override
-        public boolean onMove( MotionEvent e1, MotionEvent e2, float dx, float dy )
-        {
-            return super.onMove( e1, e2, dx, dy );
-            //TODO animate TableView dragging
-        }
-
-        @Override
         public boolean onBackgroundFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY )
         {
-            return super.onBackgroundFling( e1, e2, velocityX, velocityY );
-            //TODO animate TableView closing
+            if( velocityY < -1.0f * FLING_VELOCITY && Math.abs( velocityX ) < FLING_VELOCITY )
+            {
+                mSlidingTable.collapseFrame();
+            }
+            return true;
         }
     };
 }

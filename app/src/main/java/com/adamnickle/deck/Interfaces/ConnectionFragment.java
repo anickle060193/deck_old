@@ -3,7 +3,7 @@ package com.adamnickle.deck.Interfaces;
 
 import android.app.Fragment;
 
-public abstract class Connection extends Fragment
+public abstract class ConnectionFragment extends Fragment
 {
     public static final String EXTRA_CONNECTION_TYPE = "EXTRA_CONNECTION_TYPE";
     public static final String EXTRA_CONNECTION_CLASS_NAME = "EXTRA_CONNECTION_CLASS_NAME";

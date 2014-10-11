@@ -2,7 +2,7 @@ package com.adamnickle.deck.Game;
 
 import android.content.Context;
 
-import com.adamnickle.deck.Interfaces.Connection;
+import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.TableFragment;
@@ -16,9 +16,9 @@ public class ServerGameConnection extends GameConnection
     private HashMap< String, CardHolder > mPlayers;
     private HashMap< String, CardHolder > mLeftPlayers;
 
-    public ServerGameConnection( Connection connection )
+    public ServerGameConnection( ConnectionFragment connectionFragment )
     {
-        super( connection );
+        super( connectionFragment );
 
         mPlayers = new HashMap< String, CardHolder >();
         mLeftPlayers = new HashMap< String, CardHolder >();
@@ -127,7 +127,7 @@ public class ServerGameConnection extends GameConnection
         }
         else
         {
-            mConnection.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
+            mConnectionFragment.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
         }
 
         this.handleCardChanges( message );
@@ -193,7 +193,7 @@ public class ServerGameConnection extends GameConnection
             if( !player.getID().equals( getLocalPlayerID() ) )
             {
                 message.setReceiverID( player.getID() );
-                mConnection.sendDataToDevice( player.getID(), GameMessage.serializeMessage( message ) );
+                mConnectionFragment.sendDataToDevice( player.getID(), GameMessage.serializeMessage( message ) );
             }
         }
 
@@ -211,7 +211,7 @@ public class ServerGameConnection extends GameConnection
     {
         if( !isGameStarted() )
         {
-            mConnection.startConnection();
+            mConnectionFragment.startConnection();
         }
     }
 
@@ -272,7 +272,7 @@ public class ServerGameConnection extends GameConnection
         else
         {
             final byte[] data = GameMessage.serializeMessage( message );
-            mConnection.sendDataToDevice( receiverID, data );
+            mConnectionFragment.sendDataToDevice( receiverID, data );
         }
 
         this.handleCardChanges( message );

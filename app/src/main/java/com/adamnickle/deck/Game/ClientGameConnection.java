@@ -2,7 +2,7 @@ package com.adamnickle.deck.Game;
 
 import android.content.Context;
 
-import com.adamnickle.deck.Interfaces.Connection;
+import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.crashlytics.android.Crashlytics;
@@ -12,9 +12,9 @@ public class ClientGameConnection extends GameConnection
 {
     private String mActualServerAddress;
 
-    public ClientGameConnection( Connection connection )
+    public ClientGameConnection( ConnectionFragment connectionFragment )
     {
-        super( connection );
+        super( connectionFragment );
     }
 
     /**
@@ -49,7 +49,7 @@ public class ClientGameConnection extends GameConnection
     {
         if( !isGameStarted() )
         {
-            mConnection.findServer();
+            mConnectionFragment.findServer();
         }
     }
 
@@ -71,6 +71,6 @@ public class ClientGameConnection extends GameConnection
         Crashlytics.log( "SENDING: " + message.toString() );
 
         final byte[] data = GameMessage.serializeMessage( message );
-        mConnection.sendDataToDevice( mActualServerAddress, data );
+        mConnectionFragment.sendDataToDevice( mActualServerAddress, data );
     }
 }

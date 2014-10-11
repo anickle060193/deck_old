@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/actionEraser"
+        android:title="Eraser"
+        android:icon="@drawable/ic_eraser"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/actionPen"
+        android:title="Pen"
+        android:icon="@drawable/ic_pen"
+        android:showAsAction="ifRoom"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/actionClearDrawing"
+        android:title="Clear Drawing"
+        android:icon="@drawable/ic_clear"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/actionCloseDrawing"
+        android:title="Close Drawing"
+        android:icon="@drawable/ic_close"
+        android:showAsAction="ifRoom" />
+
+</menu>

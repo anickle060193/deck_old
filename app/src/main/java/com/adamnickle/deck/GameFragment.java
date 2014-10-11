@@ -19,7 +19,7 @@ import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.Game.GameMessage;
 import com.adamnickle.deck.Game.GameSave;
-import com.adamnickle.deck.Interfaces.Connection;
+import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
@@ -102,7 +102,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
-        super.onCreateOptionsMenu( menu, inflater );
         inflater.inflate( R.menu.game, menu );
 
         if( mGameConnection.isServer() )
@@ -507,7 +506,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
-    public void onConnectionStateChange( Connection.State newState )
+    public void onConnectionStateChange( ConnectionFragment.State newState )
     {
         getActivity().runOnUiThread( new Runnable()
         {

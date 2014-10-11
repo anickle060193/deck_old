@@ -15,7 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.adamnickle.deck.Interfaces.Connection;
+import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.ConnectionListener;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 
-public class BluetoothConnectionFragment extends Connection
+public class BluetoothConnectionFragment extends ConnectionFragment
 {
     private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
 
@@ -91,9 +91,15 @@ public class BluetoothConnectionFragment extends Connection
     }
 
     @Override
+    public void onStop()
+    {
+        super.onStop();
+        getActivity().unregisterReceiver( mReceiver );
+    }
+
+    @Override
     public void onDestroy()
     {
-        getActivity().unregisterReceiver( mReceiver );
         this.stopConnection();
         super.onDestroy();
     }
@@ -170,8 +176,6 @@ public class BluetoothConnectionFragment extends Connection
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
-        super.onCreateOptionsMenu( menu, inflater );
-
         switch( getConnectionType() )
         {
             case CLIENT:
@@ -187,8 +191,6 @@ public class BluetoothConnectionFragment extends Connection
     @Override
     public void onPrepareOptionsMenu( Menu menu )
     {
-        super.onPrepareOptionsMenu( menu );
-
         switch( getConnectionType() )
         {
             case CLIENT:
@@ -625,7 +627,7 @@ public class BluetoothConnectionFragment extends Connection
 
             BluetoothSocket socket;
 
-            while( mState != Connection.State.CONNECTED )
+            while( mState != ConnectionFragment.State.CONNECTED )
             {
                 try
                 {

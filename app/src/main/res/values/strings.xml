@@ -34,5 +34,7 @@
     <string name="actionOpenGameText">Open Game</string>
     <string name="actionDoneText">Done</string>
     <string name="actionToggleTableText">Toggle Table</string>
+    <string name="drawerOpen">Drawer Open</string>
+    <string name="drawerClosed">Drawer Closed</string>
 
 </resources>

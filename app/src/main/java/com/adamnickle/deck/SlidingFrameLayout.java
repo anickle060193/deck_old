@@ -1,8 +1,6 @@
 package com.adamnickle.deck;
 
 import android.content.Context;
-import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -119,5 +117,10 @@ public class SlidingFrameLayout extends FrameLayout
         {
             expandFrame();
         }
+    }
+
+    public boolean isOpen()
+    {
+        return mCurrentState == State.EXPANDED;
     }
 }

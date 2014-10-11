@@ -4,13 +4,15 @@ package com.adamnickle.deck;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.GameMessage;
-import com.adamnickle.deck.Interfaces.Connection;
+import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
@@ -33,6 +35,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         setRetainInstance( true );
     }
 
+    @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
         if( mTableView == null )
@@ -52,6 +55,12 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         }
 
         return mTableView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        inflater.inflate( R.menu.table, menu );
     }
 
     @Override
@@ -150,7 +159,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
-    public void onConnectionStateChange( Connection.State newState )
+    public void onConnectionStateChange( ConnectionFragment.State newState )
     {
 
     }

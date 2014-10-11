@@ -10,7 +10,7 @@ public interface ConnectionListener
     public void onDeviceConnect( String deviceID, String deviceName );
     public void onNotification( String notification );
     public void onConnectionStarted();
-    public void onConnectionStateChange( Connection.State newState );
+    public void onConnectionStateChange( ConnectionFragment.State newState );
     public void onConnectionLost( String deviceID );
     public void onConnectionFailed();
 }

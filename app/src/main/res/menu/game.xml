@@ -7,9 +7,4 @@
         android:title="@string/actionLayoutCardsText"
         android:showAsAction="never" />
 
-    <item
-        android:id="@+id/actionRequestCardFromPlayer"
-        android:title="@string/actionRequestCardFromPlayerText"
-        android:visible="false" />
-
 </menu>

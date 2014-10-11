@@ -21,7 +21,6 @@ public interface GameConnectionListener
     public void onCardsReceive( String senderID, String receiverID, Card[] cards );
     public void onCardRemove( String removerID, String removedID, Card card );
     public void onCardsRemove( String removerID, String removedID, Card[] cards );
-    public void onCardRequested( String requesterID, String requesteeID );
     public void onClearCards( String commanderID, String commandeeID );
     public void onSetDealer( String setterID, String setID, boolean isDealer );
     public void onReceiveCardHolders( String senderID, String receiverID, CardHolder[] cardHolders );

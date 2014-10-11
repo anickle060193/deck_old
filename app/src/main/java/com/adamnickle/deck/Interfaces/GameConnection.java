@@ -121,12 +121,6 @@ public abstract class GameConnection implements ConnectionListener
                 break;
             }
 
-            case MESSAGE_CARD_REQUEST:
-            {
-                listener.onCardRequested( originalSenderID, receiverID ); //TODO Add something about valid cards
-                break;
-            }
-
             case MESSAGE_CLEAR_CARDS:
             {
                 listener.onClearCards( originalSenderID, receiverID );
@@ -207,12 +201,6 @@ public abstract class GameConnection implements ConnectionListener
     public abstract boolean saveGame( Context context, String saveName );
     public abstract boolean openGameSave( Context context, GameSave gameSave );
     public abstract void sendMessageToDevice( GameMessage message, String senderID, String receiverID );
-
-    public void requestCard( String requesterID, String requesteeID )
-    {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CARD_REQUEST, requesterID, requesteeID );
-        this.sendMessageToDevice( message, requesterID, requesteeID );
-    }
 
     public void sendCard( String senderID, String receiverID, Card card, String removedFromID )
     {

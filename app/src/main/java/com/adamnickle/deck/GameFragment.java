@@ -30,8 +30,6 @@ import java.util.HashMap;
 
 public class GameFragment extends Fragment implements GameConnectionListener, GameUiListener
 {
-    private static final boolean FREE_SEND_MODE = true;
-
     private int mLastOrientation;
     private GameView mGameView;
     private GameUiView mGameUiView;
@@ -40,7 +38,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     private CardHolder mLocalPlayer;
     private HashMap< String, CardHolder > mCardHolders;
     private ArrayList< CardHolder > mPlayers;
-    private int mCanSendCard;
 
     private CardCollection mDeck;
     private boolean mIsDealer;
@@ -49,7 +46,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         mCardHolders = new HashMap< String, CardHolder >();
         mPlayers = new ArrayList< CardHolder >();
-        mCanSendCard = 0;
         mDeck = new CardCollection();
         mIsDealer = false;
     }
@@ -219,36 +215,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 return true;
             }
 
-            case R.id.actionRequestCardFromPlayer:
-            {
-                if( mCardHolders.size() == 0 )
-                {
-                    mGameUiView.showPopup( "No Players Connected", "There are not players connected to the current game to select from." );
-                }
-                else
-                {
-                    final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
-                    final String[] playerNames = new String[ players.length ];
-                    final String[] playerIDs = new String[ players.length ];
-                    for( int i = 0; i < players.length; i++ )
-                    {
-                        playerNames[ i ] = players[ i ].getName();
-                        playerIDs[ i ] = players[ i ].getID();
-                    }
-                    mGameUiView.createSelectItemDialog( "Select player:", playerNames, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialogInterface, int index )
-                        {
-                            final String playerID = playerIDs[ index ];
-                            mGameConnection.requestCard( mLocalPlayer.getID(), playerID );
-                            dialogInterface.dismiss();
-                        }
-                    } ).show();
-                }
-                return true;
-            }
-
             case R.id.shuffleCards:
             {
                 mDeck.shuffle();
@@ -361,7 +327,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     if( player != null )
                     {
                         mGameConnection.sendCard( senderID, player.getID(), card, senderID );
-                        mCanSendCard = Math.max( --mCanSendCard, 0 ); //TODO Move mCanSendCard into GameConnection
                     }
                     else
                     {
@@ -387,7 +352,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     public boolean canSendCard( String senderID, Card card )
     {
         CardHolder player = mCardHolders.get( senderID );
-        return mCardHolders.size() > 1 && player != null && player.hasCard( card ) && ( FREE_SEND_MODE || mCanSendCard > 0 );
+        return mCardHolders.size() > 1 && player != null && player.hasCard( card );
     }
 
     @Override
@@ -551,28 +516,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         if( removedID.equals( mLocalPlayer.getID() ) )
         {
             mCardHolders.get( removedID ).removeCards( cards );
-        }
-    }
-
-    @Override
-    public void onCardRequested( String requesterID, String requesteeID )
-    {
-        if( requesteeID.equals( mLocalPlayer.getID() ) )
-        {
-            mCanSendCard++;
-            if( mGameUiView != null )
-            {
-                String notification;
-                if( requesterID.equals( mLocalPlayer.getID() ) )
-                {
-                    notification = "You requested a card from yourself";
-                }
-                else
-                {
-                    notification = mCardHolders.get( requesterID ).getName() + " requested a card";
-                }
-                mGameUiView.displayNotification( notification );
-            }
         }
     }
 

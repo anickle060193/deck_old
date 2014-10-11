@@ -18,7 +18,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         MESSAGE_RECEIVE_CARDS,
         MESSAGE_REMOVE_CARD,
         MESSAGE_REMOVE_CARDS,
-        MESSAGE_CARD_REQUEST,
         MESSAGE_CLEAR_CARDS,
         MESSAGE_NEW_PLAYER,
         MESSAGE_SET_NAME,

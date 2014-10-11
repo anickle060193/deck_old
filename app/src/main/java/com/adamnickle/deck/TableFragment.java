@@ -201,12 +201,6 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
-    public void onCardRequested( String requesterID, String requesteeID )
-    {
-
-    }
-
-    @Override
     public void onClearCards( String commanderID, String commandeeID )
     {
         if( commandeeID.equals( mTable.getID() ) )

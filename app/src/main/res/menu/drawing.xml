@@ -18,7 +18,7 @@
     <item
         android:id="@+id/actionClearDrawing"
         android:title="Clear Drawing"
-        android:icon="@drawable/ic_clear"
+        android:icon="@drawable/ic_delete"
         android:showAsAction="ifRoom" />
 
     <item

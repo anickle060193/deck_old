@@ -44,6 +44,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private CardCollection mDeck;
     private boolean mIsDealer;
+    private boolean mHasToldToStart;
 
     public GameFragment()
     {
@@ -51,6 +52,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mPlayers = new ArrayList< CardHolder >();
         mDeck = new CardCollection();
         mIsDealer = false;
+        mHasToldToStart = false;
     }
 
     @Override
@@ -92,8 +94,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         super.onResume();
 
-        if( !mGameConnection.isGameStarted() )
+        if( !mHasToldToStart && !mGameConnection.isGameStarted() )
         {
+            mHasToldToStart = true;
             mGameConnection.startGame();
         }
     }

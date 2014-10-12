@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -75,8 +74,7 @@ public class DeviceListActivity extends Activity
             {
                 mView = inflater.inflate( R.layout.activity_device_list, container, false );
 
-                Button scanButton = (Button) mView.findViewById( R.id.button_scan );
-                scanButton.setOnClickListener( new View.OnClickListener()
+                mView.findViewById( R.id.button_scan ).setOnClickListener( new View.OnClickListener()
                 {
                     @Override
                     public void onClick( View view )
@@ -209,8 +207,7 @@ public class DeviceListActivity extends Activity
                     getActivity().setTitle( "Select device..." );
                     if( mNewDevicesArrayAdapter.getCount() == 0 )
                     {
-                        String noDevices = "No devices found.";
-                        mNewDevicesArrayAdapter.add( noDevices );
+                        mNewDevicesArrayAdapter.add( "No devices found." );
                     }
                 }
                 else if( BluetoothAdapter.ACTION_STATE_CHANGED.equals( action ) )

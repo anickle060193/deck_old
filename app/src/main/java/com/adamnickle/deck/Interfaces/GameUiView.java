@@ -14,6 +14,8 @@ import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.R;
 import com.adamnickle.deck.SlidingFrameLayout;
 
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 
 public abstract class GameUiView extends View
 {
@@ -45,7 +47,7 @@ public abstract class GameUiView extends View
     public abstract AlertDialog.Builder createBlankAlertDialog( String title );
     public abstract AlertDialog.Builder createSelectItemDialog( String title, Object items[], DialogInterface.OnClickListener listener );
     public abstract void showPopup( String title, String message );
-    public abstract void displayNotification( String notification );
+    public abstract void displayNotification( String notification, Style style );
 
     protected abstract void setGameBackground( int drawableIndex );
     protected abstract CardDrawable createCardDrawable( String cardHolderID, Card card );

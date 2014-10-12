@@ -12,6 +12,8 @@ import com.crashlytics.android.Crashlytics;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public abstract class GameConnection implements ConnectionListener
 {
     public static final String MOCK_SERVER_ADDRESS = "mock_server_address";
@@ -158,11 +160,11 @@ public abstract class GameConnection implements ConnectionListener
     }
 
     @Override
-    public void onNotification( String notification )
+    public void onNotification( String notification, Style style )
     {
         for( GameConnectionListener listener : mListeners )
         {
-            listener.onNotification( notification );
+            listener.onNotification( notification, style );
         }
     }
 
@@ -190,7 +192,7 @@ public abstract class GameConnection implements ConnectionListener
     {
         for( GameConnectionListener listener : mListeners )
         {
-            listener.onNotification( "Could not connect." );
+            listener.onNotification( "Could not connect.", Style.CONFIRM );
         }
     }
 

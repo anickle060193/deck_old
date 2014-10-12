@@ -18,6 +18,8 @@ import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 import com.adamnickle.deck.Interfaces.GameUiView;
 
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public class TableFragment extends Fragment implements GameConnectionListener, GameUiListener
 {
     public static final String TABLE_ID = "table";
@@ -153,7 +155,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
-    public void onNotification( String notification )
+    public void onNotification( String notification, Style style )
     {
 
     }

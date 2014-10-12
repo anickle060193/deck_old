@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         maven { url 'http://download.crashlytics.com/maven' }
+        mavenCentral()
     }
 
     dependencies {
@@ -12,6 +13,7 @@ apply plugin: 'crashlytics'
 
 repositories {
     maven { url 'http://download.crashlytics.com/maven' }
+    mavenCentral()
 }
 
 
@@ -39,4 +41,8 @@ dependencies {
     compile "com.android.support:support-v4:20.+"
 
     compile 'com.crashlytics.android:crashlytics:1.+'
+
+    compile('de.keyboardsurfer.android.widget:crouton:1.8.4@aar') {
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
 }

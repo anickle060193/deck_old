@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -27,6 +28,7 @@ public class DeviceListActivity extends Activity
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
 
         getFragmentManager()
                 .beginTransaction()

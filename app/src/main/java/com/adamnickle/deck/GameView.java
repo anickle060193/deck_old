@@ -15,7 +15,6 @@ import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
@@ -31,6 +30,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public class GameView extends GameUiView
 {
     private static final float MINIMUM_VELOCITY = 400.0f;
@@ -43,7 +45,6 @@ public class GameView extends GameUiView
     protected HashMap< String, ArrayList< CardDrawable > > mCardDrawablesByOwners;
 
     protected GameUiListener mListener;
-    protected final Toast mToast;
 
     private Vibrator mVibrator;
 
@@ -58,8 +59,6 @@ public class GameView extends GameUiView
         this.setGameGestureListener( new GameGestureListener() );
 
         mVibrator = (Vibrator) mParentActivity.getSystemService( Context.VIBRATOR_SERVICE );
-
-        mToast = Toast.makeText( activity.getApplicationContext(), "", Toast.LENGTH_SHORT );
 
         final String background = PreferenceManager.getDefaultSharedPreferences( getContext().getApplicationContext() ).getString( DeckSettings.BACKGROUND, "White" );
         final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
@@ -558,15 +557,14 @@ public class GameView extends GameUiView
     }
 
     @Override
-    public void displayNotification( final String notification )
+    public void displayNotification( final String notification, final Style style )
     {
         mParentActivity.runOnUiThread( new Runnable()
         {
             @Override
             public void run()
             {
-                mToast.setText( notification );
-                mToast.show();
+                Crouton.makeText( mParentActivity, notification, style ).show();
             }
         } );
     }

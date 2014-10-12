@@ -12,7 +12,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 
 import com.adamnickle.deck.Game.ClientGameConnection;
 import com.adamnickle.deck.Game.ServerGameConnection;
@@ -21,9 +20,19 @@ import com.adamnickle.deck.Interfaces.GameConnection;
 
 import java.security.InvalidParameterException;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+
 
 public class GameActivity extends Activity
 {
+    public final static int REQUEST_START_GAME = 1;
+
+    public final static int RESULT_BLUETOOTH_DISABLED = Activity.RESULT_FIRST_USER;
+    public final static int RESULT_DISCONNECTED_FROM_SERVER = RESULT_BLUETOOTH_DISABLED + 1;
+    public final static int RESULT_BLUETOOTH_NOT_ENABLED = RESULT_DISCONNECTED_FROM_SERVER + 1;
+    public final static int RESULT_BLUETOOTH_NOT_SUPPORTED = RESULT_BLUETOOTH_NOT_ENABLED + 1;
+    public final static int RESULT_NOT_CONNECTED_TO_DEVICE = RESULT_BLUETOOTH_NOT_SUPPORTED + 1;
+
     private ConnectionFragment mConnectionFragment;
     private GameConnection mGameConnection;
     private GameFragment mGameFragment;
@@ -37,8 +46,8 @@ public class GameActivity extends Activity
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
-        requestWindowFeature( Window.FEATURE_INDETERMINATE_PROGRESS );
         setContentView( R.layout.activity_game );
+        setResult( Activity.RESULT_CANCELED );
 
         mTableView = (SlidingFrameLayout) findViewById( R.id.table );
         mDrawerLayout = (DrawerLayout) findViewById( R.id.drawerLayout );
@@ -143,6 +152,14 @@ public class GameActivity extends Activity
     }
 
     @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        Crouton.clearCroutonsForActivity( this );
+    }
+
+    @Override
     public void invalidateOptionsMenu()
     {
         if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
@@ -210,6 +227,7 @@ public class GameActivity extends Activity
                         @Override
                         public void onClick( DialogInterface dialogInterface, int i )
                         {
+                            setResult( Activity.RESULT_CANCELED );
                             GameActivity.this.finish();
                         }
                     } )
@@ -218,6 +236,8 @@ public class GameActivity extends Activity
         }
         else
         {
+
+            setResult( Activity.RESULT_CANCELED );
             GameActivity.this.finish();
         }
     }

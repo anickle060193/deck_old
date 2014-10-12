@@ -24,6 +24,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 
 public class BluetoothConnectionFragment extends ConnectionFragment
 {
@@ -78,10 +80,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
         if( mBluetoothAdapter == null )
         {
-            if( mListener != null )
-            {
-                mListener.onNotification( "Bluetooth not supported by device. Bluetooth must be enabled to use application." );
-            }
+            getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_SUPPORTED );
             getActivity().finish();
         }
     }
@@ -276,11 +275,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 else
                 {
                     Log.d( TAG, "ENABLE BLUETOOTH - CANCEL" );
-
-                    if( mListener != null )
-                    {
-                        mListener.onNotification( "Bluetooth was not enabled. Bluetooth must be enabled to use application." );
-                    }
+                    getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_ENABLED );
                     getActivity().finish();
                 }
                 break;
@@ -288,7 +283,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             case REQUEST_MAKE_DISCOVERABLE:
                 if( resultCode != DISCOVERABLE_DURATION )
                 {
-                    mListener.onNotification( "Server was not made discoverable. Unknown devices will not be able to connect." );
+                    mListener.onNotification( "Server was not made discoverable. Unknown devices will not be able to connect.", Style.ALERT );
                 }
                 if( getState() == ConnectionFragment.State.NONE)
                 {
@@ -308,6 +303,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 }
                 else
                 {
+                    getActivity().setResult( GameActivity.RESULT_NOT_CONNECTED_TO_DEVICE );
                     getActivity().finish();
                 }
                 break;
@@ -607,7 +603,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         {
             if( mListener != null )
             {
-                mListener.onNotification( "Not connected" );
+                mListener.onNotification( "Not connected", Style.ALERT );
             }
             return;
         }
@@ -874,8 +870,8 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 {
                     case BluetoothAdapter.STATE_OFF:
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        mListener.onNotification( "Bluetooth was disabled." );
                         stopConnection();
+                        getActivity().setResult( GameActivity.RESULT_BLUETOOTH_DISABLED );
                         getActivity().finish();
                         break;
                 }

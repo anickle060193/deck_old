@@ -31,6 +31,9 @@ import com.adamnickle.deck.Interfaces.GameUiView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public class GameFragment extends Fragment implements GameConnectionListener, GameUiListener
 {
     private int mLastOrientation;
@@ -99,6 +102,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             mHasToldToStart = true;
             mGameConnection.startGame();
         }
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+
+        Crouton.clearCroutonsForActivity( getActivity() );
     }
 
     @Override
@@ -264,11 +275,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                             {
                                 if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
                                 {
-                                    mGameUiView.displayNotification( "Game save successful." );
+                                    mGameUiView.displayNotification( "Game save successful.", Style.INFO );
                                 }
                                 else
                                 {
-                                    mGameUiView.displayNotification( "Game save not successful." );
+                                    mGameUiView.displayNotification( "Game save not successful.", Style.INFO );
                                 }
                             }
                         } ).show();
@@ -300,11 +311,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                             {
                                 if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
                                 {
-                                    mGameUiView.displayNotification( "Game open successful." );
+                                    mGameUiView.displayNotification( "Game open successful.", Style.INFO );
                                 }
                                 else
                                 {
-                                    mGameUiView.displayNotification( "Game open not successful." );
+                                    mGameUiView.displayNotification( "Game open not successful.", Style.INFO );
                                 }
                                 dialog.dismiss();
                             }
@@ -401,7 +412,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             mPlayers.add( cardHolder );
             if( mGameUiView != null )
             {
-                mGameUiView.displayNotification( name + " joined the game." );
+                mGameUiView.displayNotification( name + " joined the game.", Style.CONFIRM );
             }
         }
     }
@@ -413,7 +424,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         player.setName( newName );
         if( mGameUiView != null )
         {
-            mGameUiView.displayNotification( player.getName() + " joined the game." );
+            mGameUiView.displayNotification( player.getName() + " joined the game.", Style.CONFIRM );
         }
     }
 
@@ -426,7 +437,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             mPlayers.remove( player );
             if( player != null && mGameUiView != null )
             {
-                mGameUiView.displayNotification( player.getName() + " left game." );
+                mGameUiView.displayNotification( player.getName() + " left game.", Style.ALERT );
             }
         }
     }
@@ -454,30 +465,27 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         if( mGameUiView != null && !mGameConnection.isServer() )
         {
-            mGameUiView.displayNotification( "Connected to " + serverName + "'s server" );
+            mGameUiView.displayNotification( "Connected to " + serverName + "'s server", Style.CONFIRM );
         }
     }
 
     @Override
     public void onServerDisconnect( String serverID )
     {
-        if( mGameUiView != null )
-        {
-            mGameUiView.displayNotification( "Disconnected from server." );
-        }
         Activity activity = getActivity();
         if( activity != null )
         {
+            activity.setResult( GameActivity.RESULT_DISCONNECTED_FROM_SERVER );
             activity.finish();
         }
     }
 
     @Override
-    public void onNotification( String notification )
+    public void onNotification( String notification, Style style )
     {
         if( mGameUiView != null )
         {
-            mGameUiView.displayNotification( notification );
+            mGameUiView.displayNotification( notification, style );
         }
     }
 
@@ -551,7 +559,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 {
                     notification = mCardHolders.get( commanderID ).getName() + " cleared your hand.";
                 }
-                mGameUiView.displayNotification( notification );
+                mGameUiView.displayNotification( notification, Style.INFO );
             }
         }
     }
@@ -573,7 +581,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 {
                     notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
                 }
-                mGameUiView.displayNotification( notification );
+                mGameUiView.displayNotification( notification, Style.CONFIRM );
             }
             getActivity().runOnUiThread( new Runnable()
             {

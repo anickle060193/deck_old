@@ -5,6 +5,8 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.GameMessage;
 
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public interface GameConnectionListener
 {
     public void setGameConnection( GameConnection gameConnection );
@@ -15,7 +17,7 @@ public interface GameConnectionListener
     public void onGameStarted();
     public void onServerConnect( String deviceID, String deviceName );
     public void onServerDisconnect( String deviceID );
-    public void onNotification( String notification );
+    public void onNotification( String notification, Style style );
     public void onConnectionStateChange( ConnectionFragment.State newState );
     public void onCardReceive( String senderID, String receiverID, Card card );
     public void onCardsReceive( String senderID, String receiverID, Card[] cards );

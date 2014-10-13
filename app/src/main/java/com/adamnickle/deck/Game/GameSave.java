@@ -245,13 +245,11 @@ public final class GameSave
 
     public static class GameSaveArrayAdapter extends ArrayAdapter<GameSave>
     {
-        private final GameSave[] mGameSaves;
         private final int mRowLayoutResource;
 
         public GameSaveArrayAdapter( Context context, int layoutResourceId, GameSave[] gameSaves )
         {
             super( context, layoutResourceId, gameSaves );
-            mGameSaves = gameSaves;
             mRowLayoutResource = layoutResourceId;
         }
 
@@ -282,7 +280,7 @@ public final class GameSave
                 gameSaveHolder = (GameSaveHolder) convertView.getTag();
             }
 
-            final GameSave gameSave = mGameSaves[ position ];
+            final GameSave gameSave = getItem( position );
             gameSaveHolder.GameSaveNameTextView.setText( gameSave.SaveName );
             gameSaveHolder.GameSaveDateTimeTextView.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.SavedDate ) );
             gameSaveHolder.GameSaveInfoButton.setOnClickListener( new View.OnClickListener()

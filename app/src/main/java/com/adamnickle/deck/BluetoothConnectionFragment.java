@@ -42,8 +42,6 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     public static final String EXTRA_DEVICE_ADDRESS = "device_address";
     public static final String EXTRA_NOTIFICATION = "notification";
 
-    public static final int RESULT_FIND_DEVICE_FAIL = Activity.RESULT_FIRST_USER + 1;
-
     private final BluetoothAdapter mBluetoothAdapter;
     private ConnectionListener mListener;
     private AcceptThread mAcceptThread;

@@ -60,81 +60,7 @@ public class ServerGameConnection extends GameConnection
         }
     }
 
-    /*******************************************************************
-     * ConnectionListener Methods
-     *******************************************************************/
-    @Override
-    public synchronized void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
-    {
-        switch( message.getMessageType() )
-        {
-            case MESSAGE_RECEIVE_CARD:
-                final String cardHolderID = message.getRemovedFromID();
-                if( cardHolderID != null && !mPlayers.get( cardHolderID ).hasCard( message.getCard() ) )
-                {
-                    return;
-                }
-                break;
-        }
-
-        if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
-        {
-            switch( message.getMessageType() )
-            {
-                case MESSAGE_SET_NAME:
-                    final String newName = message.getPlayerName();
-                    for( CardHolder player : mPlayers.values() )
-                    {
-                        if( player.getID().equals( originalSenderID ) )
-                        {
-                            player.setName( newName );
-                        }
-                        else
-                        {
-                            this.sendCardHolderName( originalSenderID, player.getID(), newName );
-                        }
-                    }
-                    break;
-
-                case MESSAGE_RECEIVE_CARD:
-                    //TODO Server received card from player
-                    break;
-
-                case MESSAGE_CARD_HOLDERS:
-                    final CardHolder[] cardHolders = message.getCardHolders();
-                    for( CardHolder cardHolder : mPlayers.values() )
-                    {
-                        this.sendCardHolders( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolders );
-                    }
-                    break;
-            }
-        }
-        else if( receiverID.equals( getLocalPlayerID() ) )
-        {
-            super.onMessageHandle( listener, originalSenderID, receiverID, message );
-        }
-        else if( receiverID.equals( TableFragment.TABLE_ID ) )
-        {
-            super.onMessageHandle( listener, originalSenderID, receiverID, message );
-
-            for( CardHolder cardHolder : mPlayers.values() )
-            {
-                if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) )
-                {
-                    this.sendMessageToDevice( message, originalSenderID, cardHolder.getID() );
-                }
-            }
-        }
-        else
-        {
-            mConnectionFragment.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
-        }
-
-        this.handleCardChanges( message );
-    }
-
-    @Override
-    public synchronized void onDeviceConnect( String deviceID, String deviceName )
+    private void handleNewCardHolder( String deviceID, String deviceName )
     {
         CardHolder newPlayer = mLeftPlayers.remove( deviceID );
         if( newPlayer == null )
@@ -178,6 +104,85 @@ public class ServerGameConnection extends GameConnection
             Card[] cards = newPlayer.getCards();
             newPlayer.clearCards();
             this.sendCards( MOCK_SERVER_ADDRESS, newPlayer.getID(), cards );
+        }
+    }
+
+    /*******************************************************************
+     * ConnectionListener Methods
+     *******************************************************************/
+    @Override
+    public synchronized void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
+    {
+        switch( message.getMessageType() )
+        {
+            case MESSAGE_RECEIVE_CARD:
+                final String cardHolderID = message.getRemovedFromID();
+                if( cardHolderID != null && !mPlayers.get( cardHolderID ).hasCard( message.getCard() ) )
+                {
+                    return;
+                }
+                break;
+        }
+
+        if( receiverID.equals( MOCK_SERVER_ADDRESS ) )
+        {
+            switch( message.getMessageType() )
+            {
+                case MESSAGE_SET_NAME:
+                    handleNewCardHolder( originalSenderID, message.getPlayerName() );
+                    break;
+
+                case MESSAGE_RECEIVE_CARD:
+                    //TODO Server received card from player
+                    break;
+
+                case MESSAGE_CARD_HOLDERS:
+                    final CardHolder[] cardHolders = message.getCardHolders();
+                    for( CardHolder cardHolder : mPlayers.values() )
+                    {
+                        this.sendCardHolders( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolders );
+                    }
+                    break;
+            }
+        }
+        else if( receiverID.equals( getLocalPlayerID() ) )
+        {
+            super.onMessageHandle( listener, originalSenderID, receiverID, message );
+        }
+        else if( receiverID.equals( TableFragment.TABLE_ID ) )
+        {
+            super.onMessageHandle( listener, originalSenderID, receiverID, message );
+
+            for( CardHolder cardHolder : mPlayers.values() )
+            {
+                if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) )
+                {
+                    this.sendMessageToDevice( message, originalSenderID, cardHolder.getID() );
+                }
+            }
+        }
+        else
+        {
+            mConnectionFragment.sendDataToDevice( receiverID, GameMessage.serializeMessage( message ) );
+        }
+
+        this.handleCardChanges( message );
+    }
+
+    @Override
+    public synchronized void onDeviceConnect( String deviceID, String deviceName )
+    {
+
+    }
+
+    @Override
+    public void onConnectionStarted()
+    {
+        super.onConnectionStarted();
+
+        for( GameConnectionListener listener : mListeners )
+        {
+            listener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
         }
     }
 

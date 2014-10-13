@@ -470,13 +470,8 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             mLocalPlayer.setCardHolderListener( mGameUiView.getCardHolderListener() );
         }
 
-        String playerName = PreferenceManager
-                .getDefaultSharedPreferences( getActivity().getApplicationContext() )
-                .getString( DeckSettings.PLAYER_NAME, mGameConnection.getDefaultLocalPlayerName() );
-
         mCardHolders.put( mLocalPlayer.getID(), mLocalPlayer );
         mPlayers.add( mLocalPlayer );
-        mGameConnection.onDeviceConnect( mGameConnection.getLocalPlayerID(), playerName );
     }
 
     @Override
@@ -486,6 +481,12 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         {
             mGameUiView.displayNotification( "Connected to " + serverName + "'s server", Style.CONFIRM );
         }
+
+        String playerName = PreferenceManager
+                .getDefaultSharedPreferences( getActivity().getApplicationContext() )
+                .getString( DeckSettings.PLAYER_NAME, mGameConnection.getDefaultLocalPlayerName() );
+
+        mGameConnection.sendCardHolderName( mLocalPlayer.getID(), GameConnection.MOCK_SERVER_ADDRESS, playerName );
     }
 
     @Override

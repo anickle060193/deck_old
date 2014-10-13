@@ -585,14 +585,9 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         }
         mConnectedThreads.remove( connectedThread );
 
-        switch( getConnectionType() )
+        if( getConnectionType() == ConnectionType.CLIENT )
         {
-            case CLIENT:
-                stopConnection();
-                break;
-            case SERVER:
-                restartConnection();
-                break;
+            stopConnection();
         }
     }
 

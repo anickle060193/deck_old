@@ -29,6 +29,7 @@ public class ClientGameConnection extends GameConnection
         for( GameConnectionListener listener : mListeners )
         {
             listener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
+
         }
     }
 

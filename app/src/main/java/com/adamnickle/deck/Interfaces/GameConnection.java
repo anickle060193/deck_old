@@ -173,7 +173,6 @@ public abstract class GameConnection implements ConnectionListener
     {
         for( GameConnectionListener listener : mListeners )
         {
-            listener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
             listener.onGameStarted();
         }
     }

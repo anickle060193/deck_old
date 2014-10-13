@@ -134,200 +134,219 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         switch( item.getItemId() )
         {
             case R.id.setDealer:
-            {
-                final CardHolder players[] = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
-                mGameUiView.createSelectItemDialog( "Select dealer:", players, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialogInterface, int i )
-                    {
-                        CardHolder newDealer = players[ i ];
-                        mGameConnection.setDealer( mLocalPlayer.getID(), newDealer.getID(), true );
-                    }
-                } ).show();
+                handleSetDealerClick();
                 return true;
-            }
 
             case R.id.actionDealCards:
-            {
-                if( mDeck.getCardCount() < mCardHolders.size() )
-                {
-                    mGameUiView.showPopup( "No Cards Left", "There are not enough cards left to evenly deal to players." );
-                }
-                else
-                {
-                    final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
-                    final int maxCardsPerPlayer = mDeck.getCardCount() / players.length;
-                    final Integer[] cardsDealAmounts = new Integer[ maxCardsPerPlayer ];
-                    for( int i = 1; i <= maxCardsPerPlayer; i++ )
-                    {
-                        cardsDealAmounts[ i - 1 ] = i;
-                    }
-                    mGameUiView.createSelectItemDialog( "Number of cards to deal to each player:", cardsDealAmounts, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialogInterface, int index )
-                        {
-                            int cardsPerPlayer = cardsDealAmounts[ index ];
-                            final Card[][] cardsDealt = new Card[ players.length ][ cardsPerPlayer ];
-                            for( int i = 0; i < cardsPerPlayer && mDeck.getCardCount() > 0; i++ )
-                            {
-                                for( int j = 0; j < players.length; j++ )
-                                {
-                                    cardsDealt[ j ][ i ] = mDeck.removeTopCard();
-                                }
-                            }
-
-                            for( int i = 0; i < cardsDealt.length; i++ )
-                            {
-                                mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ] );
-                            }
-                        }
-                    } ).show();
-                }
+                handleDealCardsClick();
                 return true;
-            }
 
             case R.id.actionClearPlayerHands:
-            {
-                for( CardHolder player : mCardHolders.values() )
-                {
-                    mGameConnection.clearCards( mLocalPlayer.getID(), player.getID() );
-                }
-                mDeck.resetCards();
+                handleClearPlayerHandsClick();
                 return true;
-            }
 
             case R.id.actionDealSingleCard:
-            {
-                if( mCardHolders.size() == 0 )
-                {
-                    mGameUiView.showPopup( "No Players Connected", "There are not players connected to the current game to select from." );
-                }
-                else if( mDeck.getCardCount() == 0 )
-                {
-                    mGameUiView.showPopup( "No Cards Left", "There are no cards left to deal." );
-                }
-                else
-                {
-                    final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
-                    final String[] playerNames = new String[ players.length ];
-                    final String[] playerIDs = new String[ players.length ];
-                    for( int i = 0; i < players.length; i++ )
-                    {
-                        playerNames[ i ] = players[ i ].getName();
-                        playerIDs[ i ] = players[ i ].getID();
-                    }
-                    mGameUiView.createSelectItemDialog( "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialogInterface, int index )
-                        {
-                            final String playerID = playerIDs[ index ];
-                            mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), null );
-                            dialogInterface.dismiss();
-                        }
-                    } ).show();
-                }
+                handleDealSingleCardClick();
                 return true;
-            }
 
             case R.id.shuffleCards:
-            {
                 mDeck.shuffle();
                 return true;
-            }
 
             case R.id.actionLayoutCards:
-            {
-                if( mGameUiView != null )
-                {
-                    mGameUiView.createSelectItemDialog( "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialogInterface, int i )
-                        {
-                            if( i == 0 )
-                            {
-                                mGameUiView.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_RANK );
-                            }
-                            else if( i == 1 )
-                            {
-                                mGameUiView.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_SUIT );
-                            }
-                            mGameUiView.layoutCards( mLocalPlayer.getID() );
-                        }
-                    } ).show();
-                }
+                handleLayoutCardsClick();
                 return true;
-            }
 
             case R.id.actionSaveGame:
-            {
-                if( mGameConnection.isServer() )
-                {
-                    if( mGameUiView != null )
-                    {
-                        mGameUiView.createEditTextDialog( "Enter Deck game save name:", "Game Save", "OK", "Cancel", new GameUiView.OnEditTextDialogClickListener()
-                        {
-                            @Override
-                            public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
-                            {
-                                if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
-                                {
-                                    mGameUiView.displayNotification( "Game save successful.", Style.INFO );
-                                }
-                                else
-                                {
-                                    mGameUiView.displayNotification( "Game save not successful.", Style.INFO );
-                                }
-                            }
-                        } ).show();
-                    }
-                }
+                handleSaveGameClick();
                 return true;
-            }
 
             case R.id.actionOpenGame:
-            {
-                if( mGameUiView != null )
-                {
-                    final GameSave[] gameSaves = GameSave.getGameSaves( getActivity().getApplicationContext() );
-
-                    if( gameSaves.length == 0 )
-                    {
-                        mGameUiView.showPopup( "No Deck Game Saves", "There are currently no saved Deck games." );
-                    }
-                    else
-                    {
-                        final AlertDialog.Builder dialogBuilder = mGameUiView.createBlankAlertDialog( "Select game save:" );
-                        final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity(), gameSaves );
-                        dialogBuilder.setView( gameSaveListView );
-                        final AlertDialog dialog = dialogBuilder.create();
-                        gameSaveListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
-                        {
-                            @Override
-                            public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
-                            {
-                                if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
-                                {
-                                    mGameUiView.displayNotification( "Game open successful.", Style.INFO );
-                                }
-                                else
-                                {
-                                    mGameUiView.displayNotification( "Game open not successful.", Style.INFO );
-                                }
-                                dialog.dismiss();
-                            }
-                        } );
-                        dialog.show();
-                    }
-                }
+                handleOpenGameClick();
                 return true;
-            }
 
             default:
                 return super.onOptionsItemSelected( item );
+        }
+    }
+
+    private void handleSetDealerClick()
+    {
+        final CardHolder players[] = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
+        mGameUiView.createSelectItemDialog( "Select dealer:", players, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick( DialogInterface dialogInterface, int i )
+            {
+                CardHolder newDealer = players[ i ];
+                mGameConnection.setDealer( mLocalPlayer.getID(), newDealer.getID(), true );
+            }
+        } ).show();
+    }
+
+    private void handleDealCardsClick()
+    {
+        if( mDeck.getCardCount() < mCardHolders.size() )
+        {
+            mGameUiView.showPopup( "No Cards Left", "There are not enough cards left to evenly deal to players." );
+        }
+        else
+        {
+            final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
+            final int maxCardsPerPlayer = mDeck.getCardCount() / players.length;
+            final Integer[] cardsDealAmounts = new Integer[ maxCardsPerPlayer ];
+            for( int i = 1; i <= maxCardsPerPlayer; i++ )
+            {
+                cardsDealAmounts[ i - 1 ] = i;
+            }
+            mGameUiView.createSelectItemDialog( "Number of cards to deal to each player:", cardsDealAmounts, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick( DialogInterface dialogInterface, int index )
+                {
+                    int cardsPerPlayer = cardsDealAmounts[ index ];
+                    final Card[][] cardsDealt = new Card[ players.length ][ cardsPerPlayer ];
+                    for( int i = 0; i < cardsPerPlayer && mDeck.getCardCount() > 0; i++ )
+                    {
+                        for( int j = 0; j < players.length; j++ )
+                        {
+                            cardsDealt[ j ][ i ] = mDeck.removeTopCard();
+                        }
+                    }
+
+                    for( int i = 0; i < cardsDealt.length; i++ )
+                    {
+                        mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ] );
+                    }
+                }
+            } ).show();
+        }
+    }
+
+    private void handleClearPlayerHandsClick()
+    {
+        for( CardHolder player : mCardHolders.values() )
+        {
+            mGameConnection.clearCards( mLocalPlayer.getID(), player.getID() );
+        }
+        mDeck.resetCards();
+    }
+
+    private void handleDealSingleCardClick()
+    {
+        if( mCardHolders.size() == 0 )
+        {
+            mGameUiView.showPopup( "No Players Connected", "There are not players connected to the current game to select from." );
+        }
+        else if( mDeck.getCardCount() == 0 )
+        {
+            mGameUiView.showPopup( "No Cards Left", "There are no cards left to deal." );
+        }
+        else
+        {
+            final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
+            final String[] playerNames = new String[ players.length ];
+            final String[] playerIDs = new String[ players.length ];
+            for( int i = 0; i < players.length; i++ )
+            {
+                playerNames[ i ] = players[ i ].getName();
+                playerIDs[ i ] = players[ i ].getID();
+            }
+            mGameUiView.createSelectItemDialog( "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick( DialogInterface dialogInterface, int index )
+                {
+                    final String playerID = playerIDs[ index ];
+                    mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), null );
+                    dialogInterface.dismiss();
+                }
+            } ).show();
+        }
+    }
+
+    private void handleLayoutCardsClick()
+    {
+        if( mGameUiView != null )
+        {
+            mGameUiView.createSelectItemDialog( "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick( DialogInterface dialogInterface, int i )
+                {
+                    if( i == 0 )
+                    {
+                        mGameUiView.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_RANK );
+                    }
+                    else if( i == 1 )
+                    {
+                        mGameUiView.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_SUIT );
+                    }
+                    mGameUiView.layoutCards( mLocalPlayer.getID() );
+                }
+            } ).show();
+        }
+    }
+
+    private void handleSaveGameClick()
+    {
+        if( mGameConnection.isServer() )
+        {
+            if( mGameUiView != null )
+            {
+                mGameUiView.createEditTextDialog( "Enter Deck game save name:", "Game Save", "OK", "Cancel", new GameUiView.OnEditTextDialogClickListener()
+                {
+                    @Override
+                    public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
+                    {
+                        if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
+                        {
+                            mGameUiView.displayNotification( "Game save successful.", Style.INFO );
+                        }
+                        else
+                        {
+                            mGameUiView.displayNotification( "Game save not successful.", Style.INFO );
+                        }
+                    }
+                } ).show();
+            }
+        }
+    }
+
+    private void handleOpenGameClick()
+    {
+        if( mGameUiView != null )
+        {
+            final GameSave[] gameSaves = GameSave.getGameSaves( getActivity().getApplicationContext() );
+
+            if( gameSaves.length == 0 )
+            {
+                mGameUiView.showPopup( "No Deck Game Saves", "There are currently no saved Deck games." );
+            }
+            else
+            {
+                final AlertDialog.Builder dialogBuilder = mGameUiView.createBlankAlertDialog( "Select game save:" );
+                final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity(), gameSaves );
+                dialogBuilder.setView( gameSaveListView );
+                final AlertDialog dialog = dialogBuilder.create();
+                gameSaveListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
+                {
+                    @Override
+                    public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
+                    {
+                        if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
+                        {
+                            mGameUiView.displayNotification( "Game open successful.", Style.INFO );
+                        }
+                        else
+                        {
+                            mGameUiView.displayNotification( "Game open not successful.", Style.INFO );
+                        }
+                        dialog.dismiss();
+                    }
+                } );
+                dialog.show();
+            }
         }
     }
 

@@ -133,8 +133,14 @@ public class DeviceListActivity extends Activity
             switch( requestCode )
             {
                 case REQUEST_BLUETOOTH_ENABLE:
-                    if( resultCode != Activity.RESULT_OK )
+                    if( resultCode == Activity.RESULT_OK )
                     {
+                        this.setRetainInstance( false );
+                        getActivity().recreate();
+                    }
+                    else
+                    {
+                        getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_ENABLED );
                         getActivity().finish();
                     }
             }
@@ -222,6 +228,7 @@ public class DeviceListActivity extends Activity
                     final int state = intent.getIntExtra( BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR );
                     if( state == BluetoothAdapter.STATE_OFF )
                     {
+                        getActivity().setResult( GameActivity.RESULT_BLUETOOTH_DISABLED );
                         getActivity().finish();
                     }
                 }

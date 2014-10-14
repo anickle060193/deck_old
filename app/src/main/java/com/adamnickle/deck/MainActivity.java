@@ -17,6 +17,8 @@ public class MainActivity extends Activity
 {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private Crouton mCrouton;
+
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
@@ -71,25 +73,42 @@ public class MainActivity extends Activity
                 switch( resultCode )
                 {
                     case GameActivity.RESULT_BLUETOOTH_DISABLED:
-                        Crouton.makeText( this, "Bluetooth was disabled", Style.ALERT ).show();
+                        mCrouton = Crouton.makeText( this, "Bluetooth was disabled", Style.ALERT );
                         break;
 
                     case GameActivity.RESULT_DISCONNECTED_FROM_SERVER:
-                        Crouton.makeText( this, "Disconnected from server", Style.ALERT ).show();
+                        mCrouton = Crouton.makeText( this, "Disconnected from server", Style.ALERT );
                         break;
 
                     case GameActivity.RESULT_BLUETOOTH_NOT_ENABLED:
-                        Crouton.makeText( this, "Bluetooth was not enabled. Bluetooth must be enabled to use application.", Style.ALERT ).show();
+                        mCrouton = Crouton.makeText( this, "Bluetooth was not enabled. Bluetooth must be enabled to use application.", Style.ALERT );
                         break;
 
                     case GameActivity.RESULT_BLUETOOTH_NOT_SUPPORTED:
-                        Crouton.makeText( this, "Bluetooth not supported by device. Bluetooth must be enabled to use application.", Style.ALERT ).show();
+                        mCrouton = Crouton.makeText( this, "Bluetooth not supported by device. Bluetooth must be enabled to use application.", Style.ALERT );
                         break;
 
                     case GameActivity.RESULT_NOT_CONNECTED_TO_DEVICE:
+                        mCrouton = Crouton.makeText( this, "No server device selected.", Style.INFO );
+                        break;
+
+                    case Activity.RESULT_CANCELED:
+                        mCrouton = Crouton.makeText( this, "Game Closed", Style.INFO );
                         break;
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged( boolean hasFocus )
+    {
+        super.onWindowFocusChanged( hasFocus );
+
+        if( hasFocus && mCrouton != null )
+        {
+            mCrouton.show();
+            mCrouton = null;
         }
     }
 

@@ -139,20 +139,45 @@ public class DrawingFragment extends Fragment
             mCanvasPaint = new Paint( Paint.DITHER_FLAG );
             mPathBounds = new RectF();
             mEraser = false;
-            mX = mY = 0;
+            mX = 0;
+            mY = 0;
             mDrawEraser = false;
         }
 
         @Override
-        protected void onSizeChanged( int w, int h, int oldw, int oldh )
+        protected void onLayout( boolean changed, int left, int top, int right, int bottom )
         {
-            super.onSizeChanged( w, h, oldw, oldh );
+            super.onLayout( changed, left, top, right, bottom );
 
-            if( mDrawingBitmap == null )
+            if( changed )
             {
-                mDrawingBitmap = Bitmap.createBitmap( w, h, Bitmap.Config.ARGB_8888 );
+                final int width = right - left;
+                final int height = bottom - top;
+                final int layoutMax = Math.max( width, height );
+                final int bitmapWidth = mDrawingBitmap != null ? mDrawingBitmap.getWidth() : 0;
+                final int bitmapHeight = mDrawingBitmap != null ? mDrawingBitmap.getHeight() : 0;
+                final int bitmapMax = Math.max( bitmapWidth, bitmapHeight );
+                final int max = Math.max( layoutMax, bitmapMax );
+
+                if( mDrawingBitmap == null || ( mDrawingBitmap.getWidth() < max && mDrawingBitmap.getHeight() < max ) )
+                {
+                    final Bitmap bitmap = Bitmap.createBitmap( max, max, Bitmap.Config.ARGB_8888 );
+                    if( mDrawingBitmap == null )
+                    {
+                        mDrawingBitmap = bitmap;
+                    }
+                    else
+                    {
+                        Canvas canvas = new Canvas( bitmap );
+                        canvas.drawBitmap( mDrawingBitmap, 0, 0, null );
+                        Bitmap old = mDrawingBitmap;
+                        mDrawingBitmap = bitmap;
+                        old.recycle();
+                    }
+                    mCanvas = new Canvas( mDrawingBitmap );
+                }
+
             }
-            mCanvas = new Canvas( mDrawingBitmap );
         }
 
         public void toggleEraser()
@@ -177,12 +202,22 @@ public class DrawingFragment extends Fragment
 
         public void clearDrawing()
         {
+            if( mCanvas == null )
+            {
+                return;
+            }
+
             mCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
         }
 
         @Override
         protected void onDraw( Canvas canvas )
         {
+            if( mDrawingBitmap == null )
+            {
+                return;
+            }
+
             canvas.drawBitmap( mDrawingBitmap, 0, 0, mCanvasPaint );
             canvas.drawPath( mDrawPath, mDrawingPaint );
             if( mDrawEraser )
@@ -197,6 +232,11 @@ public class DrawingFragment extends Fragment
         @Override
         public boolean onTouchEvent( MotionEvent event )
         {
+            if( mCanvas == null )
+            {
+                return true;
+            }
+
             mX = (int) event.getX();
             mY = (int) event.getY();
 

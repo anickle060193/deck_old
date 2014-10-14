@@ -58,7 +58,7 @@ public class GameActivity extends Activity
             public void onDrawerOpened( View drawerView )
             {
                 super.onDrawerOpened( drawerView );
-                mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_OPEN );
+                mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END );
                 invalidateOptionsMenu();
             }
 
@@ -66,7 +66,7 @@ public class GameActivity extends Activity
             public void onDrawerClosed( View drawerView )
             {
                 super.onDrawerClosed( drawerView );
-                mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_UNLOCKED );
+                mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END );
                 invalidateOptionsMenu();
             }
         };
@@ -199,12 +199,6 @@ public class GameActivity extends Activity
     @Override
     public void onBackPressed()
     {
-        if( mTableView.isOpen() )
-        {
-            mTableView.collapseFrame();
-            return;
-        }
-
         if( mConnectionFragment != null && mConnectionFragment.isConnected() )
         {
             String message = null;

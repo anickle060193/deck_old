@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.adamnickle.deck.DrawingView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/drawingView"
+        android:background="@color/DrawingBackground"/>
+
+    <com.adamnickle.deck.DrawingOverView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/drawingOverView"
+        android:background="@color/PaleGreen"
+        android:layout_margin="10dp"/>
+
+</RelativeLayout>

@@ -47,7 +47,99 @@ public class DrawingFragment extends Fragment
             container.removeView( mDrawingView );
         }
 
-        return mDrawingView;
+        mDrawingViewLaidOut = false;
+        mOverViewLaidOut = false;
+        mDrawingView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
+        {
+            @Override
+            public void onGlobalLayout()
+            {
+                Log.d( "DrawingFragment", "mDrawingView onGlobalLayout" );
+                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
+                {
+                    mDrawingView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                }
+                else
+                {
+                    mDrawingView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
+                }
+                mDrawingViewLaidOut = true;
+                createDrawingBitmap();
+            }
+        } );
+        mOverView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
+        {
+            @Override
+            public void onGlobalLayout()
+            {
+                Log.d( "DrawingFragment", "mOverView onGlobalLayout" );
+                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
+                {
+                    mDrawingView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                }
+                else
+                {
+                    mDrawingView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
+                }
+                mOverViewLaidOut = true;
+                createDrawingBitmap();
+            }
+        } );
+
+        return mView;
+    }
+
+    private void createDrawingBitmap()
+    {
+        if( !mDrawingViewLaidOut || !mOverViewLaidOut ) return;
+
+        Log.d( "DrawingFragment", "createDrawingFragment" );
+
+        final int drawingViewWidth = mDrawingView.getWidth();
+        final int drawingViewHeight = mDrawingView.getHeight();
+
+        final int overViewWidth = mOverView.getWidth();
+        final int overViewHeight = mOverView.getHeight();
+
+        final float maxBitmapWidth;
+        final float maxBitmapHeight;
+
+        if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
+        {
+            maxBitmapWidth = (float) drawingViewHeight / overViewHeight * overViewWidth;
+            maxBitmapHeight = drawingViewHeight;
+        }
+        else
+        {
+            maxBitmapHeight = (float) drawingViewWidth / overViewWidth * overViewHeight;
+            maxBitmapWidth = drawingViewWidth;
+        }
+
+        final int max = (int) Math.max( maxBitmapWidth, maxBitmapHeight );
+        final Bitmap bitmap;
+        if( mBitmap == null || ( max > Math.max( mBitmap.getWidth(), mBitmap.getHeight() ) ) )
+        {
+            bitmap = Bitmap.createBitmap( max, max, Bitmap.Config.ARGB_8888 );
+        }
+        else
+        {
+            return;
+        }
+
+        if( mBitmap == null )
+        {
+            mBitmap = bitmap;
+        }
+        else
+        {
+            Canvas canvas = new Canvas( bitmap );
+            canvas.drawBitmap( mBitmap, 0, 0, null );
+            mBitmap.recycle();
+            mBitmap = bitmap;
+        }
+
+        mDrawingView.setDrawingBitmap( mBitmap );
+        Log.d( "DrawingFragment", "Bitmap Width: " + mBitmap.getWidth() + ", Height: " + mBitmap.getHeight() );
     }
 
     @Override
@@ -96,178 +188,6 @@ public class DrawingFragment extends Fragment
 
             default:
                 return super.onOptionsItemSelected( item );
-        }
-    }
-
-    public class DrawingView extends View
-    {
-        private static final int DRAWING_STROKE_WIDTH = 10;
-        private static final int ERASER_STROKE_WIDTH = 80;
-
-        private final Path mDrawPath;
-        private final Paint mDrawingPaint;
-        private final Paint mCanvasPaint;
-        private Canvas mCanvas;
-        private RectF mPathBounds;
-        private boolean mEraser;
-        private boolean mDrawEraser;
-        private int mX;
-        private int mY;
-
-        public DrawingView( Context context )
-        {
-            this( context, null );
-        }
-
-        public DrawingView( Context context, AttributeSet attrs )
-        {
-            this( context, attrs, 0 );
-        }
-
-        public DrawingView( Context context, AttributeSet attrs, int defStyleAttr )
-        {
-            super( context, attrs, defStyleAttr );
-
-            mDrawPath = new Path();
-            mDrawingPaint = new Paint();
-            mDrawingPaint.setColor( Color.BLACK );
-            mDrawingPaint.setAntiAlias( true );
-            mDrawingPaint.setStrokeWidth( DRAWING_STROKE_WIDTH );
-            mDrawingPaint.setStyle( Paint.Style.STROKE );
-            mDrawingPaint.setStrokeJoin( Paint.Join.ROUND );
-            mDrawingPaint.setStrokeCap( Paint.Cap.ROUND );
-
-            mCanvasPaint = new Paint( Paint.DITHER_FLAG );
-            mPathBounds = new RectF();
-            mEraser = false;
-            mX = 0;
-            mY = 0;
-            mDrawEraser = false;
-        }
-
-        @Override
-        protected void onLayout( boolean changed, int left, int top, int right, int bottom )
-        {
-            super.onLayout( changed, left, top, right, bottom );
-
-            if( changed )
-            {
-                final int width = right - left;
-                final int height = bottom - top;
-                final int layoutMax = Math.max( width, height );
-                final int bitmapWidth = mDrawingBitmap != null ? mDrawingBitmap.getWidth() : 0;
-                final int bitmapHeight = mDrawingBitmap != null ? mDrawingBitmap.getHeight() : 0;
-                final int bitmapMax = Math.max( bitmapWidth, bitmapHeight );
-                final int max = Math.max( layoutMax, bitmapMax );
-
-                if( mDrawingBitmap == null || ( mDrawingBitmap.getWidth() < max && mDrawingBitmap.getHeight() < max ) )
-                {
-                    final Bitmap bitmap = Bitmap.createBitmap( max, max, Bitmap.Config.ARGB_8888 );
-                    if( mDrawingBitmap == null )
-                    {
-                        mDrawingBitmap = bitmap;
-                    }
-                    else
-                    {
-                        Canvas canvas = new Canvas( bitmap );
-                        canvas.drawBitmap( mDrawingBitmap, 0, 0, null );
-                        Bitmap old = mDrawingBitmap;
-                        mDrawingBitmap = bitmap;
-                        old.recycle();
-                    }
-                    mCanvas = new Canvas( mDrawingBitmap );
-                }
-
-            }
-        }
-
-        public void toggleEraser()
-        {
-            if( mEraser )
-            {
-                mDrawingPaint.setColor( Color.BLACK );
-                mDrawingPaint.setStrokeWidth( DRAWING_STROKE_WIDTH );
-            }
-            else
-            {
-                mDrawingPaint.setColor( getResources().getColor( R.color.DrawingBackground ) );
-                mDrawingPaint.setStrokeWidth( ERASER_STROKE_WIDTH );
-            }
-            mEraser = !mEraser;
-        }
-
-        public boolean isEraser()
-        {
-            return mEraser;
-        }
-
-        public void clearDrawing()
-        {
-            if( mCanvas == null )
-            {
-                return;
-            }
-
-            mCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
-        }
-
-        @Override
-        protected void onDraw( Canvas canvas )
-        {
-            if( mDrawingBitmap == null )
-            {
-                return;
-            }
-
-            canvas.drawBitmap( mDrawingBitmap, 0, 0, mCanvasPaint );
-            canvas.drawPath( mDrawPath, mDrawingPaint );
-            if( mDrawEraser )
-            {
-                final int color = mDrawingPaint.getColor();
-                mDrawingPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
-                canvas.drawPoint( mX, mY, mDrawingPaint );
-                mDrawingPaint.setColor( color );
-            }
-        }
-
-        @Override
-        public boolean onTouchEvent( MotionEvent event )
-        {
-            if( mCanvas == null )
-            {
-                return true;
-            }
-
-            mX = (int) event.getX();
-            mY = (int) event.getY();
-
-            switch( event.getAction() )
-            {
-                case MotionEvent.ACTION_DOWN:
-                    mDrawEraser = mEraser;
-                    mDrawPath.moveTo( mX, mY );
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    mDrawPath.lineTo( mX, mY );
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                    mDrawPath.computeBounds( mPathBounds, false );
-                    if( mPathBounds.width() < 10 || mPathBounds.height() < 10 )
-                    {
-                        mCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mDrawingPaint );
-                    }
-                    mCanvas.drawPath( mDrawPath, mDrawingPaint );
-                    mDrawPath.reset();
-                    mDrawEraser = false;
-                    break;
-
-                default:
-                    return false;
-            }
-            invalidate();
-            return true;
         }
     }
 }

@@ -335,43 +335,43 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
     public synchronized void startConnection()
     {
-        Log.d( TAG, "BEGIN startConnection()" );
-
-        if( !ensureConnection() )
-        {
-            return;
-        }
-
-        if( mConnectThread != null )
-        {
-            mConnectThread.cancel();
-            mConnectThread = null;
-        }
-
-        for( ConnectedThread thread : mConnectedThreads )
-        {
-            thread.cancel();
-        }
-        mConnectedThreads.clear();
-
-        switch( getConnectionType() )
-        {
-            case NONE:
-            case CLIENT:
-                setState( State.NONE );
-                break;
-
-            case SERVER:
-                setState( State.LISTENING );
-
-                if( mAcceptThread == null )
-                {
-                    mAcceptThread = new AcceptThread();
-                    mAcceptThread.start();
-                    mListener.onConnectionStarted();
-                }
-                break;
-        }
+//        Log.d( TAG, "BEGIN startConnection()" );
+//
+//        if( !ensureConnection() )
+//        {
+//            return;
+//        }
+//
+//        if( mConnectThread != null )
+//        {
+//            mConnectThread.cancel();
+//            mConnectThread = null;
+//        }
+//
+//        for( ConnectedThread thread : mConnectedThreads )
+//        {
+//            thread.cancel();
+//        }
+//        mConnectedThreads.clear();
+//
+//        switch( getConnectionType() )
+//        {
+//            case NONE:
+//            case CLIENT:
+//                setState( State.NONE );
+//                break;
+//
+//            case SERVER:
+//                setState( State.LISTENING );
+//
+//                if( mAcceptThread == null )
+//                {
+//                    mAcceptThread = new AcceptThread();
+//                    mAcceptThread.start();
+//                    mListener.onConnectionStarted();
+//                }
+//                break;
+//        }
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.adamnickle.deck;
 
 import android.app.Fragment;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Build;
@@ -23,8 +22,7 @@ public class DrawingFragment extends Fragment
     private View mView;
     private DrawingView mDrawingView;
     private DrawingOverView mOverView;
-    private Bitmap mLandBitmap;
-    private Bitmap mPortBitmap;
+    private Bitmap mBitmap;
     private DrawerLayout mDrawerLayout;
     private boolean mDrawingViewLaidOut;
     private boolean mOverViewLaidOut;
@@ -62,7 +60,7 @@ public class DrawingFragment extends Fragment
                 }
                 mDrawingViewLaidOut = true;
 
-                createBitmap( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT );
+                createBitmap();
             }
         } );
         mOverView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
@@ -81,62 +79,43 @@ public class DrawingFragment extends Fragment
                 }
                 mOverViewLaidOut = true;
 
-                createBitmap( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT );
+                createBitmap();
             }
         } );
 
         return mView;
     }
 
-    private void createBitmap( boolean portrait )
+    private void createBitmap()
     {
         if( !mDrawingViewLaidOut || !mOverViewLaidOut )
         {
             return;
         }
 
-        if( portrait )
-        {
-            if( mPortBitmap != null )
-            {
-                mDrawingView.setBitmap( true, mPortBitmap );
-                return;
-            }
-        }
-        else
-        {
-            if( mLandBitmap != null )
-            {
-                mDrawingView.setBitmap( false, mLandBitmap );
-                return;
-            }
-        }
-
         final int drawingViewWidth = mDrawingView.getWidth();
         final int drawingViewHeight = mDrawingView.getHeight();
 
-        final Bitmap bitmap = Bitmap.createBitmap( drawingViewWidth, drawingViewHeight, Bitmap.Config.ARGB_8888 );
+        final int bitmapWidth = mBitmap != null ? mBitmap.getWidth() : 0;
+        final int bitmapHeight = mBitmap != null ? mBitmap.getHeight() : 0;
 
-        if( portrait )
+        final int width = Math.max( drawingViewWidth, bitmapWidth );
+        final int height = Math.max( drawingViewHeight, bitmapHeight );
+
+        if( width > bitmapWidth || height > bitmapHeight )
         {
-            mPortBitmap = bitmap;
-            mDrawingView.setBitmap( true, mPortBitmap );
-            if( mLandBitmap != null )
+            final Bitmap bitmap = Bitmap.createBitmap( width, height, Bitmap.Config.ARGB_8888 );
+
+            if( mBitmap != null )
             {
-                final Canvas canvas = new Canvas( mPortBitmap );
-                canvas.drawBitmap( mLandBitmap, 0, 0, null );
+                final Canvas canvas = new Canvas( bitmap );
+                canvas.drawBitmap( mBitmap, 0, 0, null );
+                mBitmap.recycle();
             }
+
+            mBitmap = bitmap;
         }
-        else
-        {
-            mLandBitmap = bitmap;
-            mDrawingView.setBitmap( false, mLandBitmap );
-            if( mPortBitmap != null )
-            {
-                final Canvas canvas = new Canvas( mLandBitmap );
-                canvas.drawBitmap( mPortBitmap, 0, 0, null );
-            }
-        }
+        mDrawingView.setBitmap( mBitmap );
     }
 
     @Override

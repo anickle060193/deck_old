@@ -1,7 +1,6 @@
 package com.adamnickle.deck;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,20 +18,17 @@ public class DrawingView extends View
     private static final int DRAWING_STROKE_WIDTH = 10;
     private static final int ERASER_STROKE_WIDTH = 80;
 
-    private Bitmap mPortBitmap;
-    private Bitmap mLandBitmap;
+    private Bitmap mBitmap;
     private final Path mDrawPath;
     private final Paint mDrawingPaint;
     private final Paint mCanvasPaint;
-    private Canvas mPortCanvas;
-    private Canvas mLandCanvas;
+    private Canvas mCanvas;
     private RectF mPathBounds;
     private boolean mEraser;
     private boolean mDrawEraser;
     private int mX;
     private int mY;
     private Rect mDrawingBounds;
-    private boolean mPortrait;
 
     public DrawingView( Context context )
     {
@@ -57,8 +53,6 @@ public class DrawingView extends View
         mDrawingPaint.setStrokeJoin( Paint.Join.ROUND );
         mDrawingPaint.setStrokeCap( Paint.Cap.ROUND );
 
-        mPortCanvas = new Canvas();
-        mLandCanvas = new Canvas();
         mCanvasPaint = new Paint( Paint.DITHER_FLAG );
         mPathBounds = new RectF();
         mEraser = false;
@@ -67,18 +61,10 @@ public class DrawingView extends View
         mDrawEraser = false;
     }
 
-    public void setBitmap( boolean portrait, Bitmap bitmap )
+    public void setBitmap( Bitmap bitmap )
     {
-        if( portrait )
-        {
-            mPortBitmap = bitmap;
-            mPortCanvas.setBitmap( mPortBitmap );
-        }
-        else
-        {
-            mLandBitmap = bitmap;
-            mLandCanvas.setBitmap( mLandBitmap );
-        }
+        mBitmap = bitmap;
+        mCanvas = new Canvas( mBitmap );
     }
 
     public void toggleEraser()
@@ -103,45 +89,37 @@ public class DrawingView extends View
 
     public void clearDrawing()
     {
-        mPortCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
-        mLandCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
-    }
-
-    @Override
-    protected void onLayout( boolean changed, int left, int top, int right, int bottom )
-    {
-        super.onLayout( changed, left, top, right, bottom );
-
-        if( changed )
+        if( mCanvas != null )
         {
-            mPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+            mCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
         }
     }
 
     @Override
     protected void onDraw( Canvas canvas )
     {
-        if( mPortrait )
+        if( mBitmap != null )
         {
-            canvas.drawBitmap( mPortBitmap, 0, 0, mCanvasPaint );
-        }
-        else
-        {
-            canvas.drawBitmap( mLandBitmap, 0, 0, mCanvasPaint );
-        }
-        canvas.drawPath( mDrawPath, mDrawingPaint );
-        if( mDrawEraser )
-        {
-            final int color = mDrawingPaint.getColor();
-            mDrawingPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
-            canvas.drawPoint( mX, mY, mDrawingPaint );
-            mDrawingPaint.setColor( color );
+            canvas.drawBitmap( mBitmap, 0, 0, mCanvasPaint );
+            canvas.drawPath( mDrawPath, mDrawingPaint );
+            if( mDrawEraser )
+            {
+                final int color = mDrawingPaint.getColor();
+                mDrawingPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
+                canvas.drawPoint( mX, mY, mDrawingPaint );
+                mDrawingPaint.setColor( color );
+            }
         }
     }
 
     @Override
     public boolean onTouchEvent( MotionEvent event )
     {
+        if( mCanvas == null )
+        {
+            return true;
+        }
+
         mX = (int) event.getX();
         mY = (int) event.getY();
 
@@ -160,11 +138,9 @@ public class DrawingView extends View
                 mDrawPath.computeBounds( mPathBounds, false );
                 if( mPathBounds.width() < 10 || mPathBounds.height() < 10 )
                 {
-                    mPortCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mDrawingPaint );
-                    mLandCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mDrawingPaint );
+                    mCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mDrawingPaint );
                 }
-                mPortCanvas.drawPath( mDrawPath, mDrawingPaint );
-                mLandCanvas.drawPath( mDrawPath, mDrawingPaint );
+                mCanvas.drawPath( mDrawPath, mDrawingPaint );
                 mDrawPath.reset();
                 mDrawEraser = false;
                 break;

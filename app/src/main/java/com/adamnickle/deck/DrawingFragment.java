@@ -61,6 +61,7 @@ public class DrawingFragment extends Fragment
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
+        super.onCreateOptionsMenu( menu, inflater );
         inflater.inflate( R.menu.drawing, menu );
     }
 

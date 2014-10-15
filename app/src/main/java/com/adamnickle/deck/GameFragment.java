@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -346,6 +347,21 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     }
                 } );
                 dialog.show();
+
+                gameSaveListView.getAdapter().registerDataSetObserver( new DataSetObserver()
+                {
+                    @Override
+                    public void onChanged()
+                    {
+                        if( gameSaveListView.getAdapter().getCount() == 0 )
+                        {
+                            if( dialog.isShowing() )
+                            {
+                                dialog.dismiss();
+                            }
+                        }
+                    }
+                } );
             }
         }
     }

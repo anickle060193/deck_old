@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,11 +20,8 @@ public class DrawingFragment extends Fragment
 {
     private View mView;
     private DrawingView mDrawingView;
-    private DrawingOverView mOverView;
     private Bitmap mBitmap;
     private DrawerLayout mDrawerLayout;
-    private boolean mDrawingViewLaidOut;
-    private boolean mOverViewLaidOut;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -38,18 +34,17 @@ public class DrawingFragment extends Fragment
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        mView = inflater.inflate( R.layout.drawing_layout, container, false );
-        mDrawingView = (DrawingView) mView.findViewById( R.id.drawingView );
-        mOverView = (DrawingOverView) mView.findViewById( R.id.drawingOverView );
+        if( mView == null )
+        {
+            mView = inflater.inflate( R.layout.drawing_layout, container, false );
+            mDrawingView = (DrawingView) mView.findViewById( R.id.drawingView );
+        }
 
-        mDrawingViewLaidOut = false;
-        mOverViewLaidOut = false;
         mDrawingView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
         {
             @Override
             public void onGlobalLayout()
             {
-                Log.d( "DrawingFragment", "mDrawingView onGlobalLayout" );
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
                 {
                     mDrawingView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
@@ -58,26 +53,6 @@ public class DrawingFragment extends Fragment
                 {
                     mDrawingView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
                 }
-                mDrawingViewLaidOut = true;
-
-                createBitmap();
-            }
-        } );
-        mOverView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
-        {
-            @Override
-            public void onGlobalLayout()
-            {
-                Log.d( "DrawingFragment", "mOverView onGlobalLayout" );
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
-                {
-                    mDrawingView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-                }
-                else
-                {
-                    mDrawingView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
-                }
-                mOverViewLaidOut = true;
 
                 createBitmap();
             }
@@ -88,11 +63,6 @@ public class DrawingFragment extends Fragment
 
     private void createBitmap()
     {
-        if( !mDrawingViewLaidOut || !mOverViewLaidOut )
-        {
-            return;
-        }
-
         final int drawingViewWidth = mDrawingView.getWidth();
         final int drawingViewHeight = mDrawingView.getHeight();
 

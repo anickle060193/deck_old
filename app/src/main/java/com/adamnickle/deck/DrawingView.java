@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -28,7 +27,6 @@ public class DrawingView extends View
     private boolean mDrawEraser;
     private int mX;
     private int mY;
-    private Rect mDrawingBounds;
 
     public DrawingView( Context context )
     {

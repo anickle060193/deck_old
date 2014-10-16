@@ -53,15 +53,15 @@ public class CardDrawable
     private long mLastUpdate;
     private boolean mIsFaceUp;
 
-    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, int x, int y, final float scalingFactor )
+    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, final float scalingFactor )
     {
         mIsBitmapLoaded = false;
         mOwnerID = ownerID;
         mCard = card;
         mGameUiView = parentView;
         mListener = gameUiListener;
-        mX = x;
-        mY = y;
+        mX = 0;
+        mY = 0;
         mIsFaceUp = false;
 
         mPositionUpdateRunnable = new Runnable()
@@ -113,11 +113,7 @@ public class CardDrawable
                 }.start();
             }
         }
-    }
 
-    public CardDrawable( GameUiView parentView, GameUiListener gameUiListener, String ownerID, Card card, float scalingFactor )
-    {
-        this( parentView, gameUiListener, ownerID, card, 0, 0, scalingFactor );
         resetCardDrawable();
     }
 

@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.crashlytics.android.Crashlytics;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -29,6 +27,7 @@ public class MainActivity extends Activity
         Crashlytics.start( this );
 
         Log.d( TAG, "+++ ON CREATE +++" );
+        /*
         setContentView( R.layout.activity_main );
 
         findViewById( R.id.startGameButton ).setOnClickListener( new View.OnClickListener()
@@ -64,8 +63,10 @@ public class MainActivity extends Activity
                 startActivity( openSettings );
             }
         } );
-
-        ( (ViewGroup) findViewById( R.id.main ) ).addView( new PlayingCardView( this, null, null, new Card( 0 ) ) );
+        */
+        final CardDisplayLayout cardDisplayLayout = new CardDisplayLayout( this );
+        this.setContentView( cardDisplayLayout, new ViewGroup.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT ) );
+        cardDisplayLayout.addView( new PlayingCardView( this, null, null, new Card( 0 ) ) );
     }
 
     @Override

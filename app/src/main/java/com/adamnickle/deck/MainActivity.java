@@ -66,7 +66,11 @@ public class MainActivity extends Activity
         */
         final CardDisplayLayout cardDisplayLayout = new CardDisplayLayout( this );
         this.setContentView( cardDisplayLayout, new ViewGroup.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT ) );
-        cardDisplayLayout.addView( new PlayingCardView( this, null, null, new Card( 0 ) ) );
+        cardDisplayLayout.addView( new PlayingCardView( this, null, new Card( 0 ) ) );
+        cardDisplayLayout.addView( new PlayingCardView( this, null, new Card( 1 ) ) );
+        cardDisplayLayout.addView( new PlayingCardView( this, null, new Card( 2 ) ) );
+        cardDisplayLayout.addView( new PlayingCardView( this, null, new Card( 3 ) ) );
+        cardDisplayLayout.addView( new PlayingCardView( this, null, new Card( 4 ) ) );
     }
 
     @Override

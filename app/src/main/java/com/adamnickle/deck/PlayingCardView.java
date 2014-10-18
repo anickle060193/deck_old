@@ -2,14 +2,12 @@ package com.adamnickle.deck;
 
 
 import android.content.Context;
-import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.Comparator;
@@ -24,7 +22,6 @@ public class PlayingCardView extends ImageView
     private String mOwnerID;
     private boolean mFaceUp;
     private boolean mFirstLayout;
-    private boolean mPreventLayout;
     private float mVelocityX;
     private float mVelocityY;
     private long mLastUpdate;
@@ -37,7 +34,6 @@ public class PlayingCardView extends ImageView
         mOwnerID = ownerID;
         mFaceUp = false;
         mFirstLayout = true;
-        mPreventLayout = false;
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
 
@@ -59,6 +55,9 @@ public class PlayingCardView extends ImageView
                 final int dy = (int) ( ( mVelocityY * elapsedTime ) / 1000.0f );
                 PlayingCardView.this.offsetLeftAndRight( dx );
                 PlayingCardView.this.offsetTopAndBottom( dy );
+                CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
+                lp.Left += dx;
+                lp.Top += dy;
                 mVelocityX *= 0.99f;
                 mVelocityY *= 0.99f;
 
@@ -145,12 +144,16 @@ public class PlayingCardView extends ImageView
     public void setX( float x )
     {
         this.offsetLeftAndRight( (int) ( x - this.getLeft() ) );
+        CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) this.getLayoutParams();
+        lp.Left = (int) x;
     }
 
     @Override
     public void setY( float y )
     {
         this.offsetTopAndBottom( (int) ( y - this.getTop() ) );
+        CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) this.getLayoutParams();
+        lp.Top = (int) y;
     }
 
     @Override
@@ -223,19 +226,6 @@ public class PlayingCardView extends ImageView
         }
     }
 
-    @Override
-    public void requestLayout()
-    {
-        if( !mPreventLayout)
-        {
-            super.requestLayout();
-        }
-        else
-        {
-            Log.e( "PlayingCardView", "--- BLOCKED FROM REQUEST_LAYOUT ---" );
-        }
-    }
-
     public String getOwnerID()
     {
         return mOwnerID;
@@ -251,21 +241,7 @@ public class PlayingCardView extends ImageView
         if( !mFaceUp )
         {
             mFaceUp = true;
-            mPreventLayout = true;
-            Picasso.with( getContext() ).load( mCard.getResource() ).noFade().placeholder( this.getDrawable() ).into( this, new Callback()
-            {
-                @Override
-                public void onSuccess()
-                {
-                    mPreventLayout = false;
-                }
-
-                @Override
-                public void onError()
-                {
-                    mPreventLayout = false;
-                }
-            } );
+            Picasso.with( getContext() ).load( mCard.getResource() ).noFade().placeholder( this.getDrawable() ).into( this );
         }
     }
 
@@ -275,11 +251,11 @@ public class PlayingCardView extends ImageView
 
         final ViewGroup parent = (ViewGroup) this.getParent();
         final int width = parent.getWidth();
-        final float widthHalf = width * 0.5f;
+        final float widthQuarter = width * 0.25f;
         final int height = parent.getHeight();
-        final float heightHalf = height * 0.5f;
-        final int randomXOffset = (int) ( Math.random() * widthHalf - 0.5f * widthHalf );
-        final int randomYOffset = (int) ( Math.random() * heightHalf - 0.5f * heightHalf );
+        final float heightQuarter = height * 0.25f;
+        final int randomXOffset = (int) ( Math.random() * widthQuarter - 0.5f * widthQuarter );
+        final int randomYOffset = (int) ( Math.random() * heightQuarter - 0.5f * heightQuarter );
         final int newX = (int) ( ( width - this.getWidth() ) / 2.0f + randomXOffset );
         final int newY = (int) ( ( height - this.getHeight() ) / 2.0f + randomYOffset );
 

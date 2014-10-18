@@ -90,9 +90,32 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 }
 
                 @Override
-                protected void setGameBackground( int drawableIndex )
+                public void onBackgroundDoubleTap( MotionEvent event )
                 {
-                    
+                    new AlertDialog.Builder( getContext() )
+                            .setTitle( "Pick background" )
+                            .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick( DialogInterface dialogInterface, int index )
+                                {
+                                    final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
+                                    final String background = backgrounds[ index ];
+                                    PreferenceManager
+                                            .getDefaultSharedPreferences( getContext().getApplicationContext() )
+                                            .edit()
+                                            .putString( DeckSettings.BACKGROUND, background )
+                                            .commit();
+                                    setGameBackground( index );
+                                }
+                            } )
+                            .show();
+                }
+
+                @Override
+                public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
+                {
+                    playingCardView.flipFaceUp();
                 }
             };
             mCardDisplay.setGameUiListener( this );

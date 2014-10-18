@@ -61,6 +61,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 public PlayingCardView createPlayingCardView( String cardHolderID, Card card )
                 {
                     PlayingCardView playingCardView = super.createPlayingCardView( cardHolderID, card );
+                    playingCardView.flipFaceUp();
                     //TODO Set PlayingCardView scale
                     return playingCardView;
                 }

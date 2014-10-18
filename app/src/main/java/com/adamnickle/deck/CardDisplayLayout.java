@@ -1,25 +1,22 @@
 package com.adamnickle.deck;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
-import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.Interfaces.CardHolderListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 
@@ -42,7 +39,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     private ViewDragHelper mDragHelper;
     private GestureDetector mDetector;
-    private boolean mPreventLayout;
     private Vibrator mVibrator;
     private GameUiListener mGameUiListener;
 
@@ -65,11 +61,51 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
         mDragHelper = ViewDragHelper.create( this, new DragHelperCallback() );
         mDetector = new GestureDetector( getContext(), new CardDisplayGestureListener() );
-        mPreventLayout = false;
 
         mCardViews = new LinkedList< PlayingCardView >();
         mCardViewsByOwner = new HashMap< String, ArrayList< PlayingCardView > >();
         mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
+    }
+
+    @Override
+    protected void onLayout( boolean changed, int left, int top, int right, int bottom )
+    {
+        final int childCount = getChildCount();
+        for( int i = 0; i < childCount; i++ )
+        {
+            final View child = getChildAt( i );
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            child.layout( lp.Left, lp.Top, lp.Left + child.getMeasuredWidth(), lp.Top + child.getMeasuredHeight() );
+        }
+    }
+
+    @Override
+    protected boolean checkLayoutParams( ViewGroup.LayoutParams p )
+    {
+        return p instanceof LayoutParams;
+    }
+
+    @Override
+    protected LayoutParams generateDefaultLayoutParams()
+    {
+        return new LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT );
+    }
+
+    @Override
+    protected LayoutParams generateLayoutParams( ViewGroup.LayoutParams p )
+    {
+        return new LayoutParams( p.width, p.height );
+    }
+
+    public static class LayoutParams extends FrameLayout.LayoutParams
+    {
+        public int Left;
+        public int Top;
+
+        public LayoutParams( int width, int height )
+        {
+            super( width, height );
+        }
     }
 
     public CardHolderListener getCardHolderListener()
@@ -96,18 +132,8 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         return true;
     }
 
-    @Override
-    public void requestLayout()
-    {
-        //if( !mPreventLayout )
-        {
-            super.requestLayout();
-        }
-    }
-
     protected void setGameBackground( int drawableIndex )
     {
-        mPreventLayout = true;
         if( drawableIndex == 0 )
         {
             setBackgroundColor( Color.WHITE );
@@ -127,7 +153,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
                 setBackground( background );
             }
         }
-        mPreventLayout = false;
     }
 
     public void onOrientationChange()
@@ -188,6 +213,16 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
             final float minTop = -child.getHeight() / 2.0f;
             final float maxTop = CardDisplayLayout.this.getHeight() - child.getHeight() / 2.0f;
             return (int) Math.max( minTop, Math.min( top, maxTop ) );
+        }
+
+        @Override
+        public void onViewPositionChanged( View changedView, int left, int top, int dx, int dy )
+        {
+            super.onViewPositionChanged( changedView, left, top, dx, dy );
+
+            LayoutParams lp = (LayoutParams) changedView.getLayoutParams();
+            lp.Left = left;
+            lp.Top = top;
         }
 
         @Override
@@ -282,7 +317,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void onCardDown( MotionEvent event, PlayingCardView playingCardView )
     {
-        //playingCardView.bringToFront();
+        playingCardView.bringToFront();
         playingCardView.onTouched();
     }
 
@@ -293,29 +328,12 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
     {
-        playingCardView.flipFaceUp();
+
     }
 
     public void onBackgroundDoubleTap( MotionEvent event )
     {
-        new AlertDialog.Builder( getContext() )
-                .setTitle( "Pick background" )
-                .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialogInterface, int index )
-                    {
-                        final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
-                        final String background = backgrounds[ index ];
-                        PreferenceManager
-                                .getDefaultSharedPreferences( getContext().getApplicationContext() )
-                                .edit()
-                                .putString( DeckSettings.BACKGROUND, background )
-                                .commit();
-                        setGameBackground( index );
-                    }
-                } )
-                .show();
+
     }
 
     public void onCardDoubleTap( MotionEvent event, PlayingCardView playingCardView )
@@ -506,12 +524,12 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     public void onCardsCleared( String cardHolderID )
     {
         final ArrayList< PlayingCardView > playingCardViews = mCardViewsByOwner.remove( cardHolderID );
-        for( PlayingCardView cardView : playingCardViews )
-        {
-            this.removeView( cardView );
-        }
         if( playingCardViews != null )
         {
+            for( PlayingCardView cardView : playingCardViews )
+            {
+                this.removeView( cardView );
+            }
             mCardViews.removeAll( playingCardViews );
         }
     }

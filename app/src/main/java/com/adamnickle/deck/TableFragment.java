@@ -1,11 +1,13 @@
 package com.adamnickle.deck;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,7 +18,6 @@ import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
-import com.adamnickle.deck.Interfaces.GameUiView;
 
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -25,10 +26,13 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     public static final String TABLE_ID = "table";
     public static final String TABLE_NAME = "Table";
 
+    private static float FLING_VELOCITY = 400;
+
     private GameConnection mGameConnection;
-    private GameUiView mGameUiView;
-    private TableView mTableView;
+    private CardDisplayLayout mTableView;
     private CardHolder mTable;
+
+    private SlidingFrameLayout mSlidingTableLayout;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -38,22 +42,59 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
+    public void onAttach( Activity activity )
+    {
+        super.onAttach( activity );
+
+        FLING_VELOCITY *= getResources().getDisplayMetrics().density;
+        mSlidingTableLayout = (SlidingFrameLayout) activity.findViewById( R.id.table );
+    }
+
+    @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
         if( mTableView == null )
         {
-            mTableView = new TableView( getActivity() );
+            mTableView = new CardDisplayLayout( getActivity() )
+            {
+                @Override
+                public PlayingCardView createPlayingCardView( String cardHolderID, Card card )
+                {
+                    PlayingCardView playingCardView = super.createPlayingCardView( cardHolderID, card );
+                    //TODO Set PlayingCardView scale
+                    return playingCardView;
+                }
+
+                @Override
+                public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
+                {
+
+                }
+
+                @Override
+                public void onBackgroundDoubleTap( MotionEvent event )
+                {
+
+                }
+
+                @Override
+                public void onBackgroundFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
+                {
+                    if( velocityY < -1.0f * FLING_VELOCITY && Math.abs( velocityX ) < FLING_VELOCITY )
+                    {
+                        mSlidingTableLayout.collapseFrame();
+                    }
+                }
+            };
             mTableView.setGameUiListener( this );
+            if( mTable != null )
+            {
+                mTable.setCardHolderListener( mTableView.getCardHolderListener() );
+            }
         }
         else
         {
             container.removeView( mTableView );
-        }
-
-        this.setGameUiInterface( mTableView );
-        if( mTable != null )
-        {
-            mTable.setCardHolderListener( mGameUiView.getCardHolderListener() );
         }
 
         return mTableView;
@@ -83,16 +124,6 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     public boolean canSendCard( String senderID, Card card )
     {
         return mTable.hasCard( card );
-    }
-
-    @Override
-    public void setGameUiInterface( GameUiView gameUiView )
-    {
-        mGameUiView = gameUiView;
-        if( mTable != null )
-        {
-            mTable.setCardHolderListener( mGameUiView.getCardHolderListener() );
-        }
     }
 
     @Override
@@ -135,9 +166,9 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     public void onServerConnect( String deviceID, String deviceName )
     {
         mTable = new CardHolder( TABLE_ID, TABLE_NAME );
-        if( mGameUiView != null )
+        if( mTableView != null )
         {
-            mTable.setCardHolderListener( mGameUiView.getCardHolderListener() );
+            mTable.setCardHolderListener( mTableView.getCardHolderListener() );
         }
         if( mGameConnection.isServer() )
         {

@@ -16,6 +16,8 @@ import java.util.Comparator;
 
 public class PlayingCardView extends ImageView
 {
+    public static final float CARD_HEADER_PERCENTAGE = 0.27f;
+
     private static final float MINIMUM_VELOCITY = 50.0f;
 
     private final Card mCard;
@@ -26,7 +28,6 @@ public class PlayingCardView extends ImageView
     private float mVelocityX;
     private float mVelocityY;
     private long mLastUpdate;
-    private Runnable mFlingUpdater;
 
     public PlayingCardView( Context context, String ownerID, Card card )
     {
@@ -43,80 +44,86 @@ public class PlayingCardView extends ImageView
         Picasso.with( getContext() ).load( CardResources.BLUE_CARD_BACK ).into( this );
 
         this.setLayoutParams( new ViewGroup.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
+    }
 
-        mFlingUpdater = new Runnable()
+    private Runnable mFlingUpdater = new Runnable()
+    {
+        @Override
+        public void run()
         {
-            @Override
-            public void run()
+            synchronized( PlayingCardView.this )
             {
-                synchronized( PlayingCardView.this )
+                final long now = System.currentTimeMillis();
+                final float elapsedTime = now - mLastUpdate;
+                final int dx = (int) ( ( mVelocityX * elapsedTime ) / 1000.0f );
+                final int dy = (int) ( ( mVelocityY * elapsedTime ) / 1000.0f );
+                PlayingCardView.this.offsetLeftAndRight( dx );
+                PlayingCardView.this.offsetTopAndBottom( dy );
+                mVelocityX *= 0.99f;
+                mVelocityY *= 0.99f;
+
+                final CardDisplayLayout parent = (CardDisplayLayout) PlayingCardView.this.getParent();
+
+                if( parent == null )
                 {
-                    final long now = System.currentTimeMillis();
-                    final float elapsedTime = now - mLastUpdate;
-                    final int dx = (int) ( ( mVelocityX * elapsedTime ) / 1000.0f );
-                    final int dy = (int) ( ( mVelocityY * elapsedTime ) / 1000.0f );
-                    PlayingCardView.this.offsetLeftAndRight( dx );
-                    PlayingCardView.this.offsetTopAndBottom( dy );
-                    mVelocityX *= 0.99f;
-                    mVelocityY *= 0.99f;
+                    PlayingCardView.this.stop();
+                }
 
-                    final ViewGroup parent = (ViewGroup) PlayingCardView.this.getParent();
-                    if( !PlayingCardView.this.isOnScreen() )
-                    {
-                        mVelocityX = 0.0f;
-                        mVelocityY = 0.0f;
-                        if( parent instanceof CardDisplayLayout )
-                        {
-                            ( (CardDisplayLayout) parent ).childViewOffScreen( PlayingCardView.this );
-                        }
-                    }
+                if( !PlayingCardView.this.isOnScreen() )
+                {
+                    PlayingCardView.this.stop();
+                    parent.childViewOffScreen( PlayingCardView.this );
+                }
 
-                    switch( hasHitWall() )
+                final CardDisplayLayout.Side side = PlayingCardView.this.hasHitWall();
+
+                if( side != CardDisplayLayout.Side.NONE && parent.childShouldBounce( PlayingCardView.this, side ) )
+                {
+                    switch( side )
                     {
                         case LEFT:
                             mVelocityX = -mVelocityX;
-                            setX( 0 );
+                            PlayingCardView.this.setX( 0 );
                             break;
 
                         case RIGHT:
                             mVelocityX = -mVelocityX;
-                            offsetLeftAndRight( parent.getRight() - getRight() );
+                            PlayingCardView.this.offsetLeftAndRight( parent.getRight() - getRight() );
                             break;
 
                         case TOP:
                             mVelocityY = -mVelocityY;
-                            setY( 0 );
+                            PlayingCardView.this.setY( 0 );
                             break;
 
                         case BOTTOM:
                             mVelocityY = -mVelocityY;
-                            offsetTopAndBottom( parent.getBottom() - getBottom() );
+                            PlayingCardView.this.offsetTopAndBottom( parent.getBottom() - getBottom() );
                             break;
                     }
+                }
 
 
-                    if( Math.abs( mVelocityX ) < MINIMUM_VELOCITY )
-                    {
-                        mVelocityX = 0.0f;
-                    }
-                    if( Math.abs( mVelocityY ) < MINIMUM_VELOCITY )
-                    {
-                        mVelocityY = 0.0f;
-                    }
-                    if( mVelocityX != 0.0f && mVelocityY != 0.0f )
-                    {
-                        mLastUpdate = now;
-                        PlayingCardView.this.postDelayed( this, 10 );
-                    }
+                if( Math.abs( mVelocityX ) < MINIMUM_VELOCITY )
+                {
+                    mVelocityX = 0.0f;
+                }
+                if( Math.abs( mVelocityY ) < MINIMUM_VELOCITY )
+                {
+                    mVelocityY = 0.0f;
+                }
+                if( mVelocityX != 0.0f && mVelocityY != 0.0f )
+                {
+                    mLastUpdate = now;
+                    PlayingCardView.this.postDelayed( this, 10 );
                 }
             }
-        };
-    }
+        }
+    };
 
     public synchronized void onTouched()
     {
-        mVelocityX = 0.0f;
-        mVelocityY = 0.0f;
+        this.stop();
     }
 
     public synchronized void fling( float xVelocity, float yVelocity )
@@ -126,6 +133,12 @@ public class PlayingCardView extends ImageView
 
         mLastUpdate = System.currentTimeMillis();
         this.post( mFlingUpdater );
+    }
+
+    public synchronized void stop()
+    {
+        mVelocityX = 0.0f;
+        mVelocityY = 0.0f;
     }
 
     @Override
@@ -184,7 +197,11 @@ public class PlayingCardView extends ImageView
     private CardDisplayLayout.Side hasHitWall()
     {
         final ViewGroup parent = (ViewGroup) this.getParent();
-        if( this.getLeft() <= parent.getLeft() )
+        if( parent == null )
+        {
+            return CardDisplayLayout.Side.NONE;
+        }
+        else if( this.getLeft() <= parent.getLeft() )
         {
             return CardDisplayLayout.Side.LEFT;
         }
@@ -254,8 +271,7 @@ public class PlayingCardView extends ImageView
 
     public synchronized void reset()
     {
-        mVelocityX = 0.0f;
-        mVelocityX = 0.0f;
+        this.stop();
 
         final ViewGroup parent = (ViewGroup) this.getParent();
         final int width = parent.getWidth();

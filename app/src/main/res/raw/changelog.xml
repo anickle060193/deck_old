@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<changelog bulletedList="true">
+
+    <changelogversion versionName="Beta 3.1" changeDate="October 9, 2014">
+        <changelogtext>Changed implementation details of Table</changelogtext>
+        <changelogtext>Made various improvements to Table</changelogtext>
+        <changelogtext>Made various changes and improvements to how cards are passed between card holders</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="Beta 3.0" changeDate="October 8, 2014">
+        <changelogtext>Added Table that cards can be placed on</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="Beta 2.1" changeDate="September 29, 2014">
+        <changelogtext>Fixed problems</changelogtext>
+        <changelogtext>So descriptive...</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="Beta 2.0" changeDate="September 24, 2014">
+        <changelogtext>Fixed bugs</changelogtext>
+        <changelogtext>Improved robustness throughout</changelogtext>
+        <changelogtext>Added ability to save and restore games</changelogtext>
+        <changelogtext>Added application settings</changelogtext>
+        <changelogtext>Added ability to layout cards by suit or rank</changelogtext>
+        <changelogtext>Many small improvements</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="Beta 1.1" changeDate="September 18, 2014">
+        <changelogtext>Fixed issues with Player names</changelogtext>
+        <changelogtext>Added settings</changelogtext>
+        <changelogtext>Other general changes</changelogtext>
+    </changelogversion>
+
+    <changelogversion versionName="Beta 1.0" changeDate="September 17, 2014">
+        <changelogtext>Initial beta distribution.</changelogtext>
+    </changelogversion>
+
+</changelog>

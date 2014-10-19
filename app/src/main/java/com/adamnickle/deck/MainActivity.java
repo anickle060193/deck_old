@@ -1,8 +1,11 @@
 package com.adamnickle.deck;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
@@ -11,11 +14,13 @@ import com.crashlytics.android.Crashlytics;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
+import it.gmariotti.changelibs.library.view.ChangeLogListView;
 
 
 public class MainActivity extends Activity
 {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String CHANGE_LOG_SHOWN_VERSION = "change_log_shown";
 
     private Crouton mCrouton;
 
@@ -62,6 +67,19 @@ public class MainActivity extends Activity
                 startActivity( openSettings );
             }
         } );
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
+        int lastShownVersion = sharedPreferences.getInt( CHANGE_LOG_SHOWN_VERSION, 0 );
+        if( lastShownVersion != BuildConfig.VERSION_CODE )
+        {
+            new AlertDialog.Builder( this )
+                    .setView( new ChangeLogListView( this ) )
+                    .show();
+
+            sharedPreferences.edit()
+                    .putInt( CHANGE_LOG_SHOWN_VERSION, BuildConfig.VERSION_CODE )
+                    .apply();
+        }
     }
 
     @Override

@@ -7,15 +7,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
-import com.easyandroidanimations.library.Animation;
-import com.easyandroidanimations.library.AnimationListener;
-import com.easyandroidanimations.library.FlipHorizontalAnimation;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -27,6 +25,8 @@ public class PlayingCardView extends ImageView
 
     private static final float MINIMUM_VELOCITY = 50.0f;
 
+    private static Bitmap mBlueBackBitmap;
+
     private Bitmap mCardBitmap;
     private final Card mCard;
     private String mOwnerID;
@@ -36,6 +36,7 @@ public class PlayingCardView extends ImageView
     private float mVelocityY;
     private long mLastUpdate;
     private float mScale;
+    private boolean mAttachedToWindow;
 
     public PlayingCardView( Context context, String ownerID, Card card, final float scale )
     {
@@ -48,6 +49,7 @@ public class PlayingCardView extends ImageView
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
         mScale = scale;
+        mAttachedToWindow = false;
 
         this.setLayoutParams( new CardDisplayLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
         this.setScaleType( ScaleType.CENTER_CROP );
@@ -59,18 +61,30 @@ public class PlayingCardView extends ImageView
             {
                 try
                 {
-                    mCardBitmap = Picasso.with( getContext() ).load( mCard.getResource() ).get();
-                    if( mFaceUp )
+                    synchronized( PlayingCardView.class )
                     {
-                        new Handler( Looper.getMainLooper() ).post( new Runnable()
+                        if( mBlueBackBitmap == null )
                         {
-                            @Override
-                            public void run()
-                            {
-                                PlayingCardView.this.setImageBitmap( mCardBitmap );
-                            }
-                        } );
+                            mBlueBackBitmap = Picasso.with( getContext() ).load( CardResources.BLUE_CARD_BACK ).get();
+                        }
                     }
+                    mCardBitmap = Picasso.with( getContext() ).load( mCard.getResource() ).get();
+
+                    new Handler( Looper.getMainLooper() ).post( new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            setCardBitmap();
+                            if( mScale != 1.0f )
+                            {
+                                CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
+                                lp.width = (int) ( PlayingCardView.this.getDrawable().getIntrinsicWidth() * mScale );
+                                lp.height = (int) ( PlayingCardView.this.getDrawable().getIntrinsicHeight() * mScale );
+                                PlayingCardView.this.setLayoutParams( lp );
+                            }
+                        }
+                    } );
                 }
                 catch( IOException e )
                 {
@@ -78,8 +92,6 @@ public class PlayingCardView extends ImageView
                 }
             }
         }.start();
-
-        Picasso.with( getContext() ).load( CardResources.BLUE_CARD_BACK ).noFade().placeholder( this.getDrawable() ).into( this, new ScaleCallback() );
     }
 
     public PlayingCardView( Context context, String ownerID, Card card )
@@ -87,25 +99,18 @@ public class PlayingCardView extends ImageView
         this( context, ownerID, card, 1.0f );
     }
 
-    private class ScaleCallback implements Callback
+    @Override
+    protected void onAttachedToWindow()
     {
-        @Override
-        public void onSuccess()
-        {
-            if( mScale != 1.0f )
-            {
-                CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
-                lp.width = (int) ( PlayingCardView.this.getDrawable().getIntrinsicWidth() * mScale );
-                lp.height = (int) ( PlayingCardView.this.getDrawable().getIntrinsicHeight() * mScale );
-                PlayingCardView.this.setLayoutParams( lp );
-            }
-        }
+        super.onAttachedToWindow();
+        mAttachedToWindow = true;
+    }
 
-        @Override
-        public void onError()
-        {
-
-        }
+    @Override
+    protected void onDetachedFromWindow()
+    {
+        super.onDetachedFromWindow();
+        mAttachedToWindow = false;
     }
 
     private Runnable mFlingUpdater = new Runnable()
@@ -302,36 +307,58 @@ public class PlayingCardView extends ImageView
         return mCard;
     }
 
-    public void flipFaceUp()
+    public void flip()
     {
-        if( !mFaceUp )
+        if( mAttachedToWindow )
         {
-            mFaceUp = true;
-            if( this.getParent() != null )
+            final AnimationSet toMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_first_half );
+            final AnimationSet fromMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_last_half );
+
+            toMiddle.getAnimations().get( 0 ).setAnimationListener( new Animation.AnimationListener()
             {
-                new FlipHorizontalAnimation( this )
-                        .setDuration( 80 )
-                        .setDegrees( 90 )
-                        .setInterpolator( new LinearInterpolator() )
-                        .setListener( new AnimationListener()
-                        {
-                            @Override
-                            public void onAnimationEnd( Animation animation )
-                            {
-                                PlayingCardView.this.setRotationY( 270 );
-                                PlayingCardView.this.setImageBitmap( mCardBitmap );
-                                new FlipHorizontalAnimation( PlayingCardView.this )
-                                        .setDuration( 80 )
-                                        .setDegrees( 90 )
-                                        .setInterpolator( new LinearInterpolator() )
-                                        .animate();
-                            }
-                        } )
-                        .animate();
-            }
-            else
+                @Override
+                public void onAnimationEnd( Animation animation )
+                {
+                    mFaceUp = !mFaceUp;
+                    PlayingCardView.this.setCardBitmap();
+                    PlayingCardView.this.clearAnimation();
+                    PlayingCardView.this.startAnimation( fromMiddle );
+                }
+
+                @Override
+                public void onAnimationStart( Animation animation )
+                {
+                }
+
+                @Override
+                public void onAnimationRepeat( Animation animation )
+                {
+                }
+            } );
+
+            this.startAnimation( toMiddle );
+        }
+        else
+        {
+            mFaceUp = !mFaceUp;
+            setCardBitmap();
+        }
+    }
+
+    private void setCardBitmap()
+    {
+        if( mFaceUp )
+        {
+            if( mCardBitmap != null )
             {
                 this.setImageBitmap( mCardBitmap );
+            }
+        }
+        else
+        {
+            if( mBlueBackBitmap != null )
+            {
+                this.setImageBitmap( mBlueBackBitmap );
             }
         }
     }

@@ -115,7 +115,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 @Override
                 public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
                 {
-                    playingCardView.flipFaceUp();
+                    playingCardView.flip();
                 }
             };
             mCardDisplay.setGameUiListener( this );

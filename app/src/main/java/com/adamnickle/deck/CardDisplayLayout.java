@@ -250,7 +250,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
 
         @Override
-        public boolean onSingleTapConfirmed( MotionEvent event )
+        public boolean onSingleTapUp( MotionEvent event )
         {
             final View view = mDragHelper.findTopChildUnder( (int) event.getX(), (int) event.getY() );
             if( view != null )

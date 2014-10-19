@@ -7,3 +7,5 @@ Backgrounds - subtlepatterns.com
 Cards - https://code.google.com/p/vectorized-playing-cards/
 
 ChunkFive - www.fontsquirrel.com
+
+Card Flip animations - William J. Francis - http://www.techrepublic.com/blog/software-engineer/use-androids-scale-animation-to-simulate-a-3d-flip/

@@ -5,7 +5,6 @@ import android.content.Context;
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
-import com.crashlytics.android.Crashlytics;
 
 
 public class ClientGameConnection extends GameConnection
@@ -69,8 +68,6 @@ public class ClientGameConnection extends GameConnection
     @Override
     public void sendMessageToDevice( GameMessage message, String senderID, String receiverID )
     {
-        Crashlytics.log( "SENDING: " + message.toString() );
-
         final byte[] data = GameMessage.serializeMessage( message );
         mConnectionFragment.sendDataToDevice( mActualServerAddress, data );
     }

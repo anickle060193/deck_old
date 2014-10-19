@@ -7,7 +7,6 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.GameMessage;
 import com.adamnickle.deck.Game.GameSave;
-import com.crashlytics.android.Crashlytics;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -74,9 +73,7 @@ public abstract class GameConnection implements ConnectionListener
         final byte[] data = Arrays.copyOf( allData, bytes );
         final GameMessage message = GameMessage.deserializeMessage( data );
 
-        Crashlytics.log( "RECEIVED: " + message.toString() );
-
-        final String originalSenderID = message.getOriginalSenderID();
+       final String originalSenderID = message.getOriginalSenderID();
         final String receiverID = message.getReceiverID();
         final GameConnectionListener listener = findAppropriateListener( message );
         if( listener != null )

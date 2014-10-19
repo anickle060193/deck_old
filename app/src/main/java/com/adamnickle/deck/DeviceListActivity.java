@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,8 @@ import android.widget.TextView;
 import com.dd.processbutton.iml.ActionProcessButton;
 
 import java.util.ArrayList;
+
+import ru.noties.debug.Debug;
 
 
 public class DeviceListActivity extends Activity
@@ -49,8 +50,6 @@ public class DeviceListActivity extends Activity
 
     public static class DeviceListFragment extends Fragment
     {
-        private static final String TAG = DeviceListFragment.class.getSimpleName();
-
         private static final int REQUEST_BLUETOOTH_ENABLE = 1;
 
         private View mDevicesView;
@@ -174,7 +173,7 @@ public class DeviceListActivity extends Activity
 
         private void doDiscovery()
         {
-            Log.d( TAG, "doDiscovery()" );
+            Debug.d( "doDiscovery()" );
 
             if( mBluetoothAdapter.isDiscovering() )
             {

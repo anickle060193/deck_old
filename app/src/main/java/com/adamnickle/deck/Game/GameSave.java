@@ -6,7 +6,6 @@ import android.content.Context;
 import android.text.format.DateFormat;
 import android.util.JsonReader;
 import android.util.JsonWriter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+
+import ru.noties.debug.Debug;
 
 public final class GameSave
 {
@@ -149,12 +150,12 @@ public final class GameSave
         }
         catch( IOException io )
         {
-            Log.e( "ServerGameConnection", "Failed to save game.", io );
+            Debug.e( "Failed to save game.", io );
             success = false;
         }
         catch( IllegalStateException se )
         {
-            Log.e( "ServerGameConnection", "Failed to save game.", se );
+            Debug.e( "Failed to save game.", se );
             success = false;
         }
         finally
@@ -221,12 +222,12 @@ public final class GameSave
         }
         catch( IOException io )
         {
-            Log.e( "ServerGameConnection", "Failed to save game.", io );
+            Debug.e( "Failed to save game.", io );
             success = false;
         }
         catch( IllegalStateException se )
         {
-            Log.e( "ServerGameConnection", "Failed to save game.", se );
+            Debug.e( "Failed to save game.", se );
             success = false;
         }
         finally

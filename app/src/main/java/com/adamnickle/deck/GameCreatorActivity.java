@@ -4,17 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
+
+import ru.noties.debug.Debug;
 
 
 public class GameCreatorActivity extends Activity
 {
-    private static final String TAG = "GameCreatorActivity";
-
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
-        Log.d( TAG, "+++ ON CREATE +++" );
+        Debug.d( "+++ ON CREATE +++" );
         super.onCreate( savedInstanceState );
 
         if( savedInstanceState == null )

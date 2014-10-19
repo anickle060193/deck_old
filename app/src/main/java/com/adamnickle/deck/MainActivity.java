@@ -6,20 +6,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
-import com.crashlytics.android.Crashlytics;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import it.gmariotti.changelibs.library.view.ChangeLogListView;
+import ru.noties.debug.Debug;
 
 
 public class MainActivity extends Activity
 {
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String CHANGE_LOG_SHOWN_VERSION = "change_log_shown";
 
     private Crouton mCrouton;
@@ -29,9 +27,7 @@ public class MainActivity extends Activity
     {
         super.onCreate( savedInstanceState );
 
-        Crashlytics.start( this );
-
-        Log.d( TAG, "+++ ON CREATE +++" );
+        Debug.d( "+++ ON CREATE +++" );
         setContentView( R.layout.activity_main );
 
         findViewById( R.id.startGameButton ).setOnClickListener( new View.OnClickListener()

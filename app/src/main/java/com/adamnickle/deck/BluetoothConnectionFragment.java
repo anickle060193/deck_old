@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,12 +24,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import de.keyboardsurfer.android.widget.crouton.Style;
+import ru.noties.debug.Debug;
 
 
 public class BluetoothConnectionFragment extends ConnectionFragment
 {
-    private static final String TAG = BluetoothConnectionFragment.class.getSimpleName();
-
     private static final UUID MY_UUID = UUID.fromString( "e40042a0-240b-11e4-8c21-0800200c9a66" );
     private static final String SERVICE_NAME = "Deck Server";
 
@@ -206,7 +204,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
     private synchronized void setState( State state )
     {
-        Log.d( TAG, "setState() " + mState + " -> " + state );
+        Debug.d( "setState() %s -> %s", mState, state );
         if( state != mState )
         {
             mState = state;
@@ -238,14 +236,14 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     @Override
     public synchronized void onActivityResult( int requestCode, int resultCode, Intent data )
     {
-        Log.d( TAG, "onActivityResult" );
+        Debug.d( "onActivityResult" );
 
         switch( requestCode )
         {
             case REQUEST_ENABLE_BLUETOOTH:
                 if( resultCode == Activity.RESULT_OK )
                 {
-                    Log.d( TAG, "ENABLE BLUETOOTH - OK" );
+                    Debug.d( "ENABLE BLUETOOTH - OK" );
 
                     if( mConnectionType == ConnectionType.SERVER )
                     {
@@ -261,7 +259,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 }
                 else
                 {
-                    Log.d( TAG, "ENABLE BLUETOOTH - CANCEL" );
+                    Debug.d( "ENABLE BLUETOOTH - CANCEL" );
                     getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_ENABLED );
                     getActivity().finish();
                 }
@@ -303,7 +301,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         {
             if( !mAskedToDiscoverable && mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE )
             {
-                Log.d( TAG, "enabling Discoverable" );
+                Debug.d( "enabling Discoverable" );
                 mAskedToDiscoverable = true;
                 Intent discoverableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
                 discoverableIntent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, DISCOVERABLE_DURATION );
@@ -314,7 +312,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
         if( !mBluetoothAdapter.isEnabled() )
         {
-            Log.d( TAG, "enabling Bluetooth" );
+            Debug.d( "enabling Bluetooth" );
             Intent enableIntent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
             startActivityForResult( enableIntent, REQUEST_ENABLE_BLUETOOTH );
             return false;
@@ -324,7 +322,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
     public synchronized void startConnection()
     {
-        Log.d( TAG, "BEGIN startConnection()" );
+        Debug.d( "BEGIN startConnection()" );
 
         if( !ensureConnection() )
         {
@@ -366,7 +364,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     @Override
     public synchronized void restartConnection()
     {
-        Log.d( TAG, "BEGIN restartConnection()" );
+        Debug.d( "BEGIN restartConnection()" );
 
         if( getConnectionType() == ConnectionType.CLIENT )
         {
@@ -406,7 +404,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     @Override
     public synchronized void finishConnecting()
     {
-        Log.d( TAG, "BEGIN finishedConnecting" );
+        Debug.d( "BEGIN finishedConnecting" );
 
         if( mConnectThread != null )
         {
@@ -426,7 +424,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     @Override
     public synchronized void stopConnection()
     {
-        Log.d( TAG, "BEGIN stopConnection" );
+        Debug.d( "BEGIN stopConnection" );
         setConnectionType( ConnectionType.NONE );
 
         if( mConnectThread != null )
@@ -463,7 +461,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     @Override
     public synchronized void connect( Object device )
     {
-        Log.d( TAG, "connect to: " + device );
+        Debug.d( "connect to: %s", device );
 
         if( !( device instanceof BluetoothDevice ) )
         {
@@ -485,7 +483,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
     public synchronized void connected( BluetoothSocket socket, BluetoothDevice device )
     {
-        Log.d( TAG, "connected to: " + device );
+        Debug.d( "connected to: %s", device );
 
         if( mConnectThread != null )
         {
@@ -609,7 +607,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "Socket listen() failed", io );
+                Debug.e( "Socket listen() failed", io );
             }
             mServerSocket = temp;
         }
@@ -617,7 +615,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         @Override
         public void run()
         {
-            Log.d( TAG, "BEGIN AcceptThread" );
+            Debug.d( "BEGIN AcceptThread" );
             setName( "AcceptThread" );
 
             BluetoothSocket socket;
@@ -630,7 +628,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 }
                 catch( IOException io )
                 {
-                    Log.e( TAG, "Accept Thread accept() failed", io );
+                    Debug.e( "Accept Thread accept() failed", io );
                     break;
                 }
 
@@ -654,19 +652,19 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                                 }
                                 catch( IOException io )
                                 {
-                                    Log.e( TAG, "Could not close unwanted socket", io );
+                                    Debug.e( "Could not close unwanted socket", io );
                                 }
                                 break;
                         }
                     }
                 }
             }
-            Log.d( TAG, "END AcceptThread" );
+            Debug.d( "END AcceptThread" );
         }
 
         public void cancel()
         {
-            Log.d( TAG, "AcceptThread cancel()" );
+            Debug.d( "AcceptThread cancel()" );
 
             try
             {
@@ -674,7 +672,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "close() of server failed", io );
+                Debug.e( "close() of server failed", io );
             }
         }
     }
@@ -695,7 +693,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "ConnectThread create() failed", io );
+                Debug.e( "ConnectThread create() failed", io );
             }
             mSocket = temp;
         }
@@ -703,7 +701,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         @Override
         public void run()
         {
-            Log.d( TAG, "BEGIN ConnectThread" );
+            Debug.d( "BEGIN ConnectThread" );
             setName( "ConnectThread" );
 
             mBluetoothAdapter.cancelDiscovery();
@@ -720,7 +718,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 }
                 catch( IOException io2 )
                 {
-                    Log.e( TAG, "unable to close()", io2 );
+                    Debug.e( "unable to close()", io2 );
                 }
                 connectionFailed();
                 return;
@@ -742,7 +740,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "ConnectThread close() of socket failed", io );
+                Debug.e( "ConnectThread close() of socket failed", io );
             }
         }
     }
@@ -756,7 +754,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
         public ConnectedThread( BluetoothSocket socket )
         {
-            Log.d( TAG, "BEGIN create ConnectedThread" );
+            Debug.d( "BEGIN create ConnectedThread" );
             mSocket = socket;
             synchronized( BluetoothConnectionFragment.this )
             {
@@ -773,7 +771,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "Failed to get input/output streams", io );
+                Debug.e( "Failed to get input/output streams", io );
             }
             mInputStream = tmpIn;
             mOutputStream = tmpOut;
@@ -786,7 +784,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
         public void run()
         {
-            Log.d( TAG, "BEGIN ConnectedThread" );
+            Debug.d( "BEGIN ConnectedThread" );
 
             byte[] buffer = new byte[ 8192 ];
             int bytes;
@@ -806,7 +804,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 }
                 catch( IOException io )
                 {
-                    Log.e( TAG, "failed to read, disconnected", io );
+                    Debug.e( "failed to read, disconnected", io );
                     connectionLost( this );
                     break;
                 }
@@ -821,7 +819,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "Exception during write", io );
+                Debug.e( "Exception during write", io );
             }
         }
 
@@ -833,7 +831,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
             }
             catch( IOException io )
             {
-                Log.e( TAG, "close() of connected socket failed", io );
+                Debug.e( "close() of connected socket failed", io );
             }
         }
     }

@@ -6,7 +6,6 @@ import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.TableFragment;
-import com.crashlytics.android.Crashlytics;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -267,8 +266,6 @@ public class ServerGameConnection extends GameConnection
     @Override
     public void sendMessageToDevice( GameMessage message, String senderID, String receiverID )
     {
-        Crashlytics.log( "SENDING: " + message.toString() );
-
         if( receiverID.equals( getLocalPlayerID() ) || receiverID.equals( MOCK_SERVER_ADDRESS ) || receiverID.equals( TableFragment.TABLE_ID ) )
         {
             final GameConnectionListener listener = this.findAppropriateListener( message );

@@ -1,8 +1,6 @@
 package com.adamnickle.deck.Game;
 
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -96,7 +94,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         }
         catch( Exception exception )
         {
-            Crashlytics.logException( exception );
             return super.toString();
         }
     }

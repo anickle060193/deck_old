@@ -72,37 +72,26 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     }
 
     @Override
-    public void onActivityCreated( Bundle savedInstanceState )
+    public void onAttach( Activity activity )
     {
-        super.onActivityCreated( savedInstanceState );
+        super.onAttach( activity );
 
         if( mBluetoothAdapter == null )
         {
-            getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_SUPPORTED );
-            getActivity().finish();
+            activity.setResult( GameActivity.RESULT_BLUETOOTH_NOT_SUPPORTED );
+            activity.finish();
         }
-    }
 
-    @Override
-    public void onStart()
-    {
-        super.onStart();
         final IntentFilter filter = new IntentFilter();
         filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
         filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
-        getActivity().registerReceiver( mReceiver, filter );
-    }
-
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-        getActivity().unregisterReceiver( mReceiver );
+        activity.registerReceiver( mReceiver, filter );
     }
 
     @Override
     public void onDestroy()
     {
+        getActivity().unregisterReceiver( mReceiver );
         this.stopConnection();
         super.onDestroy();
     }

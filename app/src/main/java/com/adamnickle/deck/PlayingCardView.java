@@ -2,6 +2,9 @@ package com.adamnickle.deck;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,6 +14,7 @@ import com.adamnickle.deck.Game.CardCollection;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.Comparator;
 
 public class PlayingCardView extends ImageView
@@ -19,6 +23,7 @@ public class PlayingCardView extends ImageView
 
     private static final float MINIMUM_VELOCITY = 50.0f;
 
+    private Bitmap mCardBitmap;
     private final Card mCard;
     private String mOwnerID;
     private boolean mFaceUp;
@@ -41,8 +46,36 @@ public class PlayingCardView extends ImageView
         mScale = scale;
 
         this.setLayoutParams( new CardDisplayLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
-        loadCardImage( CardResources.BLUE_CARD_BACK );
         this.setScaleType( ScaleType.CENTER_CROP );
+
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    mCardBitmap = Picasso.with( getContext() ).load( mCard.getResource() ).get();
+                    if( mFaceUp )
+                    {
+                        new Handler( Looper.getMainLooper() ).post( new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                PlayingCardView.this.setImageBitmap( mCardBitmap );
+                            }
+                        } );
+                    }
+                }
+                catch( IOException e )
+                {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
+        Picasso.with( getContext() ).load( CardResources.BLUE_CARD_BACK ).noFade().placeholder( this.getDrawable() ).into( this, new ScaleCallback() );
     }
 
     public PlayingCardView( Context context, String ownerID, Card card )
@@ -50,28 +83,25 @@ public class PlayingCardView extends ImageView
         this( context, ownerID, card, 1.0f );
     }
 
-    private void loadCardImage( int cardResource )
+    private class ScaleCallback implements Callback
     {
-        Picasso.with( getContext() ).load( cardResource ).noFade().placeholder( this.getDrawable() ).into( this, new Callback()
+        @Override
+        public void onSuccess()
         {
-            @Override
-            public void onSuccess()
+            if( mScale != 1.0f )
             {
-                if( mScale != 1.0f )
-                {
-                    CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
-                    lp.width = (int) ( PlayingCardView.this.getDrawable().getIntrinsicWidth() * mScale );
-                    lp.height = (int) ( PlayingCardView.this.getDrawable().getIntrinsicHeight() * mScale );
-                    PlayingCardView.this.setLayoutParams( lp );
-                }
+                CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
+                lp.width = (int) ( PlayingCardView.this.getDrawable().getIntrinsicWidth() * mScale );
+                lp.height = (int) ( PlayingCardView.this.getDrawable().getIntrinsicHeight() * mScale );
+                PlayingCardView.this.setLayoutParams( lp );
             }
+        }
 
-            @Override
-            public void onError()
-            {
+        @Override
+        public void onError()
+        {
 
-            }
-        } );
+        }
     }
 
     private Runnable mFlingUpdater = new Runnable()
@@ -273,7 +303,7 @@ public class PlayingCardView extends ImageView
         if( !mFaceUp )
         {
             mFaceUp = true;
-            loadCardImage( mCard.getResource() );
+            this.setImageBitmap( mCardBitmap );
         }
     }
 

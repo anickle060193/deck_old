@@ -2,6 +2,18 @@
 
 <changelog bulletedList="true">
 
+    <changelogversion versionName="Beta 4.0" changeDate="October 19, 2014">
+        <changelogtext>Fixed issue with being able to duplicate cards taken from Table.</changelogtext>
+        <changelogtext>[b]New![/b] Added a scratchpad for in-game notes.</changelogtext>
+        <changelogtext>Improved game save selection list.</changelogtext>
+        <changelogtext>Switched from using Toasts to Croutons for in-app notifications.</changelogtext>
+        <changelogtext>Improved Device List Activity UI.</changelogtext>
+        <changelogtext>Fixed issues with Scratch pad drawer and Table not closing on Back press.</changelogtext>
+        <changelogtext>Complete overhaul of how Cards are handled and drawn to screen.</changelogtext>
+        <changelogtext>Added in-app change log (what you're looking at right now).</changelogtext>
+        <changelogtext>Added flipping animation to Cards.</changelogtext>
+    </changelogversion>
+
     <changelogversion versionName="Beta 3.1" changeDate="October 9, 2014">
         <changelogtext>Changed implementation details of Table</changelogtext>
         <changelogtext>Made various improvements to Table</changelogtext>
@@ -9,7 +21,7 @@
     </changelogversion>
 
     <changelogversion versionName="Beta 3.0" changeDate="October 8, 2014">
-        <changelogtext>Added Table that cards can be placed on</changelogtext>
+        <changelogtext>[b]New![/b] Added Table that cards can be placed on</changelogtext>
     </changelogversion>
 
     <changelogversion versionName="Beta 2.1" changeDate="September 29, 2014">
@@ -20,9 +32,9 @@
     <changelogversion versionName="Beta 2.0" changeDate="September 24, 2014">
         <changelogtext>Fixed bugs</changelogtext>
         <changelogtext>Improved robustness throughout</changelogtext>
-        <changelogtext>Added ability to save and restore games</changelogtext>
-        <changelogtext>Added application settings</changelogtext>
-        <changelogtext>Added ability to layout cards by suit or rank</changelogtext>
+        <changelogtext>[b]New![/b] Added ability to save and restore games</changelogtext>
+        <changelogtext>[b]New![/b] Added application settings</changelogtext>
+        <changelogtext>[b]New![/b] Added ability to layout cards by suit or rank</changelogtext>
         <changelogtext>Many small improvements</changelogtext>
     </changelogversion>
 

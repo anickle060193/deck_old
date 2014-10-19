@@ -7,6 +7,17 @@ The developmental website for the Deck application can be found at: https://anic
 
 ##Versions
 
+###Beta 4.0
+- Fixed issue with being able to duplicate cards taken from Table.
+- Added a scratchpad for in-game notes.
+- Improved game save selection list.
+- Switched from using Toasts to Croutons for in-app notifications.
+- Improved Device List Activity UI.
+- Fixed issues with Scratch pad drawer and Table not closing on Back press.
+- Complete overhaul of how Cards are handled and drawn to screen.
+- Added in-app change log.
+- Added flipping animation to Cards.
+
 ###Beta 3.1
 - Changed implementation details of Table.
 - Made various improvements to Table.

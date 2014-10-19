@@ -69,7 +69,9 @@ public class MainActivity extends Activity
         if( lastShownVersion != BuildConfig.VERSION_CODE )
         {
             new AlertDialog.Builder( this )
+                    .setTitle( "Deck Change Log" )
                     .setView( new ChangeLogListView( this ) )
+                    .setPositiveButton( "Close", null )
                     .show();
 
             sharedPreferences.edit()

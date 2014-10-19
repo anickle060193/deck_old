@@ -7,10 +7,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
+import com.easyandroidanimations.library.Animation;
+import com.easyandroidanimations.library.AnimationListener;
+import com.easyandroidanimations.library.FlipHorizontalAnimation;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -303,7 +307,32 @@ public class PlayingCardView extends ImageView
         if( !mFaceUp )
         {
             mFaceUp = true;
-            this.setImageBitmap( mCardBitmap );
+            if( this.getParent() != null )
+            {
+                new FlipHorizontalAnimation( this )
+                        .setDuration( 80 )
+                        .setDegrees( 90 )
+                        .setInterpolator( new LinearInterpolator() )
+                        .setListener( new AnimationListener()
+                        {
+                            @Override
+                            public void onAnimationEnd( Animation animation )
+                            {
+                                PlayingCardView.this.setRotationY( 270 );
+                                PlayingCardView.this.setImageBitmap( mCardBitmap );
+                                new FlipHorizontalAnimation( PlayingCardView.this )
+                                        .setDuration( 80 )
+                                        .setDegrees( 90 )
+                                        .setInterpolator( new LinearInterpolator() )
+                                        .animate();
+                            }
+                        } )
+                        .animate();
+            }
+            else
+            {
+                this.setImageBitmap( mCardBitmap );
+            }
         }
     }
 

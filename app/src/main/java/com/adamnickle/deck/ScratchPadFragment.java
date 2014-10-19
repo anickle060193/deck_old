@@ -16,10 +16,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 
-public class DrawingFragment extends Fragment
+public class ScratchPadFragment extends Fragment
 {
     private View mView;
-    private DrawingView mDrawingView;
+    private ScratchPadView mDrawingView;
     private Bitmap mBitmap;
     private DrawerLayout mDrawerLayout;
 
@@ -37,7 +37,7 @@ public class DrawingFragment extends Fragment
         if( mView == null )
         {
             mView = inflater.inflate( R.layout.drawing_layout, container, false );
-            mDrawingView = (DrawingView) mView.findViewById( R.id.drawingView );
+            mDrawingView = (ScratchPadView) mView.findViewById( R.id.drawingView );
         }
 
         mDrawingView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()

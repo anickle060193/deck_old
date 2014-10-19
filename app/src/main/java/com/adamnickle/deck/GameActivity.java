@@ -39,7 +39,7 @@ public class GameActivity extends Activity
     private TableFragment mTableFragment;
     private SlidingFrameLayout mTableView;
     private DrawerLayout mDrawerLayout;
-    private DrawingFragment mDrawingFragment;
+    private ScratchPadFragment mDrawingFragment;
     private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
@@ -132,13 +132,13 @@ public class GameActivity extends Activity
             mGameFragment.setGameConnection( mGameConnection );
             mTableFragment.setGameConnection( mGameConnection );
 
-            mDrawingFragment = new DrawingFragment();
+            mDrawingFragment = new ScratchPadFragment();
 
             getFragmentManager()
                     .beginTransaction()
                     .replace( R.id.table, mTableFragment, TableFragment.class.getName() )
                     .replace( R.id.game, mGameFragment, GameFragment.class.getName() )
-                    .replace( R.id.drawingPanel, mDrawingFragment, DrawingFragment.class.getName() )
+                    .replace( R.id.drawingPanel, mDrawingFragment, ScratchPadFragment.class.getName() )
                     .commit();
         }
         else
@@ -146,7 +146,7 @@ public class GameActivity extends Activity
             final FragmentManager fragmentManager = getFragmentManager();
             mTableFragment = (TableFragment) fragmentManager.findFragmentByTag( TableFragment.class.getName() );
             mGameFragment = (GameFragment) fragmentManager.findFragmentByTag( GameFragment.class.getName() );
-            mDrawingFragment = (DrawingFragment) fragmentManager.findFragmentByTag( DrawingFragment.class.getName() );
+            mDrawingFragment = (ScratchPadFragment) fragmentManager.findFragmentByTag( ScratchPadFragment.class.getName() );
             mConnectionFragment = (ConnectionFragment) fragmentManager.findFragmentByTag( ConnectionFragment.class.getName() );
         }
     }

@@ -12,7 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 
-public class DrawingView extends View
+public class ScratchPadView extends View
 {
     private static final int DRAWING_STROKE_WIDTH = 10;
     private static final int ERASER_STROKE_WIDTH = 80;
@@ -28,17 +28,17 @@ public class DrawingView extends View
     private int mX;
     private int mY;
 
-    public DrawingView( Context context )
+    public ScratchPadView( Context context )
     {
         this( context, null );
     }
 
-    public DrawingView( Context context, AttributeSet attrs )
+    public ScratchPadView( Context context, AttributeSet attrs )
     {
         this( context, attrs, 0 );
     }
 
-    public DrawingView( Context context, AttributeSet attrs, int defStyleAttr )
+    public ScratchPadView( Context context, AttributeSet attrs, int defStyleAttr )
     {
         super( context, attrs, defStyleAttr );
 

@@ -384,7 +384,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
         if( cardsPerColumn * cardsPerRow < mCardViews.size() )
         {
-            GameUiHelper.showPopup( getContext(), "Cannot layout cards", "There is not enough room to layout cards...sorry." );
+            DialogHelper.showPopup( getContext(), "Cannot layout cards", "There is not enough room to layout cards...sorry." );
             return;
         }
 

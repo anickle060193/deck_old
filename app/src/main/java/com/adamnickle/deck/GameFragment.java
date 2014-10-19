@@ -222,7 +222,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     private void handleSetDealerClick()
     {
         final CardHolder players[] = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
-        GameUiHelper.createSelectItemDialog( getActivity(), "Select dealer:", players, new DialogInterface.OnClickListener()
+        DialogHelper.createSelectItemDialog( getActivity(), "Select dealer:", players, new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick( DialogInterface dialogInterface, int i )
@@ -237,7 +237,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         if( mDeck.getCardCount() < mCardHolders.size() )
         {
-            GameUiHelper.showPopup( getActivity(), "No Cards Left", "There are not enough cards left to evenly deal to players." );
+            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are not enough cards left to evenly deal to players." );
         }
         else
         {
@@ -248,7 +248,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             {
                 cardsDealAmounts[ i - 1 ] = i;
             }
-            GameUiHelper.createSelectItemDialog( getActivity(), "Number of cards to deal to each player:", cardsDealAmounts, new DialogInterface.OnClickListener()
+            DialogHelper.createSelectItemDialog( getActivity(), "Number of cards to deal to each player:", cardsDealAmounts, new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick( DialogInterface dialogInterface, int index )
@@ -285,11 +285,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         if( mCardHolders.size() == 0 )
         {
-            GameUiHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from." );
+            DialogHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from." );
         }
         else if( mDeck.getCardCount() == 0 )
         {
-            GameUiHelper.showPopup( getActivity(), "No Cards Left", "There are no cards left to deal." );
+            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are no cards left to deal." );
         }
         else
         {
@@ -301,7 +301,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 playerNames[ i ] = players[ i ].getName();
                 playerIDs[ i ] = players[ i ].getID();
             }
-            GameUiHelper.createSelectItemDialog( getActivity(), "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
+            DialogHelper.createSelectItemDialog( getActivity(), "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick( DialogInterface dialogInterface, int index )
@@ -316,7 +316,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void handleLayoutCardsClick()
     {
-        GameUiHelper.createSelectItemDialog( getActivity(), "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
+        DialogHelper.createSelectItemDialog( getActivity(), "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick( DialogInterface dialogInterface, int i )
@@ -338,18 +338,18 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         if( mGameConnection.isServer() )
         {
-                GameUiHelper.createEditTextDialog( getActivity(), "Enter Deck game save name:", "Game Save", "OK", "Cancel", new GameUiHelper.OnEditTextDialogClickListener()
+                DialogHelper.createEditTextDialog( getActivity(), "Enter Deck game save name:", "Game Save", "OK", "Cancel", new DialogHelper.OnEditTextDialogClickListener()
                 {
                     @Override
                     public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
                     {
                         if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
                         {
-                            GameUiHelper.displayNotification( getActivity(), "Game save successful.", Style.INFO );
+                            DialogHelper.displayNotification( getActivity(), "Game save successful.", Style.INFO );
                         }
                         else
                         {
-                            GameUiHelper.displayNotification( getActivity(), "Game save not successful.", Style.INFO );
+                            DialogHelper.displayNotification( getActivity(), "Game save not successful.", Style.INFO );
                         }
                     }
                 } ).show();
@@ -362,11 +362,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
         if( gameSaves.length == 0 )
         {
-            GameUiHelper.showPopup( getActivity(), "No Deck Game Saves", "There are currently no saved Deck games." );
+            DialogHelper.showPopup( getActivity(), "No Deck Game Saves", "There are currently no saved Deck games." );
         }
         else
         {
-            final AlertDialog.Builder dialogBuilder = GameUiHelper.createBlankAlertDialog( getActivity(), "Select game save:" );
+            final AlertDialog.Builder dialogBuilder = DialogHelper.createBlankAlertDialog( getActivity(), "Select game save:" );
             final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity(), gameSaves );
             dialogBuilder.setView( gameSaveListView );
             final AlertDialog dialog = dialogBuilder.create();
@@ -377,11 +377,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 {
                     if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
                     {
-                        GameUiHelper.displayNotification( getActivity(), "Game open successful.", Style.INFO );
+                        DialogHelper.displayNotification( getActivity(), "Game open successful.", Style.INFO );
                     }
                     else
                     {
-                        GameUiHelper.displayNotification( getActivity(), "Game open not successful.", Style.INFO );
+                        DialogHelper.displayNotification( getActivity(), "Game open not successful.", Style.INFO );
                     }
                     dialog.dismiss();
                 }
@@ -414,7 +414,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         if( this.canSendCard( mLocalPlayer.getID(), card ) )
         {
             final CardHolder[] players = mCardHolders.values().toArray( new CardHolder[ mCardHolders.size() ] );
-            GameUiHelper.createSelectItemDialog( getActivity(), "Select player to send card to:", players, new DialogInterface.OnClickListener()
+            DialogHelper.createSelectItemDialog( getActivity(), "Select player to send card to:", players, new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick( DialogInterface dialogInterface, int i )
@@ -474,7 +474,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         if( !ID.equals( TableFragment.TABLE_ID ) )
         {
             mPlayers.add( cardHolder );
-            GameUiHelper.displayNotification( getActivity(), name + " joined the game.", Style.CONFIRM );
+            DialogHelper.displayNotification( getActivity(), name + " joined the game.", Style.CONFIRM );
         }
     }
 
@@ -483,7 +483,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         final CardHolder player = mCardHolders.get( senderID );
         player.setName( newName );
-        GameUiHelper.displayNotification( getActivity(), player.getName() + " joined the game.", Style.CONFIRM );
+        DialogHelper.displayNotification( getActivity(), player.getName() + " joined the game.", Style.CONFIRM );
     }
 
     @Override
@@ -495,7 +495,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             mPlayers.remove( player );
             if( player != null )
             {
-                GameUiHelper.displayNotification( getActivity(), player.getName() + " left game.", Style.ALERT );
+                DialogHelper.displayNotification( getActivity(), player.getName() + " left game.", Style.ALERT );
             }
         }
     }
@@ -516,7 +516,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onServerConnect( String serverID, String serverName )
     {
-        GameUiHelper.displayNotification( getActivity(), "Connected to " + serverName + "'s server", Style.CONFIRM );
+        DialogHelper.displayNotification( getActivity(), "Connected to " + serverName + "'s server", Style.CONFIRM );
 
         String playerName = PreferenceManager
                 .getDefaultSharedPreferences( getActivity().getApplicationContext() )
@@ -539,7 +539,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onNotification( String notification, Style style )
     {
-        GameUiHelper.displayNotification( getActivity(), notification, style );
+        DialogHelper.displayNotification( getActivity(), notification, style );
     }
 
     @Override
@@ -610,7 +610,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             {
                 notification = mCardHolders.get( commanderID ).getName() + " cleared your hand.";
             }
-            GameUiHelper.displayNotification( getActivity(), notification, Style.INFO );
+            DialogHelper.displayNotification( getActivity(), notification, Style.INFO );
         }
     }
 
@@ -629,7 +629,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             {
                 notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
             }
-            GameUiHelper.displayNotification( getActivity(), notification, Style.CONFIRM );
+            DialogHelper.displayNotification( getActivity(), notification, Style.CONFIRM );
 
             getActivity().runOnUiThread( new Runnable()
             {

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.Comparator;
@@ -25,8 +26,9 @@ public class PlayingCardView extends ImageView
     private float mVelocityX;
     private float mVelocityY;
     private long mLastUpdate;
+    private float mScale;
 
-    public PlayingCardView( Context context, String ownerID, Card card )
+    public PlayingCardView( Context context, String ownerID, Card card, final float scale )
     {
         super( context );
 
@@ -36,10 +38,40 @@ public class PlayingCardView extends ImageView
         mFirstLayout = true;
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
+        mScale = scale;
 
-        Picasso.with( getContext() ).load( CardResources.BLUE_CARD_BACK ).into( this );
+        this.setLayoutParams( new CardDisplayLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
+        loadCardImage( CardResources.BLUE_CARD_BACK );
+        this.setScaleType( ScaleType.CENTER_CROP );
+    }
 
-        this.setLayoutParams( new ViewGroup.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
+    public PlayingCardView( Context context, String ownerID, Card card )
+    {
+        this( context, ownerID, card, 1.0f );
+    }
+
+    private void loadCardImage( int cardResource )
+    {
+        Picasso.with( getContext() ).load( cardResource ).noFade().placeholder( this.getDrawable() ).into( this, new Callback()
+        {
+            @Override
+            public void onSuccess()
+            {
+                if( mScale != 1.0f )
+                {
+                    CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
+                    lp.width = (int) ( PlayingCardView.this.getDrawable().getIntrinsicWidth() * mScale );
+                    lp.height = (int) ( PlayingCardView.this.getDrawable().getIntrinsicHeight() * mScale );
+                    PlayingCardView.this.setLayoutParams( lp );
+                }
+            }
+
+            @Override
+            public void onError()
+            {
+
+            }
+        } );
     }
 
     private Runnable mFlingUpdater = new Runnable()
@@ -241,7 +273,7 @@ public class PlayingCardView extends ImageView
         if( !mFaceUp )
         {
             mFaceUp = true;
-            Picasso.with( getContext() ).load( mCard.getResource() ).noFade().placeholder( this.getDrawable() ).into( this );
+            loadCardImage( mCard.getResource() );
         }
     }
 

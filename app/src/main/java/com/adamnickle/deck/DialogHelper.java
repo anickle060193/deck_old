@@ -10,7 +10,7 @@ import android.widget.EditText;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class GameUiHelper
+public class DialogHelper
 {
     public static abstract class OnEditTextDialogClickListener
     {

@@ -223,7 +223,7 @@ public class ServerGameConnection extends GameConnection
     @Override
     public boolean saveGame( Context context, String saveName )
     {
-        return GameSave.saveGame(
+        return GameSaveIO.saveGame(
                 context,
                 saveName,
                 mPlayers.values().toArray( new CardHolder[ mPlayers.size() ] ),
@@ -236,7 +236,7 @@ public class ServerGameConnection extends GameConnection
     {
         final HashMap< String, CardHolder > players = new HashMap< String, CardHolder >();
 
-        if( GameSave.openGameSave( gameSave, players, players ) )
+        if( GameSaveIO.openGameSave( gameSave, players, players ) )
         {
             for( CardHolder player : mPlayers.values() )
             {

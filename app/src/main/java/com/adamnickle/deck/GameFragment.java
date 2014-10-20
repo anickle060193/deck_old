@@ -23,7 +23,7 @@ import com.adamnickle.deck.Game.CardCollection;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.Game.GameMessage;
-import com.adamnickle.deck.Game.GameSave;
+import com.adamnickle.deck.Game.GameSaveIO;
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
@@ -364,7 +364,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 .setPositiveButton( "Close", null )
                 .create();
 
-        final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity() );
+        final ListView gameSaveListView = GameSaveIO.getGameSaveListView( getActivity() );
         if( gameSaveListView != null )
         {
             gameSaveListView.setOnItemClickListener( new AdapterView.OnItemClickListener()

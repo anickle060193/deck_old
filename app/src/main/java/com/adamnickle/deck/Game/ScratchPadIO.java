@@ -148,7 +148,7 @@ public final class ScratchPadIO
                 return s.startsWith( SCRATCH_PAD_SAVE_PREFIX );
             }
         } );
-        if( scratchPadFiles.length == 0 )
+        if( scratchPadFiles == null || scratchPadFiles.length == 0 )
         {
             return null;
         }

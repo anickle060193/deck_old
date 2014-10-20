@@ -136,6 +136,11 @@ public class DialogHelper
             return mData.size();
         }
 
+        public int getItemIndex( T object )
+        {
+            return mData.indexOf( object );
+        }
+
         @Override
         public T getItem( int position )
         {
@@ -144,6 +149,7 @@ public class DialogHelper
 
         public boolean removeItem( T object )
         {
+            this.closeItem( getItemIndex( object ) );
             if( mData.remove( object ) )
             {
                 this.notifyDataSetChanged();

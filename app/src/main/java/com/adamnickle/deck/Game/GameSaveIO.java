@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 import ru.noties.debug.Debug;
 
-public final class GameSave
+public final class GameSaveIO
 {
     private static final String GAME_SAVE_FOLDER = "deck_game_saves";
     private static final String GAME_SAVE_PREFIX = "deck_game_save_";
@@ -35,7 +35,7 @@ public final class GameSave
     private static final String PLAYERS_NAME = "players";
     private static final String LEFT_PLAYERS_NAME = "left_players";
 
-    private GameSave() { }
+    private GameSaveIO() { }
 
     private static String getGameSaveFileName( String gameSaveName )
     {
@@ -198,7 +198,7 @@ public final class GameSave
                 return s.startsWith( GAME_SAVE_PREFIX );
             }
         } );
-        if( gameSaveFiles.length == 0 )
+        if( gameSaveFiles == null || gameSaveFiles.length == 0 )
         {
             return null;
         }
@@ -254,7 +254,7 @@ public final class GameSave
                 public void onClick( View view )
                 {
                     final HashMap< String, CardHolder > cardHolders = new HashMap< String, CardHolder >();
-                    if( GameSave.openGameSave( gameSave, cardHolders, cardHolders ) )
+                    if( GameSaveIO.openGameSave( gameSave, cardHolders, cardHolders ) )
                     {
                         StringBuilder s = new StringBuilder();
                         s.append( DateFormat.format( "h:mm aa - MMM d, yyyy", gameSave.lastModified() ) ).append( "\n\n" );

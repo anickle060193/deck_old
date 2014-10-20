@@ -1,6 +1,9 @@
 package com.adamnickle.deck;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Build;
@@ -14,12 +17,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
+import com.adamnickle.deck.Game.ScratchPadIO;
+
+import java.io.File;
+
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 
 public class ScratchPadFragment extends Fragment
 {
     private View mView;
-    private ScratchPadView mDrawingView;
+    private ScratchPadView mScratchPadView;
     private Bitmap mBitmap;
     private DrawerLayout mDrawerLayout;
 
@@ -37,21 +48,21 @@ public class ScratchPadFragment extends Fragment
         if( mView == null )
         {
             mView = inflater.inflate( R.layout.drawing_layout, container, false );
-            mDrawingView = (ScratchPadView) mView.findViewById( R.id.drawingView );
+            mScratchPadView = (ScratchPadView) mView.findViewById( R.id.drawingView );
         }
 
-        mDrawingView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
+        mScratchPadView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
         {
             @Override
             public void onGlobalLayout()
             {
                 if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
                 {
-                    mDrawingView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+                    mScratchPadView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
                 }
                 else
                 {
-                    mDrawingView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
+                    mScratchPadView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
                 }
 
                 createBitmap();
@@ -63,8 +74,8 @@ public class ScratchPadFragment extends Fragment
 
     private void createBitmap()
     {
-        final int drawingViewWidth = mDrawingView.getWidth();
-        final int drawingViewHeight = mDrawingView.getHeight();
+        final int drawingViewWidth = mScratchPadView.getWidth();
+        final int drawingViewHeight = mScratchPadView.getHeight();
 
         final int bitmapWidth = mBitmap != null ? mBitmap.getWidth() : 0;
         final int bitmapHeight = mBitmap != null ? mBitmap.getHeight() : 0;
@@ -85,7 +96,7 @@ public class ScratchPadFragment extends Fragment
 
             mBitmap = bitmap;
         }
-        mDrawingView.setBitmap( mBitmap );
+        mScratchPadView.setScratchPadBitmap( mBitmap );
     }
 
     @Override
@@ -100,7 +111,9 @@ public class ScratchPadFragment extends Fragment
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
         super.onCreateOptionsMenu( menu, inflater );
-        inflater.inflate( R.menu.drawing, menu );
+        inflater.inflate( R.menu.scratch_pad, menu );
+        menu.findItem( R.id.actionSaveScratchPad ).setIcon( Icons.getScratchPadSave( getActivity() ) );
+        menu.findItem( R.id.actionLoadScratchPad ).setIcon( Icons.getScratchPadLoad( getActivity() ) );
     }
 
     @Override
@@ -108,7 +121,7 @@ public class ScratchPadFragment extends Fragment
     {
         super.onPrepareOptionsMenu( menu );
 
-        final boolean isEraser = mDrawingView.isEraser();
+        final boolean isEraser = mScratchPadView.isEraser();
         menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
         menu.findItem( R.id.actionPen ).setVisible( isEraser );
     }
@@ -120,20 +133,113 @@ public class ScratchPadFragment extends Fragment
         {
             case R.id.actionPen:
             case R.id.actionEraser:
-                mDrawingView.toggleEraser();
+                mScratchPadView.toggleEraser();
                 getActivity().invalidateOptionsMenu();
                 return true;
 
-            case R.id.actionCloseDrawing:
+            case R.id.actionCloseScratchPad:
                 mDrawerLayout.closeDrawer( GravityCompat.END );
                 return true;
 
-            case R.id.actionClearDrawing:
-                mDrawingView.clearDrawing();
+            case R.id.actionClearScratchPad:
+                mScratchPadView.clearDrawing();
+                return true;
+
+            case R.id.actionSaveScratchPad:
+                handleSaveScratchPadClick();
+                return true;
+
+            case R.id.actionLoadScratchPad:
+                handleLoadScratchPadClick();
                 return true;
 
             default:
                 return super.onOptionsItemSelected( item );
         }
+    }
+
+    private void handleSaveScratchPadClick()
+    {
+        DialogHelper.createEditTextDialog( getActivity(), "Enter scratch pad name:", "Scratch Pad Save", "OK", "Cancel", new DialogHelper.OnEditTextDialogClickListener()
+        {
+            @Override
+            public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
+            {
+                ScratchPadIO.saveScratchPad( getActivity(), text, mBitmap, new ScratchPadIO.Callback()
+                {
+                    @Override
+                    public void onSuccess()
+                    {
+                        DialogHelper.displayNotification( getActivity(), "Scratch Pad save successful.", Style.CONFIRM );
+                    }
+
+                    @Override
+                    public void onFail()
+                    {
+                        DialogHelper.displayNotification( getActivity(), "Scratch Pad save not successful.", Style.ALERT );
+                    }
+                } );
+            }
+        } ).show();
+    }
+
+    private void handleLoadScratchPadClick()
+    {
+        final AlertDialog dialog = DialogHelper
+                .createBlankAlertDialog( getActivity(), "Select scratch pad to load:" )
+                .setPositiveButton( "Close", null )
+                .create();
+
+        final ListView scratchpadListView = ScratchPadIO.getScratchPadListView( getActivity() );
+        if( scratchpadListView != null )
+        {
+            scratchpadListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
+            {
+                @Override
+                public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
+                {
+                    final File scratchPad = (File) adapterView.getItemAtPosition( i );
+                    Bitmap bitmap = ScratchPadIO.openScratchPad( getActivity(), scratchPad );
+                    if( bitmap != null )
+                    {
+                        final Bitmap temp = mBitmap;
+                        mBitmap = bitmap;
+                        mScratchPadView.setScratchPadBitmap( mBitmap );
+                        temp.recycle();
+                        DialogHelper.displayNotification( getActivity(), "Scratch pad load successful.", Style.CONFIRM );
+                    }
+                    else
+                    {
+                        DialogHelper.displayNotification( getActivity(), "Scratch pad load unsuccessful.", Style.ALERT );
+                    }
+                    dialog.dismiss();
+                }
+            } );
+            scratchpadListView.getAdapter().registerDataSetObserver( new DataSetObserver()
+            {
+                @Override
+                public void onChanged()
+                {
+                    if( scratchpadListView.getAdapter().getCount() == 0 )
+                    {
+                        if( dialog.isShowing() )
+                        {
+                            dialog.dismiss();
+                            DialogHelper
+                                    .createBlankAlertDialog( getActivity(), "Select scratch pad to load:" )
+                                    .setMessage( "There are no scratch pads to load." )
+                                    .setPositiveButton( "Close", null )
+                                    .show();
+                        }
+                    }
+                }
+            } );
+            dialog.setView( scratchpadListView );
+        }
+        else
+        {
+            dialog.setMessage( "There are no scratch pads to load" );
+        }
+        dialog.show();
     }
 }

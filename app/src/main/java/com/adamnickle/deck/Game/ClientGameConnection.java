@@ -6,6 +6,8 @@ import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 
+import java.io.File;
+
 
 public class ClientGameConnection extends GameConnection
 {
@@ -60,7 +62,7 @@ public class ClientGameConnection extends GameConnection
     }
 
     @Override
-    public boolean openGameSave( Context context, GameSave gameSave )
+    public boolean openGameSave( Context context, File gameSave )
     {
         throw new UnsupportedOperationException( "Clients cannot open game saves." );
     }

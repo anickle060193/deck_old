@@ -6,16 +6,14 @@ import android.content.Context;
 import android.text.format.DateFormat;
 import android.util.JsonReader;
 import android.util.JsonWriter;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.adamnickle.deck.DialogHelper;
 import com.adamnickle.deck.Icons;
 import com.adamnickle.deck.R;
-import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
 import java.io.File;
 import java.io.FileReader;
@@ -24,97 +22,39 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 import ru.noties.debug.Debug;
 
 public final class GameSave
 {
     private static final String GAME_SAVE_FOLDER = "deck_game_saves";
-    private static final String GAME_SAVE_PREFIX = "deck_game_save";
-    private static final String GAME_SAVE_DELIMITER = ";";
+    private static final String GAME_SAVE_PREFIX = "deck_game_save_";
     private static final String GAME_SAVE_FILE_EXTENSION = ".json";
-
-    private static final String GAME_SAVE_FILE_NAME_FORMAT = GAME_SAVE_PREFIX + GAME_SAVE_DELIMITER + "%s" + GAME_SAVE_DELIMITER + "%d" + GAME_SAVE_DELIMITER + GAME_SAVE_FILE_EXTENSION;
 
     private static final String PLAYERS_NAME = "players";
     private static final String LEFT_PLAYERS_NAME = "left_players";
 
-    public String SaveName;
-    public Date SavedDate;
+    private GameSave() { }
 
-    public GameSave( String saveName, Date savedDate )
+    private static String getGameSaveFileName( String gameSaveName )
     {
-        SaveName = saveName;
-        SavedDate = savedDate;
+        return GAME_SAVE_PREFIX + gameSaveName + GAME_SAVE_FILE_EXTENSION;
     }
 
-    public GameSave( String saveName )
+    private static String getGameSaveNameFromFile( File gameSave )
     {
-        this( saveName, new Date() );
+        final String fileName = gameSave.getName();
+        return fileName.substring( GAME_SAVE_PREFIX.length(), fileName.length() - GAME_SAVE_FILE_EXTENSION.length() );
     }
 
-    public static GameSave parseGameSaveFileName( String gameSaveFileName )
-    {
-        String[] s = gameSaveFileName.split( Pattern.quote( GAME_SAVE_DELIMITER ) );
-        return new GameSave( s[ 1 ], new Date( Long.parseLong( s[ 2 ] ) ) );
-    }
-
-    public static GameSave[] getGameSaves( Context context )
-    {
-        final File file = new File( context.getFilesDir(), GAME_SAVE_FOLDER );
-        final String[] filesNames = file.list( new FilenameFilter()
-        {
-            @Override
-            public boolean accept( File file, String fileName )
-            {
-                return fileName.startsWith( GAME_SAVE_PREFIX ) && fileName.endsWith( GAME_SAVE_FILE_EXTENSION );
-            }
-        } );
-
-        if( filesNames != null )
-        {
-            final GameSave[] gameSaves = new GameSave[ filesNames.length ];
-            for( int i = 0; i < filesNames.length; i++ )
-            {
-                gameSaves[ i ] = GameSave.parseGameSaveFileName( filesNames[ i ] );
-            }
-            return gameSaves;
-        }
-        else
-        {
-            return new GameSave[ 0 ];
-        }
-    }
-
-    private static boolean deleteGameSave( Context context, GameSave gameSave )
-    {
-        final String gameSaveFileName = getGameSaveFileName( gameSave );
-        final File gameSaveDir = new File( context.getApplicationContext().getFilesDir(), GAME_SAVE_FOLDER );
-        final File deleteFile = new File( gameSaveDir, gameSaveFileName );
-
-        return deleteFile.isFile() && deleteFile.delete();
-    }
-
-    private static String getGameSaveFileName( GameSave gameSave )
-    {
-        return String.format( GAME_SAVE_FILE_NAME_FORMAT, gameSave.SaveName, gameSave.SavedDate.getTime() );
-    }
-
-    public static boolean openGameSave( Context context, GameSave gameSave, HashMap<String, CardHolder > players, HashMap<String, CardHolder > leftPlayers )
+    public static boolean openGameSave( File gameSave, HashMap<String, CardHolder > players, HashMap<String, CardHolder > leftPlayers )
     {
         boolean success = true;
         InputStreamReader inputStreamReader = null;
         try
         {
-            File gameSaveDir = new File( context.getApplicationContext().getFilesDir(), GAME_SAVE_FOLDER );
-            File saveFile = new File( gameSaveDir, getGameSaveFileName( gameSave ) );
-
-            inputStreamReader = new FileReader( saveFile );
+            inputStreamReader = new FileReader( gameSave );
             JsonReader reader = new JsonReader( inputStreamReader );
 
             reader.beginObject();
@@ -169,16 +109,16 @@ public final class GameSave
             }
             catch( IOException io )
             {
-                throw new RuntimeException( io );
+                io.printStackTrace();
             }
         }
 
         return success;
     }
 
-    public static boolean saveGame( Context context, GameSave gameSave, CardHolder[] players, CardHolder[] leftPlayers )
+    public static boolean saveGame( Context context, String gameSaveName, CardHolder[] players, CardHolder[] leftPlayers )
     {
-        if( gameSave.SaveName.isEmpty() )
+        if( gameSaveName.isEmpty() || gameSaveName.contains( " " ) )
         {
             return false;
         }
@@ -197,7 +137,7 @@ public final class GameSave
             }
 
 
-            File saveFile = new File( gameSaveDir, getGameSaveFileName( gameSave ) );
+            File saveFile = new File( gameSaveDir, getGameSaveFileName( gameSaveName ) );
             outputStreamWriter = new FileWriter( saveFile );
             JsonWriter writer = new JsonWriter( outputStreamWriter );
 
@@ -241,25 +181,38 @@ public final class GameSave
             }
             catch( IOException io )
             {
-                throw new RuntimeException( io );
+                io.printStackTrace();
             }
         }
         return success;
     }
 
-    public static ListView getGameSaveListView( Context context, GameSave[] gameSaves )
+    public static ListView getGameSaveListView( Context context )
     {
-        final GameSaveSwipeAdapter gameSaveSwipeAdapter = new GameSaveSwipeAdapter( context, gameSaves );
-        final ListView listView = new ListView( context );
-        listView.setAdapter( gameSaveSwipeAdapter );
-        return listView;
+        final File file = new File( context.getFilesDir(), GAME_SAVE_FOLDER );
+        final File[] gameSaveFiles = file.listFiles( new FilenameFilter()
+        {
+            @Override
+            public boolean accept( File file, String s )
+            {
+                return s.startsWith( GAME_SAVE_PREFIX );
+            }
+        } );
+        if( gameSaveFiles.length == 0 )
+        {
+            return null;
+        }
+        else
+        {
+            final GameSaveSwipeAdapter gameSaveSwipeAdapter = new GameSaveSwipeAdapter( context, gameSaveFiles );
+            final ListView listView = new ListView( context );
+            listView.setAdapter( gameSaveSwipeAdapter );
+            return listView;
+        }
     }
 
-    public static class GameSaveSwipeAdapter extends BaseSwipeAdapter
+    public static class GameSaveSwipeAdapter extends DialogHelper.SwipeArrayAdapter<File>
     {
-        private final Context mContext;
-        private final ArrayList<GameSave> mGameSaves;
-
         private static final View.OnClickListener NO_CLICK_LISTENER = new View.OnClickListener()
         {
             @Override
@@ -269,50 +222,9 @@ public final class GameSave
             }
         };
 
-        public GameSaveSwipeAdapter( Context context, GameSave[] gameSaves )
+        public GameSaveSwipeAdapter( Context context, File[] gameSaves )
         {
-            mContext = context;
-            mGameSaves = new ArrayList< GameSave >( Arrays.asList( gameSaves ) );
-        }
-
-        @Override
-        public int getCount()
-        {
-            return mGameSaves.size();
-        }
-
-        @Override
-        public GameSave getItem( int position )
-        {
-            return mGameSaves.get( position );
-        }
-
-        public boolean removeItem( GameSave gameSave )
-        {
-            if( mGameSaves.remove( gameSave ) )
-            {
-                this.notifyDataSetChanged();
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public long getItemId( int position )
-        {
-            return getItem( position ).hashCode();
-        }
-
-        @Override
-        public int getSwipeLayoutResourceId( int position )
-        {
-            return R.id.swipe;
-        }
-
-        @Override
-        public View generateView( int position, ViewGroup viewGroup )
-        {
-            return LayoutInflater.from( mContext ).inflate( R.layout.game_save_swipe, viewGroup, false );
+            super( context, R.layout.two_line_swipe, gameSaves );
         }
 
         @Override
@@ -322,20 +234,19 @@ public final class GameSave
             if( holder == null )
             {
                 holder = new GameSaveHolder();
-                holder.GameSaveName = (TextView) view.findViewById( R.id.gameSaveName );
-                holder.GameSaveDateTime = (TextView) view.findViewById( R.id.gameSaveDateTime );
+                holder.GameSaveName = (TextView) view.findViewById( R.id.name );
+                holder.GameSaveDateTime = (TextView) view.findViewById( R.id.dateTime );
                 holder.InfoButton = (ImageButton) view.findViewById( R.id.infoButton );
-                holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( mContext ) );
+                holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( getContext() ) );
                 holder.DeleteButton = (ImageButton) view.findViewById( R.id.deleteButton );
-                holder.DeleteButton.setImageDrawable( Icons.getGameSaveDelete( mContext ) );
+                holder.DeleteButton.setImageDrawable( Icons.getGameSaveDelete( getContext() ) );
                 holder.Under = view.findViewById( R.id.under );
                 view.setTag( holder );
-
             }
 
-            final GameSave gameSave = getItem( position );
-            holder.GameSaveName.setText( gameSave.SaveName );
-            holder.GameSaveDateTime.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.SavedDate ) );
+            final File gameSave = getItem( position );
+            holder.GameSaveName.setText( getGameSaveNameFromFile( gameSave ) );
+            holder.GameSaveDateTime.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.lastModified() ) );
             holder.Under.setOnClickListener( NO_CLICK_LISTENER );
             holder.InfoButton.setOnClickListener( new View.OnClickListener()
             {
@@ -343,10 +254,10 @@ public final class GameSave
                 public void onClick( View view )
                 {
                     final HashMap< String, CardHolder > cardHolders = new HashMap< String, CardHolder >();
-                    if( GameSave.openGameSave( mContext, gameSave, cardHolders, cardHolders ) )
+                    if( GameSave.openGameSave( gameSave, cardHolders, cardHolders ) )
                     {
                         StringBuilder s = new StringBuilder();
-                        s.append( DateFormat.format( "h:mm aa - MMM d, yyyy", gameSave.SavedDate ) ).append( "\n\n" );
+                        s.append( DateFormat.format( "h:mm aa - MMM d, yyyy", gameSave.lastModified() ) ).append( "\n\n" );
                         s.append( "Players:\n" );
                         for( CardHolder cardHolder : cardHolders.values() )
                         {
@@ -354,8 +265,8 @@ public final class GameSave
                         }
                         s.deleteCharAt( s.length() - 1 );
 
-                        new AlertDialog.Builder( mContext )
-                                .setTitle( gameSave.SaveName )
+                        new AlertDialog.Builder( getContext() )
+                                .setTitle( getGameSaveNameFromFile( gameSave ) )
                                 .setMessage( s.toString() )
                                 .setPositiveButton( "Close", null )
                                 .show();
@@ -369,7 +280,7 @@ public final class GameSave
                 {
                     if( GameSaveSwipeAdapter.this.removeItem( gameSave ) )
                     {
-                        GameSave.deleteGameSave( mContext, gameSave );
+                        gameSave.delete();
                     }
                 }
             } );

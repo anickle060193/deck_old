@@ -7,6 +7,7 @@ import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.TableFragment;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -224,18 +225,18 @@ public class ServerGameConnection extends GameConnection
     {
         return GameSave.saveGame(
                 context,
-                new GameSave( saveName ),
+                saveName,
                 mPlayers.values().toArray( new CardHolder[ mPlayers.size() ] ),
                 mLeftPlayers.values().toArray( new CardHolder[ mLeftPlayers.size() ] )
         );
     }
 
     @Override
-    public boolean openGameSave( Context context, GameSave gameSave )
+    public boolean openGameSave( Context context, File gameSave )
     {
         final HashMap< String, CardHolder > players = new HashMap< String, CardHolder >();
 
-        if( GameSave.openGameSave( context, gameSave, players, players ) )
+        if( GameSave.openGameSave( gameSave, players, players ) )
         {
             for( CardHolder player : mPlayers.values() )
             {

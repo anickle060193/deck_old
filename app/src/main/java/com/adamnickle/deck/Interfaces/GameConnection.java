@@ -6,8 +6,8 @@ import android.content.Context;
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.GameMessage;
-import com.adamnickle.deck.Game.GameSave;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -197,7 +197,7 @@ public abstract class GameConnection implements ConnectionListener
      *******************************************************************/
     public abstract void startGame();
     public abstract boolean saveGame( Context context, String saveName );
-    public abstract boolean openGameSave( Context context, GameSave gameSave );
+    public abstract boolean openGameSave( Context context, File gameSave );
     public abstract void sendMessageToDevice( GameMessage message, String senderID, String receiverID );
 
     public void sendCard( String senderID, String receiverID, Card card, String removedFromID )

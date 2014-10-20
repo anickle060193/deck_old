@@ -29,6 +29,7 @@ import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -345,11 +346,11 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     {
                         if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
                         {
-                            DialogHelper.displayNotification( getActivity(), "Game save successful.", Style.INFO );
+                            DialogHelper.displayNotification( getActivity(), "Game save successful.", Style.CONFIRM );
                         }
                         else
                         {
-                            DialogHelper.displayNotification( getActivity(), "Game save not successful.", Style.INFO );
+                            DialogHelper.displayNotification( getActivity(), "Game save not successful.", Style.ALERT );
                         }
                     }
                 } ).show();
@@ -358,36 +359,31 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void handleOpenGameClick()
     {
-        final GameSave[] gameSaves = GameSave.getGameSaves( getActivity().getApplicationContext() );
+        final AlertDialog dialog = DialogHelper
+                .createBlankAlertDialog( getActivity(), "Select game save:" )
+                .setPositiveButton( "Close", null )
+                .create();
 
-        if( gameSaves.length == 0 )
+        final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity() );
+        if( gameSaveListView != null )
         {
-            DialogHelper.showPopup( getActivity(), "No Deck Game Saves", "There are currently no saved Deck games." );
-        }
-        else
-        {
-            final AlertDialog.Builder dialogBuilder = DialogHelper.createBlankAlertDialog( getActivity(), "Select game save:" );
-            final ListView gameSaveListView = GameSave.getGameSaveListView( getActivity(), gameSaves );
-            dialogBuilder.setView( gameSaveListView );
-            final AlertDialog dialog = dialogBuilder.create();
             gameSaveListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
             {
                 @Override
                 public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
                 {
-                    if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaves[ i ] ) )
+                    final File gameSaveFile = (File) adapterView.getItemAtPosition( i );
+                    if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaveFile ) )
                     {
-                        DialogHelper.displayNotification( getActivity(), "Game open successful.", Style.INFO );
+                        DialogHelper.displayNotification( getActivity(), "Game open successful.", Style.CONFIRM );
                     }
                     else
                     {
-                        DialogHelper.displayNotification( getActivity(), "Game open not successful.", Style.INFO );
+                        DialogHelper.displayNotification( getActivity(), "Game open not successful.", Style.ALERT );
                     }
                     dialog.dismiss();
                 }
             } );
-            dialog.show();
-
             gameSaveListView.getAdapter().registerDataSetObserver( new DataSetObserver()
             {
                 @Override
@@ -398,11 +394,22 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         if( dialog.isShowing() )
                         {
                             dialog.dismiss();
+                            DialogHelper
+                                    .createBlankAlertDialog( getActivity(), "Select game save:" )
+                                    .setMessage( "There are no game saves to open." )
+                                    .setPositiveButton( "Close", null )
+                                    .show();
                         }
                     }
                 }
             } );
+            dialog.setView( gameSaveListView );
         }
+        else
+        {
+            dialog.setMessage( "There are no game saves to open." );
+        }
+        dialog.show();
     }
 
     /*******************************************************************

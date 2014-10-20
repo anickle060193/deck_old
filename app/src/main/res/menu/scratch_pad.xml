@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/actionSaveScratchPad"
+        android:title="Save Scratch Pad"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/actionLoadScratchPad"
+        android:title="Load Scratch Pad"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/actionEraser"
+        android:title="Eraser"
+        android:icon="@drawable/ic_eraser"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/actionPen"
+        android:title="Pen"
+        android:icon="@drawable/ic_pen"
+        android:showAsAction="always"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/actionClearScratchPad"
+        android:title="Clear Scratch Pad"
+        android:icon="@drawable/ic_delete"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/actionCloseScratchPad"
+        android:title="Close Drawing"
+        android:icon="@drawable/ic_close"
+        android:showAsAction="always" />
+
+</menu>

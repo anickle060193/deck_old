@@ -59,10 +59,11 @@ public class ScratchPadView extends View
         mDrawEraser = false;
     }
 
-    public void setBitmap( Bitmap bitmap )
+    public void setScratchPadBitmap( Bitmap bitmap )
     {
         mBitmap = bitmap;
         mCanvas = new Canvas( mBitmap );
+        invalidate();
     }
 
     public void toggleEraser()
@@ -90,6 +91,7 @@ public class ScratchPadView extends View
         if( mCanvas != null )
         {
             mCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
+            invalidate();
         }
     }
 

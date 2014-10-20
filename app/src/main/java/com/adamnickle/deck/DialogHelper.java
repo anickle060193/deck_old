@@ -5,7 +5,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+
+import com.daimajia.swipe.adapters.BaseSwipeAdapter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -102,5 +110,67 @@ public class DialogHelper
                 Crouton.makeText( activity, notification, style ).show();
             }
         } );
+    }
+
+    public static abstract class SwipeArrayAdapter<T> extends BaseSwipeAdapter
+    {
+        private final Context mContext;
+        private final ArrayList<T> mData;
+        private final int mItemResourceID;
+
+        public SwipeArrayAdapter( Context context, int resourceID, T[] objects )
+        {
+            mContext = context;
+            mData = new ArrayList< T >( Arrays.asList( objects ) );
+            mItemResourceID = resourceID;
+        }
+
+        public Context getContext()
+        {
+            return mContext;
+        }
+
+        @Override
+        public int getCount()
+        {
+            return mData.size();
+        }
+
+        @Override
+        public T getItem( int position )
+        {
+            return mData.get( position );
+        }
+
+        public boolean removeItem( T object )
+        {
+            if( mData.remove( object ) )
+            {
+                this.notifyDataSetChanged();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public long getItemId( int position )
+        {
+            return getItem( position ).hashCode();
+        }
+
+        @Override
+        public int getSwipeLayoutResourceId( int position )
+        {
+            return R.id.swipe;
+        }
+
+        @Override
+        public View generateView( int position, ViewGroup viewGroup )
+        {
+            return LayoutInflater.from( mContext ).inflate( mItemResourceID, viewGroup, false );
+        }
+
+        @Override
+        public abstract void fillValues( int position, View view );
     }
 }

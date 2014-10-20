@@ -6,7 +6,5 @@
     <color name="AshWhite">#EDF7F2</color>
     <color name="ModerateCyan">#4BB5C1</color>
     <color name="DesaturatedCyan">#7FC6BC</color>
-
-    <color name="DrawingBackground">@color/DesaturatedCyan</color>
     
 </resources>

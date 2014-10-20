@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -19,7 +21,10 @@ public class ScratchPadView extends View
 
     private Bitmap mBitmap;
     private final Path mDrawPath;
+    private Paint mCurrentPaint;
     private final Paint mDrawingPaint;
+    private final Paint mErasingPaint;
+    private final Paint mEraserPointPaint;
     private final Paint mCanvasPaint;
     private Canvas mCanvas;
     private RectF mPathBounds;
@@ -43,6 +48,7 @@ public class ScratchPadView extends View
         super( context, attrs, defStyleAttr );
 
         mDrawPath = new Path();
+
         mDrawingPaint = new Paint();
         mDrawingPaint.setColor( Color.BLACK );
         mDrawingPaint.setAntiAlias( true );
@@ -50,6 +56,17 @@ public class ScratchPadView extends View
         mDrawingPaint.setStyle( Paint.Style.STROKE );
         mDrawingPaint.setStrokeJoin( Paint.Join.ROUND );
         mDrawingPaint.setStrokeCap( Paint.Cap.ROUND );
+
+        mEraserPointPaint = new Paint( mDrawingPaint );
+        mEraserPointPaint.setStrokeWidth( ERASER_STROKE_WIDTH );
+        mEraserPointPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
+
+        mErasingPaint = new Paint( mDrawingPaint );
+        //mErasingPaint.setColor( Color.TRANSPARENT );
+        mErasingPaint.setXfermode( new PorterDuffXfermode( PorterDuff.Mode.CLEAR ) );
+        mErasingPaint.setStrokeWidth( ERASER_STROKE_WIDTH );
+
+        mCurrentPaint = mDrawingPaint;
 
         mCanvasPaint = new Paint( Paint.DITHER_FLAG );
         mPathBounds = new RectF();
@@ -68,17 +85,15 @@ public class ScratchPadView extends View
 
     public void toggleEraser()
     {
+        mEraser = !mEraser;
         if( mEraser )
         {
-            mDrawingPaint.setColor( Color.BLACK );
-            mDrawingPaint.setStrokeWidth( DRAWING_STROKE_WIDTH );
+            mCurrentPaint = mErasingPaint;
         }
         else
         {
-            mDrawingPaint.setColor( getResources().getColor( R.color.DrawingBackground ) );
-            mDrawingPaint.setStrokeWidth( ERASER_STROKE_WIDTH );
+            mCurrentPaint = mDrawingPaint;
         }
-        mEraser = !mEraser;
     }
 
     public boolean isEraser()
@@ -90,7 +105,7 @@ public class ScratchPadView extends View
     {
         if( mCanvas != null )
         {
-            mCanvas.drawColor( getResources().getColor( R.color.DrawingBackground ) );
+            mCanvas.drawColor( Color.TRANSPARENT, PorterDuff.Mode.CLEAR );
             invalidate();
         }
     }
@@ -100,14 +115,11 @@ public class ScratchPadView extends View
     {
         if( mBitmap != null )
         {
+            mCanvas.drawPath( mDrawPath, mCurrentPaint );
             canvas.drawBitmap( mBitmap, 0, 0, mCanvasPaint );
-            canvas.drawPath( mDrawPath, mDrawingPaint );
             if( mDrawEraser )
             {
-                final int color = mDrawingPaint.getColor();
-                mDrawingPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
-                canvas.drawPoint( mX, mY, mDrawingPaint );
-                mDrawingPaint.setColor( color );
+                canvas.drawPoint( mX, mY, mEraserPointPaint );
             }
         }
     }
@@ -140,7 +152,7 @@ public class ScratchPadView extends View
                 {
                     mCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mDrawingPaint );
                 }
-                mCanvas.drawPath( mDrawPath, mDrawingPaint );
+                mCanvas.drawPath( mDrawPath, mCurrentPaint );
                 mDrawPath.reset();
                 mDrawEraser = false;
                 break;

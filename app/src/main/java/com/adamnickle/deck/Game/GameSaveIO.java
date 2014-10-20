@@ -1,7 +1,6 @@
 package com.adamnickle.deck.Game;
 
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.text.format.DateFormat;
 import android.util.JsonReader;
@@ -213,15 +212,6 @@ public final class GameSaveIO
 
     public static class GameSaveSwipeAdapter extends DialogHelper.SwipeArrayAdapter<File>
     {
-        private static final View.OnClickListener NO_CLICK_LISTENER = new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View view )
-            {
-
-            }
-        };
-
         public GameSaveSwipeAdapter( Context context, File[] gameSaves )
         {
             super( context, R.layout.two_line_swipe, gameSaves );
@@ -247,7 +237,6 @@ public final class GameSaveIO
             final File gameSave = getItem( position );
             holder.GameSaveName.setText( getGameSaveNameFromFile( gameSave ) );
             holder.GameSaveDateTime.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.lastModified() ) );
-            holder.Under.setOnClickListener( NO_CLICK_LISTENER );
             holder.InfoButton.setOnClickListener( new View.OnClickListener()
             {
                 @Override
@@ -265,8 +254,7 @@ public final class GameSaveIO
                         }
                         s.deleteCharAt( s.length() - 1 );
 
-                        new AlertDialog.Builder( getContext() )
-                                .setTitle( getGameSaveNameFromFile( gameSave ) )
+                        DialogHelper.createBlankAlertDialog( getContext(), getGameSaveNameFromFile( gameSave ) )
                                 .setMessage( s.toString() )
                                 .setPositiveButton( "Close", null )
                                 .show();

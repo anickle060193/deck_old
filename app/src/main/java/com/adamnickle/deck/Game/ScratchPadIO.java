@@ -2,12 +2,14 @@ package com.adamnickle.deck.Game;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -179,7 +181,6 @@ public final class ScratchPadIO
                 holder.DateTime = (TextView) view.findViewById( R.id.dateTime );
                 holder.InfoButton = (ImageButton) view.findViewById( R.id.infoButton );
                 holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( getContext() ) );
-                holder.InfoButton.setVisibility( View.GONE );
                 holder.DeleteButton = (ImageButton) view.findViewById( R.id.deleteButton );
                 holder.DeleteButton.setImageDrawable( Icons.getGameSaveDelete( getContext() ) );
                 holder.Under = view.findViewById( R.id.under );
@@ -197,6 +198,45 @@ public final class ScratchPadIO
                     if( ScratchPadSwipeAdapter.this.removeItem( scratchPad ) )
                     {
                         scratchPad.delete();
+                    }
+                }
+            } );
+            holder.InfoButton.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View view )
+                {
+                    final Bitmap bitmap = ScratchPadIO.openScratchPad( getContext(), scratchPad );
+                    if( bitmap != null )
+                    {
+                        final ImageView imageView = new ImageView( getContext() );
+                        imageView.setImageBitmap( bitmap );
+
+                        DialogHelper.createBlankAlertDialog( getContext(), getScratchPadNameFromFile( scratchPad ) )
+                                .setView( imageView )
+                                .setPositiveButton( "Close", new DialogInterface.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick( DialogInterface dialogInterface, int i )
+                                    {
+                                        dialogInterface.dismiss();
+                                        bitmap.recycle();
+                                    }
+                                } )
+                                .setOnCancelListener( new DialogInterface.OnCancelListener()
+                                {
+                                    @Override
+                                    public void onCancel( DialogInterface dialogInterface )
+                                    {
+                                        dialogInterface.dismiss();
+                                        bitmap.recycle();
+                                    }
+                                } )
+                                .show();
+                    }
+                    else
+                    {
+                        DialogHelper.createBlankAlertDialog( getContext(), "Could not preview scratch pad." ).show();
                     }
                 }
             } );

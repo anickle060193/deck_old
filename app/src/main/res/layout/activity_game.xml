@@ -28,7 +28,6 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_gravity="end"
-        android:background="@color/DrawingBackground"
         android:id="@+id/drawingPanel" />
 
 </com.adamnickle.deck.GameDrawerLayout>

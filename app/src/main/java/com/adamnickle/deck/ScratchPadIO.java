@@ -1,4 +1,4 @@
-package com.adamnickle.deck.Game;
+package com.adamnickle.deck;
 
 
 import android.content.Context;
@@ -12,10 +12,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.adamnickle.deck.DialogHelper;
-import com.adamnickle.deck.Icons;
-import com.adamnickle.deck.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

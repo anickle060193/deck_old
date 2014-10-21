@@ -87,7 +87,10 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 @Override
                 public void onBackgroundDown( MotionEvent event )
                 {
-                    mSlidingTableLayout.collapseFrame();
+                    if( mSlidingTableLayout != null )
+                    {
+                        mSlidingTableLayout.collapseFrame();
+                    }
                 }
 
                 @Override

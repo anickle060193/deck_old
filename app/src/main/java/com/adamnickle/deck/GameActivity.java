@@ -55,6 +55,17 @@ public class GameActivity extends Activity
         mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawerOpen, R.string.drawerClosed )
         {
             @Override
+            public void onDrawerSlide( View drawerView, float slideOffset )
+            {
+                super.onDrawerSlide( drawerView, slideOffset );
+                if( mTableView.isOpen() )
+                {
+                    mTableView.collapseFrame();
+                    invalidateOptionsMenu();
+                }
+            }
+
+            @Override
             public void onDrawerOpened( View drawerView )
             {
                 super.onDrawerOpened( drawerView );

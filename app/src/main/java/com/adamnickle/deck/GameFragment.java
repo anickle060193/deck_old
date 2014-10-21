@@ -100,14 +100,16 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                                 @Override
                                 public void onClick( DialogInterface dialogInterface, int index )
                                 {
-                                    final String[] backgrounds = getResources().getStringArray( R.array.backgrounds );
-                                    final String background = backgrounds[ index ];
+                                    final String[] backgroundNames = getResources().getStringArray( R.array.backgrounds );
+                                    final String backgroundName = backgroundNames[ index ];
+                                    final int backgroundResource = DeckSettings.getBackgroundResourceFromString( getResources(), backgroundName );
+                                    
                                     PreferenceManager
                                             .getDefaultSharedPreferences( getContext().getApplicationContext() )
                                             .edit()
-                                            .putString( DeckSettings.BACKGROUND, background )
+                                            .putString( DeckSettings.BACKGROUND, backgroundName )
                                             .commit();
-                                    setGameBackground( index );
+                                    setBackgroundResource( backgroundResource );
                                 }
                             } )
                             .show();
@@ -119,7 +121,15 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     playingCardView.flip();
                 }
             };
+
+            final String backgroundName = PreferenceManager
+                    .getDefaultSharedPreferences( getActivity() )
+                    .getString( DeckSettings.BACKGROUND, "White" );
+            final int backgroundResource = DeckSettings.getBackgroundResourceFromString( getResources(), backgroundName );
+            mCardDisplay.setBackgroundResource( backgroundResource );
+
             mCardDisplay.setGameUiListener( this );
+
             if( mLocalPlayer != null )
             {
                 mLocalPlayer.setCardHolderListener( mCardDisplay.getCardHolderListener() );

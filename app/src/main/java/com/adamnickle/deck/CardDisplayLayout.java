@@ -1,11 +1,9 @@
 package com.adamnickle.deck;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
+import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
@@ -132,26 +130,14 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         return true;
     }
 
-    protected void setGameBackground( int drawableIndex )
+    @Override
+    public void setBackgroundResource( int resid )
     {
-        if( drawableIndex == 0 )
+        super.setBackgroundResource( resid );
+        final Drawable background = this.getBackground();
+        if( background instanceof BitmapDrawable )
         {
-            setBackgroundColor( Color.WHITE );
-        }
-        else
-        {
-            final TypedArray resources = getResources().obtainTypedArray( R.array.background_drawables );
-            final int resource = resources.getResourceId( drawableIndex, -1 );
-            BitmapDrawable background = (BitmapDrawable) getResources().getDrawable( resource );
-            background.setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
-            if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN )
-            {
-                setBackgroundDrawable( background );
-            }
-            else
-            {
-                setBackground( background );
-            }
+            ( (BitmapDrawable) background ).setTileModeXY( Shader.TileMode.REPEAT, Shader.TileMode.REPEAT );
         }
     }
 

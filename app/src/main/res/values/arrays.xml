@@ -30,7 +30,7 @@
     -->
 
     <integer-array name="background_drawables">
-        <item>0</item>
+        <item>@android:color/white</item>
         <item>@drawable/argyle</item>
         <item>@drawable/burried</item>
         <item>@drawable/cartographer</item>

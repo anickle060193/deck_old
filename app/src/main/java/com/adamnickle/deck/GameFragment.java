@@ -47,7 +47,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     private ArrayList< CardHolder > mPlayers;
 
     private CardCollection mDeck;
-    private boolean mIsDealer;
     private boolean mHasToldToStart;
 
     private SlidingFrameLayout mSlidingTableLayout;
@@ -57,7 +56,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         mCardHolders = new HashMap< String, CardHolder >();
         mPlayers = new ArrayList< CardHolder >();
         mDeck = new CardCollection();
-        mIsDealer = false;
         mHasToldToStart = false;
     }
 
@@ -184,11 +182,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         {
             inflater.inflate( R.menu.game_server, menu );
         }
-
-        if( mGameConnection.isServer() || mIsDealer )
-        {
-            inflater.inflate( R.menu.game_dealer, menu );
-        }
     }
 
     @Override
@@ -196,10 +189,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         switch( item.getItemId() )
         {
-            case R.id.setDealer:
-                handleSetDealerClick();
-                return true;
-
             case R.id.actionDealCards:
                 handleDealCardsClick();
                 return true;
@@ -231,20 +220,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             default:
                 return super.onOptionsItemSelected( item );
         }
-    }
-
-    private void handleSetDealerClick()
-    {
-        final CardHolder players[] = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
-        DialogHelper.createSelectItemDialog( getActivity(), "Select dealer:", players, new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick( DialogInterface dialogInterface, int i )
-            {
-                CardHolder newDealer = players[ i ];
-                mGameConnection.setDealer( mLocalPlayer.getID(), newDealer.getID(), true );
-            }
-        } ).show();
     }
 
     private void handleDealCardsClick()
@@ -638,56 +613,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 notification = mCardHolders.get( commanderID ).getName() + " cleared your hand.";
             }
             DialogHelper.displayNotification( getActivity(), notification, Style.INFO );
-        }
-    }
-
-    @Override
-    public void onSetDealer( String setterID, String setID, boolean isDealer )
-    {
-        if( setID.equals( mLocalPlayer.getID() ) )
-        {
-            mIsDealer = isDealer;
-            String notification;
-            if( mIsDealer )
-            {
-                if( setterID.equals( mLocalPlayer.getID() ) )
-                {
-                    notification = "You made yourself dealer.";
-                }
-                else if( setterID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
-                {
-                    notification = "The server host made you dealer.";
-                }
-                else
-                {
-                    notification = mCardHolders.get( setterID ).getName() + " made you dealer.";
-                }
-            }
-            else
-            {
-                if( setterID.equals( mLocalPlayer.getID() ) )
-                {
-                    notification = "You unmade yourself dealer.";
-                }
-                else if( setterID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
-                {
-                    notification = "The server host unmade you dealer.";
-                }
-                else
-                {
-                    notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
-                }
-            }
-            DialogHelper.displayNotification( getActivity(), notification, Style.INFO );
-
-            getActivity().runOnUiThread( new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    getActivity().invalidateOptionsMenu();
-                }
-            } );
         }
     }
 

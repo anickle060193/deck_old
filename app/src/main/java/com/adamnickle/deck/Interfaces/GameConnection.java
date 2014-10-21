@@ -126,13 +126,6 @@ public abstract class GameConnection implements ConnectionListener
                 break;
             }
 
-            case MESSAGE_SET_DEALER:
-            {
-                final boolean isDealer = message.getIsDealer();
-                listener.onSetDealer( originalSenderID, receiverID, isDealer );
-                break;
-            }
-
             case MESSAGE_CARD_HOLDERS:
             {
                 final CardHolder[] players = message.getCardHolders();
@@ -233,13 +226,6 @@ public abstract class GameConnection implements ConnectionListener
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_CARDS, commandingDeviceID, toBeClearedDeviceID );
         this.sendMessageToDevice( message, commandingDeviceID, toBeClearedDeviceID );
-    }
-
-    public void setDealer( String setterID, String setteeID, boolean isDealer )
-    {
-        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_SET_DEALER, setterID, setteeID );
-        message.putIsDealer( isDealer );
-        this.sendMessageToDevice( message, setterID, setteeID );
     }
 
     public void sendCardHolderName( String senderID, String receiverID, String name )

@@ -240,12 +240,6 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
-    public void onSetDealer( String setterID, String setID, boolean isDealer )
-    {
-
-    }
-
-    @Override
     public void onReceiveCardHolders( String senderID, String receiverID, CardHolder[] cardHolders )
     {
 

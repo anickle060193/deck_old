@@ -11,4 +11,25 @@
         android:id="@+id/actionOpenGame"
         android:title="@string/actionOpenGameText"
         android:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionClearPlayerHands"
+        android:title="@string/actionClearPlayerHandsText"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/shuffleCards"
+        android:title="@string/actionShuffleCardsText"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionDealCards"
+        android:title="@string/actionDealCardsText"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionDealSingleCard"
+        android:title="@string/actionDealSingleCardText"
+        android:showAsAction="never" />
+
 </menu>

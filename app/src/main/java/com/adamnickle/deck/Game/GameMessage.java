@@ -20,7 +20,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         MESSAGE_NEW_PLAYER,
         MESSAGE_SET_NAME,
         MESSAGE_PLAYER_LEFT,
-        MESSAGE_SET_DEALER,
         MESSAGE_CARD_HOLDERS,
     }
 
@@ -32,7 +31,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         CARD_NUMBER,
         CARD_NUMBERS,
         PLAYER_NAME,
-        IS_DEALER,
         CURRENT_PLAYER_IDS,
         CURRENT_PLAYER_NAMES,
         REMOVED_FROM_ID,
@@ -173,16 +171,6 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
     public void putName( final String name )
     {
         super.put( Key.PLAYER_NAME, name );
-    }
-
-    public boolean getIsDealer()
-    {
-        return (Boolean) super.get( Key.IS_DEALER );
-    }
-
-    public void putIsDealer( final boolean isDealer )
-    {
-        super.put( Key.IS_DEALER, isDealer );
     }
 
     public CardHolder[] getCardHolders()

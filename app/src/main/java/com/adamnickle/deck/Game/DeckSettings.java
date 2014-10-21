@@ -14,6 +14,7 @@ public final class DeckSettings
 
     public static final String PLAYER_NAME = "player_name_pref";
     public static final String BACKGROUND = "background_pref";
+    public static final String SCRATCH_PAD_PAINT_COLOR = "scratch_pad_paint_color";
 
     public static int getBackgroundResourceFromString( Resources resources, String backgroundName )
     {

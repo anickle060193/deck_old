@@ -9,9 +9,12 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.adamnickle.deck.Game.DeckSettings;
 
 
 public class ScratchPadView extends View
@@ -54,8 +57,12 @@ public class ScratchPadView extends View
         MAX_STROKE_SIZE = getResources().getDimensionPixelSize( R.dimen.max_stroke_size );
         MIN_STROKE_SIZE = getResources().getDimensionPixelSize( R.dimen.min_stroke_size );
 
+        final int paintColor = PreferenceManager
+                .getDefaultSharedPreferences( getContext() )
+                .getInt( DeckSettings.SCRATCH_PAD_PAINT_COLOR, DEFAULT_PAINT_COLOR );
+
         mDrawingPaint = new Paint();
-        mDrawingPaint.setColor( DEFAULT_PAINT_COLOR );
+        mDrawingPaint.setColor( paintColor );
         mDrawingPaint.setAntiAlias( true );
         mDrawingPaint.setStrokeWidth( getResources().getDimensionPixelSize( R.dimen.default_stroke_size ) );
         mDrawingPaint.setStyle( Paint.Style.STROKE );
@@ -129,6 +136,11 @@ public class ScratchPadView extends View
     public void setPaintColor( int paintColor )
     {
         mDrawingPaint.setColor( paintColor );
+        PreferenceManager
+                .getDefaultSharedPreferences( getContext() )
+                .edit()
+                .putInt( DeckSettings.SCRATCH_PAD_PAINT_COLOR, paintColor )
+                .apply();
     }
 
     public boolean isEraser()

@@ -111,7 +111,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                                             .getDefaultSharedPreferences( getContext().getApplicationContext() )
                                             .edit()
                                             .putString( DeckSettings.BACKGROUND, backgroundName )
-                                            .commit();
+                                            .apply();
                                     setBackgroundResource( backgroundResource );
                                 }
                             } )

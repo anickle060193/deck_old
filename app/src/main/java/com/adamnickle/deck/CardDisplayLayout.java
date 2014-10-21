@@ -408,115 +408,149 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     }
 
     @Override
-    public void onCardRemoved( String playerID, Card card )
+    public void onCardRemoved( final String playerID, final Card card )
     {
-        ArrayList<PlayingCardView> cardViews = mCardViewsByOwner.get( playerID );
-        if( cardViews != null )
+        this.post( new Runnable()
         {
-            PlayingCardView removingCardView = null;
-            Iterator<PlayingCardView> playingCardViewIterator = cardViews.iterator();
-            while( playingCardViewIterator.hasNext() )
+            @Override
+            public void run()
             {
-                PlayingCardView playingCardView = playingCardViewIterator.next();
-                if( playingCardView.getCard().equals( card ) )
+                ArrayList<PlayingCardView> cardViews = mCardViewsByOwner.get( playerID );
+                if( cardViews != null )
                 {
-                    removingCardView = playingCardView;
-                    playingCardViewIterator.remove();
-                    break;
+                    PlayingCardView removingCardView = null;
+                    Iterator<PlayingCardView> playingCardViewIterator = cardViews.iterator();
+                    while( playingCardViewIterator.hasNext() )
+                    {
+                        PlayingCardView playingCardView = playingCardViewIterator.next();
+                        if( playingCardView.getCard().equals( card ) )
+                        {
+                            removingCardView = playingCardView;
+                            playingCardViewIterator.remove();
+                            break;
+                        }
+                    }
+                    if( removingCardView != null )
+                    {
+                        mCardViews.remove( removingCardView );
+                        CardDisplayLayout.this.removeView( removingCardView );
+                    }
                 }
             }
-            if( removingCardView != null )
+        } );
+    }
+
+    @Override
+    public void onCardsRemoved( final String playerID, final Card[] cards )
+    {
+        this.post( new Runnable()
+        {
+            @Override
+            public void run()
             {
-                mCardViews.remove( removingCardView );
-                this.removeView( removingCardView );
+                Arrays.sort( cards, new Card.CardComparator( CardCollection.SortingType.SORT_BY_CARD_NUMBER ) );
+
+                final ArrayList< PlayingCardView > playingCardViews = mCardViewsByOwner.get( playerID );
+                final Iterator< PlayingCardView > playingCardViewIterator = playingCardViews.iterator();
+                final ArrayList< PlayingCardView > removedCardViews = new ArrayList< PlayingCardView >();
+
+                while( playingCardViewIterator.hasNext() && ( removedCardViews.size() < cards.length ) )
+                {
+                    final PlayingCardView playingCardView = playingCardViewIterator.next();
+                    if( Arrays.binarySearch( cards, playingCardView.getCard() ) >= 0 )
+                    {
+                        removedCardViews.add( playingCardView );
+                        playingCardViewIterator.remove();
+                    }
+                }
+                for( PlayingCardView cardView : removedCardViews )
+                {
+                    CardDisplayLayout.this.removeView( cardView );
+                }
+                mCardViews.removeAll( removedCardViews );
             }
-        }
+        } );
     }
 
     @Override
-    public void onCardsRemoved( String playerID, Card[] cards )
+    public void onCardAdded( final String playerID, final Card card )
     {
-        Arrays.sort( cards, new Card.CardComparator( CardCollection.SortingType.SORT_BY_CARD_NUMBER ) );
-
-        final ArrayList<PlayingCardView> playingCardViews = mCardViewsByOwner.get( playerID );
-        final Iterator<PlayingCardView> playingCardViewIterator = playingCardViews.iterator();
-        final ArrayList< PlayingCardView > removedCardViews = new ArrayList< PlayingCardView >();
-
-        while( playingCardViewIterator.hasNext() && ( removedCardViews.size() < cards.length ) )
+        this.post( new Runnable()
         {
-            final PlayingCardView playingCardView = playingCardViewIterator.next();
-            if( Arrays.binarySearch( cards, playingCardView.getCard() ) >= 0 )
+            @Override
+            public void run()
             {
-                removedCardViews.add( playingCardView );
-                playingCardViewIterator.remove();
+                final PlayingCardView playingCardView = createPlayingCardView( playerID, card );
+                mCardViews.addFirst( playingCardView );
+                CardDisplayLayout.this.addView( playingCardView );
+
+                ArrayList< PlayingCardView > playingCardViews;
+                if( !mCardViewsByOwner.containsKey( playerID ) )
+                {
+                    playingCardViews = new ArrayList< PlayingCardView >();
+                    mCardViewsByOwner.put( playerID, playingCardViews );
+                }
+                else
+                {
+                    playingCardViews = mCardViewsByOwner.get( playerID );
+                }
+                playingCardViews.add( playingCardView );
+
+                mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
             }
-        }
-        for( PlayingCardView cardView : removedCardViews )
-        {
-            this.removeView( cardView );
-        }
-        mCardViews.removeAll( removedCardViews );
+        } );
     }
 
     @Override
-    public void onCardAdded( String playerID, Card card )
+    public void onCardsAdded( final String playerID, final Card[] cards )
     {
-        final PlayingCardView playingCardView = createPlayingCardView( playerID, card );
-        mCardViews.addFirst( playingCardView );
-        this.addView( playingCardView );
-
-        ArrayList<PlayingCardView> playingCardViews;
-        if( !mCardViewsByOwner.containsKey( playerID ) )
+        this.post( new Runnable()
         {
-            playingCardViews = new ArrayList< PlayingCardView>();
-            mCardViewsByOwner.put( playerID, playingCardViews );
-        }
-        else
-        {
-            playingCardViews = mCardViewsByOwner.get( playerID );
-        }
-        playingCardViews.add( playingCardView );
-
-        mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
-    }
-
-    @Override
-    public void onCardsAdded( String playerID, Card[] cards )
-    {
-        ArrayList<PlayingCardView> playingCardViews;
-        if( !mCardViewsByOwner.containsKey( playerID ) )
-        {
-            playingCardViews = new ArrayList< PlayingCardView>();
-            mCardViewsByOwner.put( playerID, playingCardViews );
-        }
-        else
-        {
-            playingCardViews = mCardViewsByOwner.get( playerID );
-        }
-
-
-        for( Card card : cards )
-        {
-            final PlayingCardView playingCardView = createPlayingCardView( playerID, card );
-            mCardViews.add( playingCardView );
-            this.addView( playingCardView );
-            playingCardViews.add( playingCardView );
-        }
-
-        mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
-    }
-
-    @Override
-    public void onCardsCleared( String cardHolderID )
-    {
-        final ArrayList< PlayingCardView > playingCardViews = mCardViewsByOwner.remove( cardHolderID );
-        if( playingCardViews != null )
-        {
-            for( PlayingCardView cardView : playingCardViews )
+            @Override
+            public void run()
             {
-                this.removeView( cardView );
+                final ArrayList< PlayingCardView > playingCardViews;
+                if( !mCardViewsByOwner.containsKey( playerID ) )
+                {
+                    playingCardViews = new ArrayList< PlayingCardView >();
+                    mCardViewsByOwner.put( playerID, playingCardViews );
+                }
+                else
+                {
+                    playingCardViews = mCardViewsByOwner.get( playerID );
+                }
+
+                for( Card card : cards )
+                {
+                    final PlayingCardView playingCardView = createPlayingCardView( playerID, card );
+                    mCardViews.add( playingCardView );
+                    CardDisplayLayout.this.addView( playingCardView );
+                    playingCardViews.add( playingCardView );
+                }
+
+                mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
             }
-            mCardViews.removeAll( playingCardViews );
-        }
+        } );
+    }
+
+    @Override
+    public void onCardsCleared( final String cardHolderID )
+    {
+        this.post( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                final ArrayList< PlayingCardView > playingCardViews = mCardViewsByOwner.remove( cardHolderID );
+                if( playingCardViews != null )
+                {
+                    for( PlayingCardView cardView : playingCardViews )
+                    {
+                        CardDisplayLayout.this.removeView( cardView );
+                    }
+                    mCardViews.removeAll( playingCardViews );
+                }
+            }
+        } );
     }
 }

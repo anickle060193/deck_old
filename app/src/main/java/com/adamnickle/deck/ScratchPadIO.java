@@ -2,7 +2,6 @@ package com.adamnickle.deck;
 
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -210,24 +209,7 @@ public final class ScratchPadIO
 
                         DialogHelper.createBlankAlertDialog( getContext(), getScratchPadNameFromFile( scratchPad ) )
                                 .setView( imageView )
-                                .setPositiveButton( "Close", new DialogInterface.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick( DialogInterface dialogInterface, int i )
-                                    {
-                                        dialogInterface.dismiss();
-                                        bitmap.recycle();
-                                    }
-                                } )
-                                .setOnCancelListener( new DialogInterface.OnCancelListener()
-                                {
-                                    @Override
-                                    public void onCancel( DialogInterface dialogInterface )
-                                    {
-                                        dialogInterface.dismiss();
-                                        bitmap.recycle();
-                                    }
-                                } )
+                                .setPositiveButton( "Close", null )
                                 .show();
                     }
                     else

@@ -104,14 +104,17 @@ public class DialogHelper
 
     public static void displayNotification( final Activity activity, final String notification, final Style style )
     {
-        activity.runOnUiThread( new Runnable()
+        if( activity != null )
         {
-            @Override
-            public void run()
+            activity.runOnUiThread( new Runnable()
             {
-                Crouton.makeText( activity, notification, style ).show();
-            }
-        } );
+                @Override
+                public void run()
+                {
+                    Crouton.makeText( activity, notification, style ).show();
+                }
+            } );
+        }
     }
 
     public static abstract class SwipeArrayAdapter<T> extends BaseSwipeAdapter

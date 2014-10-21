@@ -172,7 +172,11 @@ public class ServerGameConnection extends GameConnection
     @Override
     public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
-
+        if( !deviceID.equals( TableFragment.TABLE_ID ) && !deviceID.equals( getLocalPlayerID() ) )
+        {
+            final CardHolder localPlayer = mPlayers.get( getLocalPlayerID() );
+            this.sendCardHolderName( MOCK_SERVER_ADDRESS, deviceID, localPlayer.getName() );
+        }
     }
 
     @Override

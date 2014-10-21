@@ -536,7 +536,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onServerConnect( String serverID, String serverName )
     {
-        DialogHelper.displayNotification( getActivity(), "Connected to " + serverName + "'s server", Style.CONFIRM );
+        if( !mGameConnection.isServer() )
+        {
+            DialogHelper.displayNotification( getActivity(), "Connected to " + serverName + "'s server", Style.CONFIRM );
+        }
+        else
+        {
+            DialogHelper.displayNotification( getActivity(), "Server started", Style.CONFIRM );
+        }
 
         String playerName = PreferenceManager
                 .getDefaultSharedPreferences( getActivity().getApplicationContext() )

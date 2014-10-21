@@ -24,14 +24,29 @@ public class ClientGameConnection extends GameConnection
      * *****************************************************************
      */
     @Override
+    public synchronized void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
+    {
+        if( originalSenderID.equals( MOCK_SERVER_ADDRESS ) )
+        {
+            switch( message.getMessageType() )
+            {
+                case MESSAGE_SET_NAME:
+                    final String name = message.getPlayerName();
+                    for( GameConnectionListener listener2 : mListeners )
+                    {
+                        listener2.onServerConnect( MOCK_SERVER_ADDRESS, name );
+                    }
+                    return;
+            }
+        }
+
+        super.onMessageHandle( listener, originalSenderID, receiverID, message );
+    }
+
+    @Override
     public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
         mActualServerAddress = deviceID;
-        for( GameConnectionListener listener : mListeners )
-        {
-            listener.onServerConnect( MOCK_SERVER_ADDRESS, MOCK_SERVER_NAME );
-
-        }
     }
 
     @Override

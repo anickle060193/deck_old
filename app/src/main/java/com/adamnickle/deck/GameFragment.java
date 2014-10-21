@@ -643,13 +643,35 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             String notification;
             if( mIsDealer )
             {
-                notification = mCardHolders.get( setterID ).getName() + " made you dealer.";
+                if( setterID.equals( mLocalPlayer.getID() ) )
+                {
+                    notification = "You made yourself dealer.";
+                }
+                else if( setterID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
+                {
+                    notification = "The server host made you dealer.";
+                }
+                else
+                {
+                    notification = mCardHolders.get( setterID ).getName() + " made you dealer.";
+                }
             }
             else
             {
-                notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
+                if( setterID.equals( mLocalPlayer.getID() ) )
+                {
+                    notification = "You unmade yourself dealer.";
+                }
+                else if( setterID.equals( GameConnection.MOCK_SERVER_ADDRESS ) )
+                {
+                    notification = "The server host unmade you dealer.";
+                }
+                else
+                {
+                    notification = mCardHolders.get( setterID ).getName() + " unmade you dealer";
+                }
             }
-            DialogHelper.displayNotification( getActivity(), notification, Style.CONFIRM );
+            DialogHelper.displayNotification( getActivity(), notification, Style.INFO );
 
             getActivity().runOnUiThread( new Runnable()
             {

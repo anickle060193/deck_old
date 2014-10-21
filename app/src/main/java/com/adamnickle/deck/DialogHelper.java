@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
+import com.larswerkman.holocolorpicker.ColorPicker;
+import com.larswerkman.holocolorpicker.SVBar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +22,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class DialogHelper
 {
+    public static final int COLOR_PICKER_VIEW_ID = R.id.colorPicker;
+
     public static abstract class OnEditTextDialogClickListener
     {
         public void onPositiveButtonClick( DialogInterface dialogInterface, String text ) { }
@@ -110,6 +114,17 @@ public class DialogHelper
                 Crouton.makeText( activity, notification, style ).show();
             }
         } );
+    }
+
+    public static ViewGroup createColorPickerLayout( Context context, int presetColor )
+    {
+        ViewGroup contentView = (ViewGroup) LayoutInflater.from( context ).inflate( R.layout.color_picker_layout, null );
+        ColorPicker colorPicker = (ColorPicker) contentView.findViewById( R.id.colorPicker );
+        SVBar svBar = (SVBar) contentView.findViewById( R.id.saturationValueBar );
+        colorPicker.addSVBar( svBar );
+        colorPicker.setColor( presetColor );
+        colorPicker.setOldCenterColor( presetColor );
+        return contentView;
     }
 
     public static abstract class SwipeArrayAdapter<T> extends BaseSwipeAdapter

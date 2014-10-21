@@ -19,8 +19,9 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 
-import com.adamnickle.deck.Game.ScratchPadIO;
+import com.larswerkman.holocolorpicker.ColorPicker;
 
 import java.io.File;
 
@@ -124,6 +125,7 @@ public class ScratchPadFragment extends Fragment
         final boolean isEraser = mScratchPadView.isEraser();
         menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
         menu.findItem( R.id.actionPen ).setVisible( isEraser );
+        menu.findItem( R.id.actionSetPaintColor ).setVisible( !isEraser );
     }
 
     @Override
@@ -153,9 +155,43 @@ public class ScratchPadFragment extends Fragment
                 handleLoadScratchPadClick();
                 return true;
 
+            case R.id.actionSetStrokeSize:
+                //handleSetStrokeSize( item );
+                return true;
+
+            case R.id.actionSetPaintColor:
+                handleSetPaintColor();
+                return true;
+
             default:
                 return super.onOptionsItemSelected( item );
         }
+    }
+
+    private void handleSetPaintColor()
+    {
+        final ViewGroup viewGroup = DialogHelper.createColorPickerLayout( getActivity(), mScratchPadView.getPaintColor() );
+        final ColorPicker colorPicker = (ColorPicker) viewGroup.findViewById( DialogHelper.COLOR_PICKER_VIEW_ID );
+        DialogHelper
+                .createBlankAlertDialog( getActivity(), "Select paint color:" )
+                .setView( viewGroup )
+                .setNegativeButton( "Cancel", null )
+                .setPositiveButton( "OK", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int i )
+                    {
+                        mScratchPadView.setPaintColor( colorPicker.getColor() );
+                    }
+                } ).show();
+    }
+
+    private void handleSetStrokeSize( MenuItem item )
+    {
+        View menuItemView = getActivity().findViewById( item.getGroupId() );
+        PopupWindow popupWindow = new PopupWindow( 80, 80 );
+        popupWindow.setClippingEnabled( false );
+        popupWindow.showAsDropDown( menuItemView );
     }
 
     private void handleSaveScratchPadClick()

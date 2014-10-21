@@ -16,8 +16,11 @@ import android.view.View;
 
 public class ScratchPadView extends View
 {
-    private static final int DRAWING_STROKE_WIDTH = 10;
-    private static final int ERASER_STROKE_WIDTH = 80;
+    public static final int DEFAULT_PAINT_COLOR = Color.BLACK;
+
+    public static final int DEFAULT_STROKE_WIDTH = 10;
+    public static final int MAX_STROKE_WIDTH = 100;
+    public static final int MIN_STROKE_WIDTH = 1;
 
     private Bitmap mBitmap;
     private final Path mDrawPath;
@@ -50,21 +53,19 @@ public class ScratchPadView extends View
         mDrawPath = new Path();
 
         mDrawingPaint = new Paint();
-        mDrawingPaint.setColor( Color.BLACK );
+        mDrawingPaint.setColor( DEFAULT_PAINT_COLOR );
         mDrawingPaint.setAntiAlias( true );
-        mDrawingPaint.setStrokeWidth( DRAWING_STROKE_WIDTH );
+        mDrawingPaint.setStrokeWidth( DEFAULT_STROKE_WIDTH );
         mDrawingPaint.setStyle( Paint.Style.STROKE );
         mDrawingPaint.setStrokeJoin( Paint.Join.ROUND );
         mDrawingPaint.setStrokeCap( Paint.Cap.ROUND );
 
         mEraserPointPaint = new Paint( mDrawingPaint );
-        mEraserPointPaint.setStrokeWidth( ERASER_STROKE_WIDTH );
         mEraserPointPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
 
         mErasingPaint = new Paint( mDrawingPaint );
-        //mErasingPaint.setColor( Color.TRANSPARENT );
+        mErasingPaint.setColor( Color.TRANSPARENT );
         mErasingPaint.setXfermode( new PorterDuffXfermode( PorterDuff.Mode.CLEAR ) );
-        mErasingPaint.setStrokeWidth( ERASER_STROKE_WIDTH );
 
         mCurrentPaint = mDrawingPaint;
 
@@ -94,6 +95,34 @@ public class ScratchPadView extends View
         {
             mCurrentPaint = mDrawingPaint;
         }
+    }
+
+    public int getStrokeSize()
+    {
+        return (int) mCurrentPaint.getStrokeWidth();
+    }
+
+    public void setStrokeSize( int strokeSize )
+    {
+        if( strokeSize < MIN_STROKE_WIDTH )
+        {
+            strokeSize = MIN_STROKE_WIDTH;
+        }
+        else if( strokeSize > MAX_STROKE_WIDTH )
+        {
+            strokeSize = MAX_STROKE_WIDTH;
+        }
+        mCurrentPaint.setStrokeWidth( strokeSize );
+    }
+
+    public int getPaintColor()
+    {
+        return mDrawingPaint.getColor();
+    }
+
+    public void setPaintColor( int paintColor )
+    {
+        mDrawingPaint.setColor( paintColor );
     }
 
     public boolean isEraser()

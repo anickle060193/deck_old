@@ -37,4 +37,14 @@
         android:icon="@drawable/ic_close"
         android:showAsAction="always" />
 
+    <item
+        android:id="@+id/actionSetStrokeSize"
+        android:title="Set Stroke Size"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/actionSetPaintColor"
+        android:title="Set Paint Color"
+        android:showAsAction="never" />
+
 </menu>

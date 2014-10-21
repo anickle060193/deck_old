@@ -49,4 +49,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.3.4'
     compile 'com.github.gabrielemariotti.changeloglib:library:1.5.2'
     compile 'ru.noties:debug:1.1.0'
+    compile 'com.larswerkman:HoloColorPicker:1.4'
 }

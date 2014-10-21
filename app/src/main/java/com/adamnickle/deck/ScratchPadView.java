@@ -18,9 +18,8 @@ public class ScratchPadView extends View
 {
     public static final int DEFAULT_PAINT_COLOR = Color.BLACK;
 
-    public static final int DEFAULT_STROKE_WIDTH = 10;
-    public static final int MAX_STROKE_WIDTH = 100;
-    public static final int MIN_STROKE_WIDTH = 1;
+    private final int MAX_STROKE_SIZE;
+    private final int MIN_STROKE_SIZE;
 
     private Bitmap mBitmap;
     private final Path mDrawPath;
@@ -52,10 +51,13 @@ public class ScratchPadView extends View
 
         mDrawPath = new Path();
 
+        MAX_STROKE_SIZE = getResources().getDimensionPixelSize( R.dimen.max_stroke_size );
+        MIN_STROKE_SIZE = getResources().getDimensionPixelSize( R.dimen.min_stroke_size );
+
         mDrawingPaint = new Paint();
         mDrawingPaint.setColor( DEFAULT_PAINT_COLOR );
         mDrawingPaint.setAntiAlias( true );
-        mDrawingPaint.setStrokeWidth( DEFAULT_STROKE_WIDTH );
+        mDrawingPaint.setStrokeWidth( getResources().getDimensionPixelSize( R.dimen.default_stroke_size ) );
         mDrawingPaint.setStyle( Paint.Style.STROKE );
         mDrawingPaint.setStrokeJoin( Paint.Join.ROUND );
         mDrawingPaint.setStrokeCap( Paint.Cap.ROUND );
@@ -104,15 +106,19 @@ public class ScratchPadView extends View
 
     public void setStrokeSize( int strokeSize )
     {
-        if( strokeSize < MIN_STROKE_WIDTH )
+        if( strokeSize < MIN_STROKE_SIZE )
         {
-            strokeSize = MIN_STROKE_WIDTH;
+            strokeSize = MIN_STROKE_SIZE;
         }
-        else if( strokeSize > MAX_STROKE_WIDTH )
+        else if( strokeSize > MAX_STROKE_SIZE )
         {
-            strokeSize = MAX_STROKE_WIDTH;
+            strokeSize = MAX_STROKE_SIZE;
         }
         mCurrentPaint.setStrokeWidth( strokeSize );
+        if( isEraser() )
+        {
+            mEraserPointPaint.setStrokeWidth( strokeSize );
+        }
     }
 
     public int getPaintColor()
@@ -179,7 +185,7 @@ public class ScratchPadView extends View
                 mDrawPath.computeBounds( mPathBounds, false );
                 if( mPathBounds.width() < 10 || mPathBounds.height() < 10 )
                 {
-                    mCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mDrawingPaint );
+                    mCanvas.drawPoint( mPathBounds.left, mPathBounds.top, mCurrentPaint );
                 }
                 mCanvas.drawPath( mDrawPath, mCurrentPaint );
                 mDrawPath.reset();

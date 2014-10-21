@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
@@ -18,10 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupWindow;
+import android.widget.SeekBar;
 
 import com.larswerkman.holocolorpicker.ColorPicker;
+import com.larswerkman.holocolorpicker.SVBar;
 
 import java.io.File;
 
@@ -156,7 +161,7 @@ public class ScratchPadFragment extends Fragment
                 return true;
 
             case R.id.actionSetStrokeSize:
-                //handleSetStrokeSize( item );
+                handleSetStrokeSize( item );
                 return true;
 
             case R.id.actionSetPaintColor:
@@ -170,11 +175,18 @@ public class ScratchPadFragment extends Fragment
 
     private void handleSetPaintColor()
     {
-        final ViewGroup viewGroup = DialogHelper.createColorPickerLayout( getActivity(), mScratchPadView.getPaintColor() );
-        final ColorPicker colorPicker = (ColorPicker) viewGroup.findViewById( DialogHelper.COLOR_PICKER_VIEW_ID );
+        final ViewGroup contentView = (ViewGroup) LayoutInflater.from( getActivity() ).inflate( R.layout.color_picker_layout, null );
+
+        final ColorPicker colorPicker = (ColorPicker) contentView.findViewById( R.id.colorPicker );
+        final SVBar svBar = (SVBar) contentView.findViewById( R.id.saturationValueBar );
+
+        colorPicker.addSVBar( svBar );
+        colorPicker.setColor( mScratchPadView.getPaintColor() );
+        colorPicker.setOldCenterColor( mScratchPadView.getPaintColor() );
+
         DialogHelper
                 .createBlankAlertDialog( getActivity(), "Select paint color:" )
-                .setView( viewGroup )
+                .setView( contentView )
                 .setNegativeButton( "Cancel", null )
                 .setPositiveButton( "OK", new DialogInterface.OnClickListener()
                 {
@@ -188,10 +200,49 @@ public class ScratchPadFragment extends Fragment
 
     private void handleSetStrokeSize( MenuItem item )
     {
-        View menuItemView = getActivity().findViewById( item.getGroupId() );
-        PopupWindow popupWindow = new PopupWindow( 80, 80 );
-        popupWindow.setClippingEnabled( false );
-        popupWindow.showAsDropDown( menuItemView );
+        final ViewGroup contentView = (ViewGroup) LayoutInflater.from( getActivity() ).inflate( R.layout.seekbar_popup, null );
+
+        final SeekBar seekBar = (SeekBar) contentView.findViewById( R.id.seekBar );
+        final ImageView sizeDisplay = (ImageView) contentView.findViewById( R.id.sizeDisplay );
+
+        int initialStrokeSize = mScratchPadView.getStrokeSize();
+
+        final CircleDrawable circleDrawable = new CircleDrawable();
+        circleDrawable.setColor( mScratchPadView.getPaintColor() );
+        circleDrawable.setSize( initialStrokeSize );
+
+        sizeDisplay.setImageDrawable( circleDrawable );
+
+        seekBar.setMax( getResources().getDimensionPixelSize( R.dimen.max_stroke_size ) );
+        seekBar.setProgress( initialStrokeSize );
+        seekBar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener()
+        {
+            @Override
+            public void onProgressChanged( SeekBar seekBar, int progress, boolean userChanged )
+            {
+                circleDrawable.setSize( progress );
+            }
+
+            @Override
+            public void onStartTrackingTouch( SeekBar seekBar ) { }
+
+            @Override
+            public void onStopTrackingTouch( SeekBar seekBar ) { }
+        } );
+
+        DialogHelper
+                .createBlankAlertDialog( getActivity(), "Select paint size:" )
+                .setView( contentView )
+                .setNegativeButton( "Cancel", null )
+                .setPositiveButton( "OK", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int i )
+                    {
+                        mScratchPadView.setStrokeSize( seekBar.getProgress() );
+                    }
+                } )
+                .show();
     }
 
     private void handleSaveScratchPadClick()
@@ -277,5 +328,59 @@ public class ScratchPadFragment extends Fragment
             dialog.setMessage( "There are no scratch pads to load" );
         }
         dialog.show();
+    }
+
+    public static class CircleDrawable extends Drawable
+    {
+        private final Paint mPaint;
+
+        public CircleDrawable()
+        {
+            mPaint = new Paint();
+            mPaint.setAntiAlias( true );
+            mPaint.setStyle( Paint.Style.STROKE );
+            mPaint.setStrokeJoin( Paint.Join.ROUND );
+            mPaint.setStrokeCap( Paint.Cap.ROUND );
+        }
+
+        public void setColor( int color )
+        {
+            mPaint.setColor( color );
+            invalidateSelf();
+        }
+
+        public void setSize( int size )
+        {
+            mPaint.setStrokeWidth( size );
+            invalidateSelf();
+        }
+
+        @Override
+        public void draw( Canvas canvas )
+        {
+            final float x = canvas.getWidth() / 2.0f;
+            final float y = canvas.getHeight() / 2.0f;
+            canvas.drawCircle( x, y, 1, mPaint );
+        }
+
+        @Override
+        public void setAlpha( int i )
+        {
+            mPaint.setAlpha( i );
+            invalidateSelf();
+        }
+
+        @Override
+        public void setColorFilter( ColorFilter colorFilter )
+        {
+            mPaint.setColorFilter( colorFilter );
+            invalidateSelf();
+        }
+
+        @Override
+        public int getOpacity()
+        {
+            return mPaint.getAlpha();
+        }
     }
 }

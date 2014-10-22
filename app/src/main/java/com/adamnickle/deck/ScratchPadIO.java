@@ -205,6 +205,7 @@ public final class ScratchPadIO
                     if( bitmap != null )
                     {
                         final ImageView imageView = new ImageView( getContext() );
+                        imageView.setBackgroundResource( R.color.DesaturatedCyan );
                         imageView.setImageBitmap( bitmap );
 
                         DialogHelper.createBlankAlertDialog( getContext(), getScratchPadNameFromFile( scratchPad ) )

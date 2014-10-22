@@ -172,8 +172,8 @@ public final class ScratchPadIO
             if( holder == null )
             {
                 holder = new ScratchPadHolder();
-                holder.Name = (TextView) view.findViewById( R.id.name );
-                holder.DateTime = (TextView) view.findViewById( R.id.dateTime );
+                holder.Name = (TextView) view.findViewById( android.R.id.text1 );
+                holder.DateTime = (TextView) view.findViewById( android.R.id.text2 );
                 holder.InfoButton = (ImageButton) view.findViewById( R.id.infoButton );
                 holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( getContext() ) );
                 holder.DeleteButton = (ImageButton) view.findViewById( R.id.deleteButton );

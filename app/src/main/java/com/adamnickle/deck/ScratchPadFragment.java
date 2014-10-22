@@ -35,7 +35,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class ScratchPadFragment extends Fragment
 {
-    private View mView;
     private ScratchPadView mScratchPadView;
     private Bitmap mBitmap;
     private DrawerLayout mDrawerLayout;
@@ -51,10 +50,9 @@ public class ScratchPadFragment extends Fragment
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        if( mView == null )
+        if( mScratchPadView == null )
         {
-            mView = inflater.inflate( R.layout.drawing_layout, container, false );
-            mScratchPadView = (ScratchPadView) mView.findViewById( R.id.drawingView );
+            mScratchPadView = (ScratchPadView) inflater.inflate( R.layout.drawing_layout, container, false );
         }
 
         mScratchPadView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
@@ -75,7 +73,7 @@ public class ScratchPadFragment extends Fragment
             }
         } );
 
-        return mView;
+        return mScratchPadView;
     }
 
     private void createBitmap()

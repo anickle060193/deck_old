@@ -224,8 +224,8 @@ public final class GameSaveIO
             if( holder == null )
             {
                 holder = new GameSaveHolder();
-                holder.GameSaveName = (TextView) view.findViewById( R.id.name );
-                holder.GameSaveDateTime = (TextView) view.findViewById( R.id.dateTime );
+                holder.GameSaveName = (TextView) view.findViewById( android.R.id.text1 );
+                holder.GameSaveDateTime = (TextView) view.findViewById( android.R.id.text2 );
                 holder.InfoButton = (ImageButton) view.findViewById( R.id.infoButton );
                 holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( getContext() ) );
                 holder.DeleteButton = (ImageButton) view.findViewById( R.id.deleteButton );

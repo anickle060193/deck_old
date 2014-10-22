@@ -8,30 +8,6 @@
 
     <include layout="@layout/delete_info_swipe_under" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Name"
-            android:id="@+id/name" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="italic"
-            android:text="10/10/2014"
-            android:id="@+id/dateTime" />
-
-    </LinearLayout>
+    <include layout="@android:layout/simple_list_item_2" />
 
 </com.daimajia.swipe.SwipeLayout>

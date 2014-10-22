@@ -239,7 +239,7 @@ public class DeviceListActivity extends Activity
     {
         public BluetoothDeviceArrayAdapter( Context context, ArrayList< BluetoothDevice > devices )
         {
-            super( context, R.layout.device_name, devices );
+            super( context, android.R.layout.simple_list_item_1, devices );
         }
 
         private static class Holder
@@ -255,9 +255,9 @@ public class DeviceListActivity extends Activity
 
             if( convertView == null )
             {
-                row = LayoutInflater.from( getContext() ).inflate( R.layout.device_name, parent, false );
+                row = LayoutInflater.from( getContext() ).inflate( android.R.layout.simple_list_item_1, parent, false );
                 holder = new Holder();
-                holder.DeviceNameTextView = (TextView) row.findViewById( R.id.deviceName );
+                holder.DeviceNameTextView = (TextView) row.findViewById( android.R.id.text1 );
                 row.setTag( holder );
             }
             else

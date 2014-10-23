@@ -21,8 +21,6 @@ import java.util.Comparator;
 
 public class PlayingCardView extends ImageView
 {
-    public static final float CARD_HEADER_PERCENTAGE = 0.27f;
-
     private static final float MINIMUM_VELOCITY = 50.0f;
 
     private static Bitmap mBlueBackBitmap;

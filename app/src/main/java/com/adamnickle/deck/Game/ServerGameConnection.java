@@ -251,7 +251,7 @@ public class ServerGameConnection extends GameConnection
             Iterator<CardHolder> cardHolderIterator = players.values().iterator();
             while( cardHolderIterator.hasNext() )
             {
-                CardHolder cardHolder = cardHolderIterator.next();
+                final CardHolder cardHolder = cardHolderIterator.next();
                 if( mPlayers.containsKey( cardHolder.getID() ) )
                 {
                     this.sendCards( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolder.getCards() );

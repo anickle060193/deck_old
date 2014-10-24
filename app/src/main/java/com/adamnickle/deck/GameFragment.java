@@ -383,7 +383,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
                 {
                     final File gameSaveFile = (File) adapterView.getItemAtPosition( i );
-                    if( mGameConnection.openGameSave( getActivity().getApplicationContext(), gameSaveFile ) )
+                    if( mGameConnection.openGameSave( getActivity(), gameSaveFile ) )
                     {
                         DialogHelper.displayNotification( getActivity(), "Game open successful.", Style.CONFIRM );
                     }

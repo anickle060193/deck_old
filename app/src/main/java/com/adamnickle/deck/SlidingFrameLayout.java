@@ -1,7 +1,6 @@
 package com.adamnickle.deck;
 
 import android.content.Context;
-import android.support.v4.view.KeyEventCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.animation.Animation;
@@ -108,7 +107,7 @@ public class SlidingFrameLayout extends FrameLayout
     {
         if( KeyEvent.KEYCODE_BACK == keyCode && this.isOpen() )
         {
-            KeyEventCompat.startTracking( event );
+            event.startTracking();
             return true;
         }
         return super.onKeyDown( keyCode, event );

@@ -307,39 +307,52 @@ public class PlayingCardView extends ImageView
 
     public void flip()
     {
-        if( mAttachedToWindow )
-        {
-            final AnimationSet toMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_first_half );
-            final AnimationSet fromMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_last_half );
+        this.flip( !mFaceUp );
+    }
 
-            toMiddle.getAnimations().get( 0 ).setAnimationListener( new Animation.AnimationListener()
+    public void flip( boolean faceUp )
+    {
+        this.flip( faceUp, true );
+    }
+
+    public void flip( boolean faceUp, boolean animate )
+    {
+        if( faceUp != mFaceUp )
+        {
+            if( mAttachedToWindow && animate )
             {
-                @Override
-                public void onAnimationEnd( Animation animation )
-                {
-                    mFaceUp = !mFaceUp;
-                    PlayingCardView.this.setCardBitmap();
-                    PlayingCardView.this.clearAnimation();
-                    PlayingCardView.this.startAnimation( fromMiddle );
-                }
+                final AnimationSet toMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_first_half );
+                final AnimationSet fromMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_last_half );
 
-                @Override
-                public void onAnimationStart( Animation animation )
+                toMiddle.getAnimations().get( 0 ).setAnimationListener( new Animation.AnimationListener()
                 {
-                }
+                    @Override
+                    public void onAnimationEnd( Animation animation )
+                    {
+                        mFaceUp = !mFaceUp;
+                        PlayingCardView.this.setCardBitmap();
+                        PlayingCardView.this.clearAnimation();
+                        PlayingCardView.this.startAnimation( fromMiddle );
+                    }
 
-                @Override
-                public void onAnimationRepeat( Animation animation )
-                {
-                }
-            } );
+                    @Override
+                    public void onAnimationStart( Animation animation )
+                    {
+                    }
 
-            this.startAnimation( toMiddle );
-        }
-        else
-        {
-            mFaceUp = !mFaceUp;
-            setCardBitmap();
+                    @Override
+                    public void onAnimationRepeat( Animation animation )
+                    {
+                    }
+                } );
+
+                this.startAnimation( toMiddle );
+            }
+            else
+            {
+                mFaceUp = !mFaceUp;
+                setCardBitmap();
+            }
         }
     }
 

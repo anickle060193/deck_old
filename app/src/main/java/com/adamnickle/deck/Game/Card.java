@@ -125,11 +125,11 @@ public class Card
         {
             if( card.getRank() < card2.getRank() )
             {
-                return -1;
+                return 1;
             }
             else if( card.getRank() > card2.getRank() )
             {
-                return 1;
+                return -1;
             }
             else
             {
@@ -141,11 +141,11 @@ public class Card
         {
             if( card.getSuit() < card2.getSuit() )
             {
-                return 1;
+                return -1;
             }
             else if( card.getSuit() > card2.getSuit() )
             {
-                return -1;
+                return 1;
             }
             else
             {

@@ -305,22 +305,33 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void handleLayoutCardsClick()
     {
-        DialogHelper.createSelectItemDialog( getActivity(), "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
+        if( mCardDisplay.getChildCount() == 0 )
         {
-            @Override
-            public void onClick( DialogInterface dialogInterface, int i )
+            DialogHelper
+                    .createBlankAlertDialog( getActivity(), "No cards to layout." )
+                    .setMessage( "You do not have any cards to layout." )
+                    .setPositiveButton( "Close", null )
+                    .show();
+        }
+        else
+        {
+            DialogHelper.createSelectItemDialog( getActivity(), "Select layout:", new String[]{ "By Rank", "By Suit" }, new DialogInterface.OnClickListener()
             {
-                if( i == 0 )
+                @Override
+                public void onClick( DialogInterface dialogInterface, int i )
                 {
-                    mCardDisplay.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_RANK );
+                    if( i == 0 )
+                    {
+                        mCardDisplay.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_RANK );
+                    }
+                    else if( i == 1 )
+                    {
+                        mCardDisplay.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_SUIT );
+                    }
+                    mCardDisplay.layoutCards( mLocalPlayer.getID() );
                 }
-                else if( i == 1 )
-                {
-                    mCardDisplay.sortCards( mLocalPlayer.getID(), CardCollection.SortingType.SORT_BY_SUIT );
-                }
-                mCardDisplay.layoutCards( mLocalPlayer.getID() );
-            }
-        } ).show();
+            } ).show();
+        }
     }
 
     private void handleSaveGameClick()

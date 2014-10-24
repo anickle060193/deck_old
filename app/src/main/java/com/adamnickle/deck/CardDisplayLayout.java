@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 
 public class CardDisplayLayout extends FrameLayout implements CardHolderListener
@@ -80,7 +79,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     @Override
     protected boolean checkLayoutParams( ViewGroup.LayoutParams p )
     {
-        return p instanceof LayoutParams;
+        return ( p instanceof LayoutParams );
     }
 
     @Override
@@ -119,7 +118,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     @Override
     public boolean onInterceptTouchEvent( MotionEvent event )
     {
-        return mDragHelper.shouldInterceptTouchEvent( event );
+        return true;
     }
 
     @Override
@@ -285,7 +284,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
         {
-            final View view = mDragHelper.findTopChildUnder( (int) event.getX(), (int) event.getY() );
+            final View view = mDragHelper.findTopChildUnder( (int) event2.getX(), (int) event2.getY() );
             if( view != null )
             {
                 CardDisplayLayout.this.onCardFling( event, event2, velocityX, velocityY, (PlayingCardView) view );
@@ -300,7 +299,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void onBackgroundDown( MotionEvent event )
     {
-
     }
 
     public void onCardDown( MotionEvent event, PlayingCardView playingCardView )
@@ -311,47 +309,49 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void onBackgroundSingleTap( MotionEvent event )
     {
-
     }
 
     public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
     {
-
     }
 
     public void onBackgroundDoubleTap( MotionEvent event )
     {
-
     }
 
     public void onCardDoubleTap( MotionEvent event, PlayingCardView playingCardView )
     {
-
     }
 
     public void onCardScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY, PlayingCardView playingCardView )
     {
-
     }
 
     public void onBackgroundScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY )
     {
-
     }
 
     public void onCardFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY, PlayingCardView playingCardView )
     {
-
     }
 
     public void onBackgroundFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
     {
-
     }
 
     public void sortCards( String cardHolderID, CardCollection.SortingType sortingType )
     {
-        //Collections.sort( mCardViews, new PlayingCardView.PlayingCardViewComparator( sortingType ) );
+        final ArrayList< PlayingCardView > playingCardViews = new ArrayList< PlayingCardView >();
+        final int childCount = getChildCount();
+        for( int i = 0; i < childCount; i++ )
+        {
+            playingCardViews.add( (PlayingCardView) getChildAt( i ) );
+        }
+        Collections.sort( playingCardViews, new PlayingCardView.PlayingCardViewComparator( sortingType ) );
+        for( PlayingCardView playingCardView : playingCardViews )
+        {
+            playingCardView.bringToFront();
+        }
     }
 
     public synchronized void layoutCards( String cardHolderID )
@@ -367,12 +367,14 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         for( int i = 0; i < childCount; i++ )
         {
             final PlayingCardView playingCardView = (PlayingCardView) this.getChildAt( mDragHelperCallback.getOrderedChildIndex( i ) );
+            playingCardView.stop();
+            playingCardView.flip( true, false );
             playingCardView.setX( x );
             playingCardView.setY( y );
-            x += 200;
+            x += (int) ( playingCardView.getWidth() * 0.30f );
             if( x + playingCardView.getWidth() > this.getWidth() )
             {
-                x = 0;
+                x = 50;
                 y += playingCardView.getHeight() + 10;
             }
         }

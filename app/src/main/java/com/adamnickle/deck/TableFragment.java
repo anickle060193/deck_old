@@ -61,7 +61,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 public PlayingCardView createPlayingCardView( String cardHolderID, Card card )
                 {
                     PlayingCardView playingCardView = new PlayingCardView( getContext(), cardHolderID, card, 0.5f );
-                    playingCardView.flip();
+                    playingCardView.flip( true, false );
                     return playingCardView;
                 }
 

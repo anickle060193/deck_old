@@ -5,8 +5,8 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
-import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,18 +27,17 @@ import java.util.Iterator;
 
 public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 {
-    private static final long CARD_RECEIVE_VIBRATION = 20L;
+    private static final long CARD_RECEIVE_VIBRATION = 40L;
 
     public enum Side
     {
         LEFT, TOP, RIGHT, BOTTOM, NONE
     }
 
-    private final ViewDragHelper mDragHelper;
     private final GestureDetector mDetector;
     private final Vibrator mVibrator;
     private GameUiListener mGameUiListener;
-    private final DragHelperCallback mDragHelperCallback;
+    private SparseArray< PlayingCardView > mMoving;
 
     protected final HashMap< String, ArrayList< PlayingCardView > > mCardViewsByOwner;
 
@@ -56,10 +55,9 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     {
         super( context, attrs, defStyle );
 
-        mDragHelperCallback = new DragHelperCallback();
-        mDragHelper = ViewDragHelper.create( this, mDragHelperCallback );
         mDetector = new GestureDetector( getContext(), new CardDisplayGestureListener() );
 
+        mMoving = new SparseArray< PlayingCardView >();
         mCardViewsByOwner = new HashMap< String, ArrayList< PlayingCardView > >();
         mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
     }
@@ -116,23 +114,9 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     }
 
     @Override
-    public boolean onInterceptTouchEvent( MotionEvent event )
+    public void setBackgroundResource( int resourceID )
     {
-        return true;
-    }
-
-    @Override
-    public boolean onTouchEvent( MotionEvent event )
-    {
-        mDragHelper.processTouchEvent( event );
-        mDetector.onTouchEvent( event );
-        return true;
-    }
-
-    @Override
-    public void setBackgroundResource( int resid )
-    {
-        super.setBackgroundResource( resid );
+        super.setBackgroundResource( resourceID );
         final Drawable background = this.getBackground();
         if( background instanceof BitmapDrawable )
         {
@@ -172,51 +156,31 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
     }
 
-    public class DragHelperCallback extends ViewDragHelper.Callback
+    @Override
+    public boolean onInterceptTouchEvent( MotionEvent event )
     {
-        @Override
-        public boolean tryCaptureView( View view, int i )
-        {
-            return view instanceof PlayingCardView;
-        }
+        return true;
+    }
 
-        @Override
-        public void onViewCaptured( View capturedChild, int activePointerId )
-        {
-            super.onViewCaptured( capturedChild, activePointerId );
-        }
+    @Override
+    public boolean onTouchEvent( MotionEvent event )
+    {
+        mDetector.onTouchEvent( event );
+        return true;
+    }
 
-        @Override
-        public int clampViewPositionHorizontal( View child, int left, int dx )
+    public PlayingCardView findFirstCardUnder( float x, float y )
+    {
+        final int childCount = getChildCount();
+        for( int i = childCount - 1; i >= 0; i-- )
         {
-            final float minLeft = -child.getWidth() / 2.0f;
-            final float maxLeft = CardDisplayLayout.this.getWidth() - child.getWidth() / 2.0f;
-            return (int) Math.max( minLeft, Math.min( left, maxLeft ) );
+            final PlayingCardView child = (PlayingCardView) getChildAt( i );
+            if( child.contains( x, y ) )
+            {
+                return child;
+            }
         }
-
-        @Override
-        public int clampViewPositionVertical( View child, int top, int dy )
-        {
-            final float minTop = -child.getHeight() / 2.0f;
-            final float maxTop = CardDisplayLayout.this.getHeight() - child.getHeight() / 2.0f;
-            return (int) Math.max( minTop, Math.min( top, maxTop ) );
-        }
-
-        @Override
-        public void onViewPositionChanged( View changedView, int left, int top, int dx, int dy )
-        {
-            super.onViewPositionChanged( changedView, left, top, dx, dy );
-
-            LayoutParams lp = (LayoutParams) changedView.getLayoutParams();
-            lp.Left = left;
-            lp.Top = top;
-        }
-
-        @Override
-        public void onViewReleased( View releasedChild, float xVelocity, float yVelocity )
-        {
-            ( (PlayingCardView) releasedChild ).fling( xVelocity, yVelocity );
-        }
+        return null;
     }
 
     public class CardDisplayGestureListener extends GestureDetector.SimpleOnGestureListener
@@ -224,10 +188,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onDown( MotionEvent event )
         {
-            final View view = mDragHelper.findTopChildUnder( (int) event.getX(), (int) event.getY() );
-            if( view != null )
+            final int pointerIndex = event.getActionIndex();
+            final PlayingCardView playingCardView = findFirstCardUnder( event.getX( pointerIndex ), event.getY( pointerIndex ) );
+            if( playingCardView != null )
             {
-                CardDisplayLayout.this.onCardDown( event, (PlayingCardView) view );
+                CardDisplayLayout.this.onCardDown( event, playingCardView );
             }
             else
             {
@@ -239,10 +204,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onSingleTapUp( MotionEvent event )
         {
-            final View view = mDragHelper.findTopChildUnder( (int) event.getX(), (int) event.getY() );
-            if( view != null )
+            final int pointerIndex = event.getActionIndex();
+            final PlayingCardView playingCardView = findFirstCardUnder( event.getX( pointerIndex ), event.getY( pointerIndex ) );
+            if( playingCardView != null )
             {
-                CardDisplayLayout.this.onCardSingleTap( event, (PlayingCardView) view );
+                CardDisplayLayout.this.onCardSingleTap( event, playingCardView );
             }
             else
             {
@@ -254,10 +220,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onDoubleTap( MotionEvent event )
         {
-            final View view = mDragHelper.findTopChildUnder( (int) event.getX(), (int) event.getY() );
-            if( view != null )
+            final int pointerIndex = event.getActionIndex();
+            final PlayingCardView playingCardView = findFirstCardUnder( event.getX( pointerIndex ), event.getY( pointerIndex ) );
+            if( playingCardView != null )
             {
-                CardDisplayLayout.this.onCardDoubleTap( event, (PlayingCardView) view );
+                CardDisplayLayout.this.onCardDoubleTap( event, playingCardView );
             }
             else
             {
@@ -269,10 +236,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onScroll( MotionEvent event, MotionEvent event2, float distanceX, float distanceY )
         {
-            final View view = mDragHelper.findTopChildUnder( (int) event.getX(), (int) event.getY() );
-            if( view != null )
+            final int pointerIndex = event.getActionIndex();
+            final PlayingCardView playingCardView = findFirstCardUnder( event2.getX( pointerIndex ), event2.getY( pointerIndex ) );
+            if( playingCardView != null )
             {
-                CardDisplayLayout.this.onCardScroll( event, event2, distanceX, distanceY, (PlayingCardView) view );
+                CardDisplayLayout.this.onCardScroll( event, event2, distanceX, distanceY, playingCardView );
             }
             else
             {
@@ -284,10 +252,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
         {
-            final View view = mDragHelper.findTopChildUnder( (int) event2.getX(), (int) event2.getY() );
-            if( view != null )
+            final int pointerIndex = event.getActionIndex();
+            final PlayingCardView playingCardView = findFirstCardUnder( event2.getX( pointerIndex ), event2.getY( pointerIndex ) );
+            if( playingCardView != null )
             {
-                CardDisplayLayout.this.onCardFling( event, event2, velocityX, velocityY, (PlayingCardView) view );
+                CardDisplayLayout.this.onCardFling( event, event2, velocityX, velocityY, playingCardView );
             }
             else
             {
@@ -325,6 +294,8 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void onCardScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY, PlayingCardView playingCardView )
     {
+        playingCardView.setX( playingCardView.getX() - distanceX );
+        playingCardView.setY( playingCardView.getY() - distanceY );
     }
 
     public void onBackgroundScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY )
@@ -333,6 +304,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void onCardFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY, PlayingCardView playingCardView )
     {
+        playingCardView.fling( velocityX, velocityY );
     }
 
     public void onBackgroundFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
@@ -366,7 +338,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         final int childCount = getChildCount();
         for( int i = 0; i < childCount; i++ )
         {
-            final PlayingCardView playingCardView = (PlayingCardView) this.getChildAt( mDragHelperCallback.getOrderedChildIndex( i ) );
+            final PlayingCardView playingCardView = (PlayingCardView) this.getChildAt( i );
             playingCardView.stop();
             playingCardView.flip( true, false );
             playingCardView.setX( x );

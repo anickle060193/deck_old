@@ -66,18 +66,6 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 }
 
                 @Override
-                public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
-                {
-
-                }
-
-                @Override
-                public void onBackgroundDoubleTap( MotionEvent event )
-                {
-
-                }
-
-                @Override
                 public void onBackgroundFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
                 {
                     if( velocityY < -1.0f * FLING_VELOCITY && Math.abs( velocityX ) < FLING_VELOCITY )
@@ -85,6 +73,22 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                         mSlidingTableLayout.collapseFrame();
                     }
                 }
+
+                @Override
+                public void onCardScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY, PlayingCardView playingCardView )
+                {
+                    super.onCardScroll( event1, event2, distanceX, distanceY, playingCardView );
+                    if( playingCardView.getTop() > ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
+                    {
+                        TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard() );
+                    }
+                }
+
+                @Override
+                public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView ) { }
+
+                @Override
+                public void onBackgroundDoubleTap( MotionEvent event ) { }
             };
             mTableView.setGameUiListener( this );
             if( mTable != null )

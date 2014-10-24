@@ -392,6 +392,11 @@ public class PlayingCardView extends ImageView
         this.setY( newY );
     }
 
+    public boolean contains( float x, float y )
+    {
+        return this.getLeft() <= x && x <= this.getRight() && this.getTop() <= y && y <= this.getBottom();
+    }
+
     public static class PlayingCardViewComparator implements Comparator< PlayingCardView >
     {
         private final Card.CardComparator mCardComparator;

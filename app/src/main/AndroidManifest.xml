@@ -40,10 +40,6 @@
             android:label="@string/device_list_activity_title" >
         </activity>
         <activity
-            android:name=".GameCreatorActivity"
-            android:label="@string/game_creator_activity_title" >
-        </activity>
-        <activity
             android:name=".GameActivity"
             android:hardwareAccelerated="true"
             android:label="@string/game_activity_title">

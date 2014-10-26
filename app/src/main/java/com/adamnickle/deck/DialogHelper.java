@@ -20,8 +20,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class DialogHelper
 {
-    public static final int COLOR_PICKER_VIEW_ID = R.id.colorPicker;
-
     public static abstract class OnEditTextDialogClickListener
     {
         public void onPositiveButtonClick( DialogInterface dialogInterface, String text ) { }

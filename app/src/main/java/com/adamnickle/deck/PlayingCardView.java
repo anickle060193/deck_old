@@ -29,7 +29,7 @@ public class PlayingCardView extends ImageView
     private final Card mCard;
     private String mOwnerID;
     private boolean mFaceUp;
-    private boolean mFirstLayout;
+    private boolean mResetCard;
     private float mVelocityX;
     private float mVelocityY;
     private long mLastUpdate;
@@ -43,7 +43,7 @@ public class PlayingCardView extends ImageView
         mCard = card;
         mOwnerID = ownerID;
         mFaceUp = false;
-        mFirstLayout = true;
+        mResetCard = true;
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
         mScale = scale;
@@ -90,6 +90,13 @@ public class PlayingCardView extends ImageView
                 }
             }
         }.start();
+    }
+
+    public PlayingCardView( Context context, String ownerID, Card card, float x, float y )
+    {
+        this( context, ownerID, card );
+        this.setX( x );
+        this.setY( y );
     }
 
     public PlayingCardView( Context context, String ownerID, Card card )
@@ -212,6 +219,7 @@ public class PlayingCardView extends ImageView
     @Override
     public void setX( float x )
     {
+        mResetCard = false;
         this.offsetLeftAndRight( (int) ( x - this.getLeft() ) );
         CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) this.getLayoutParams();
         lp.Left = (int) x;
@@ -220,6 +228,7 @@ public class PlayingCardView extends ImageView
     @Override
     public void setY( float y )
     {
+        mResetCard = false;
         this.offsetTopAndBottom( (int) ( y - this.getTop() ) );
         CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) this.getLayoutParams();
         lp.Top = (int) y;
@@ -230,9 +239,9 @@ public class PlayingCardView extends ImageView
     {
         super.onLayout( changed, left, top, right, bottom );
 
-        if( mFirstLayout )
+        if( mResetCard )
         {
-            mFirstLayout = false;
+            mResetCard = false;
             reset();
         }
     }

@@ -1,7 +1,6 @@
 package com.adamnickle.deck;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -9,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 import ru.noties.debug.Debug;
 
 
-public class DeviceListActivity extends Activity
+public class DeviceListActivity extends ActionBarActivity
 {
     private DeviceListFragment mDeviceListFragment;
 
@@ -39,10 +40,10 @@ public class DeviceListActivity extends Activity
         }
         else
         {
-            mDeviceListFragment = (DeviceListFragment) getFragmentManager().findFragmentByTag( DeviceListFragment.class.getName() );
+            mDeviceListFragment = (DeviceListFragment) getSupportFragmentManager().findFragmentByTag( DeviceListFragment.class.getName() );
         }
 
-        getFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace( android.R.id.content, mDeviceListFragment, DeviceListFragment.class.getName() )
                 .commit();

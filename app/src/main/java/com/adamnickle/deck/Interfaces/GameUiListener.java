@@ -5,6 +5,6 @@ import com.adamnickle.deck.Game.Card;
 
 public interface GameUiListener
 {
-    public boolean onAttemptSendCard( String senderID, Card card );
-    public boolean canSendCard( String senderID, Card card );
+    public boolean onAttemptSendCard( String ownerID, Card card );
+    public boolean canSendCard( String ownerID, Card card );
 }

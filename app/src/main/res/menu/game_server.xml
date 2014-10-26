@@ -1,35 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
         android:id="@+id/actionSaveGame"
         android:title="@string/actionSaveGameText"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/actionOpenGame"
         android:title="@string/actionOpenGameText"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/actionClearPlayerHands"
         android:title="@string/actionClearPlayerHandsText"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/shuffleCards"
         android:title="@string/actionShuffleCardsText"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/actionDealCards"
         android:title="@string/actionDealCardsText"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/actionDealSingleCard"
         android:title="@string/actionDealSingleCardText"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
 </menu>

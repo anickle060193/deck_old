@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
@@ -16,7 +17,7 @@ import it.gmariotti.changelibs.library.view.ChangeLogListView;
 import ru.noties.debug.Debug;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends ActionBarActivity
 {
     private static final String CHANGE_LOG_SHOWN_VERSION = "change_log_shown";
 

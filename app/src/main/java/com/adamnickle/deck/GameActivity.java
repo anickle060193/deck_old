@@ -2,14 +2,14 @@ package com.adamnickle.deck;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -23,7 +23,7 @@ import java.security.InvalidParameterException;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 
 
-public class GameActivity extends Activity
+public class GameActivity extends ActionBarActivity
 {
     public final static int REQUEST_START_GAME = 1;
 
@@ -52,7 +52,7 @@ public class GameActivity extends Activity
         mTableView = (SlidingFrameLayout) findViewById( R.id.table );
         mDrawerLayout = (DrawerLayout) findViewById( R.id.drawerLayout );
         mDrawerLayout.setScrimColor( Color.TRANSPARENT );
-        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawerOpen, R.string.drawerClosed )
+        mDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle( this, mDrawerLayout, R.string.drawerOpen, R.string.drawerClosed )
         {
             @Override
             public void onDrawerSlide( View drawerView, float slideOffset )
@@ -113,7 +113,7 @@ public class GameActivity extends Activity
 
             mConnectionFragment.setConnectionType( connectionType );
 
-            getFragmentManager()
+            getSupportFragmentManager()
                     .beginTransaction()
                     .add( mConnectionFragment, ConnectionFragment.class.getName() )
                     .commit();
@@ -145,7 +145,7 @@ public class GameActivity extends Activity
 
             mDrawingFragment = new ScratchPadFragment();
 
-            getFragmentManager()
+            getSupportFragmentManager()
                     .beginTransaction()
                     .replace( R.id.table, mTableFragment, TableFragment.class.getName() )
                     .replace( R.id.game, mGameFragment, GameFragment.class.getName() )
@@ -154,7 +154,7 @@ public class GameActivity extends Activity
         }
         else
         {
-            final FragmentManager fragmentManager = getFragmentManager();
+            final android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
             mTableFragment = (TableFragment) fragmentManager.findFragmentByTag( TableFragment.class.getName() );
             mGameFragment = (GameFragment) fragmentManager.findFragmentByTag( GameFragment.class.getName() );
             mDrawingFragment = (ScratchPadFragment) fragmentManager.findFragmentByTag( ScratchPadFragment.class.getName() );

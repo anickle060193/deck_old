@@ -6,4 +6,6 @@
     <dimen name="default_stroke_size">10dp</dimen>
     <dimen name="max_stroke_size">100dp</dimen>
     <dimen name="min_stroke_size">1dp</dimen>
+
+    <dimen name="table_padding">10dp</dimen>
 </resources>

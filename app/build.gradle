@@ -18,13 +18,13 @@ repositories {
 
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
         applicationId "com.adamnickle.deck"
         minSdkVersion 11
-        targetSdkVersion 20
+        targetSdkVersion 21
         versionCode 7
         versionName "Beta 4.0"
     }
@@ -38,7 +38,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:20.+'
+    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'com.crashlytics.android:crashlytics:1.+'
     compile('de.keyboardsurfer.android.widget:crouton:1.8.4@aar') {
         exclude group: 'com.google.android', module: 'support-v4'

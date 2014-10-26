@@ -3,11 +3,11 @@ package com.adamnickle.deck;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -426,7 +426,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
      * GameUiListener Methods
      *******************************************************************/
     @Override
-    public boolean onAttemptSendCard( final String senderID, final Card card )
+    public boolean onAttemptSendCard( final String ownerID, final Card card )
     {
         if( this.canSendCard( mLocalPlayer.getID(), card ) )
         {
@@ -439,7 +439,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     final CardHolder player = players[ i ];
                     if( player != null )
                     {
-                        mGameConnection.sendCard( senderID, player.getID(), card, senderID );
+                        mGameConnection.sendCard( ownerID, player.getID(), card, ownerID );
                     }
                     else
                     {
@@ -462,9 +462,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
-    public boolean canSendCard( String senderID, Card card )
+    public boolean canSendCard( String ownerID, Card card )
     {
-        CardHolder player = mCardHolders.get( senderID );
+        CardHolder player = mCardHolders.get( ownerID );
         return mCardHolders.size() > 1 && player != null && player.hasCard( card );
     }
 

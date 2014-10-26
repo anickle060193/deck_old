@@ -5,7 +5,6 @@ import android.content.Context;
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
-import com.adamnickle.deck.TableFragment;
 
 import java.io.File;
 import java.util.HashMap;
@@ -149,13 +148,13 @@ public class ServerGameConnection extends GameConnection
         {
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
         }
-        else if( receiverID.equals( TableFragment.TABLE_ID ) )
+        else if( !mConnectionFragment.isPlayerID( receiverID ) )
         {
             super.onMessageHandle( listener, originalSenderID, receiverID, message );
 
             for( CardHolder cardHolder : mPlayers.values() )
             {
-                if( !cardHolder.getID().equals( TableFragment.TABLE_ID ) )
+                if( mConnectionFragment.isPlayerID( cardHolder.getID() ) )
                 {
                     this.sendMessageToDevice( message, originalSenderID, cardHolder.getID() );
                 }
@@ -172,7 +171,7 @@ public class ServerGameConnection extends GameConnection
     @Override
     public synchronized void onDeviceConnect( String deviceID, String deviceName )
     {
-        if( !deviceID.equals( TableFragment.TABLE_ID ) && !deviceID.equals( getLocalPlayerID() ) )
+        if( mConnectionFragment.isPlayerID( deviceID ) && !deviceID.equals( getLocalPlayerID() ) )
         {
             final CardHolder localPlayer = mPlayers.get( getLocalPlayerID() );
             this.sendCardHolderName( MOCK_SERVER_ADDRESS, deviceID, localPlayer.getName() );
@@ -271,7 +270,7 @@ public class ServerGameConnection extends GameConnection
     @Override
     public void sendMessageToDevice( GameMessage message, String senderID, String receiverID )
     {
-        if( receiverID.equals( getLocalPlayerID() ) || receiverID.equals( MOCK_SERVER_ADDRESS ) || receiverID.equals( TableFragment.TABLE_ID ) )
+        if( receiverID.equals( getLocalPlayerID() ) || receiverID.equals( MOCK_SERVER_ADDRESS ) || !mConnectionFragment.isPlayerID( receiverID ) )
         {
             final GameConnectionListener listener = this.findAppropriateListener( message );
             this.onMessageHandle( listener, senderID, receiverID, message );

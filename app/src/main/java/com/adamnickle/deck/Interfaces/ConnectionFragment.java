@@ -1,7 +1,7 @@
 package com.adamnickle.deck.Interfaces;
 
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 public abstract class ConnectionFragment extends Fragment
 {
@@ -38,4 +38,5 @@ public abstract class ConnectionFragment extends Fragment
     public abstract void restartConnection();
     public abstract void finishConnecting();
     public abstract void stopConnection();
+    public abstract boolean isPlayerID( String ID );
 }

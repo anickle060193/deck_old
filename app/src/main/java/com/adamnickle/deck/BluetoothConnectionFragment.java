@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import de.keyboardsurfer.android.widget.crouton.Style;
 import ru.noties.debug.Debug;
@@ -38,7 +39,8 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
     private static final int DISCOVERABLE_DURATION = 300;
     public static final String EXTRA_DEVICE_ADDRESS = "device_address";
-    public static final String EXTRA_NOTIFICATION = "notification";
+
+    private static final Pattern BLUETOOTH_ADDRESS = Pattern.compile( "\\w\\w:\\w\\w:\\w\\w:\\w\\w:\\w\\w:\\w\\w" );
 
     private final BluetoothAdapter mBluetoothAdapter;
     private ConnectionListener mListener;
@@ -449,6 +451,12 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         }
 
         setState( State.NONE );
+    }
+
+    @Override
+    public boolean isPlayerID( String ID )
+    {
+        return BLUETOOTH_ADDRESS.matcher( ID ).matches();
     }
 
     @Override

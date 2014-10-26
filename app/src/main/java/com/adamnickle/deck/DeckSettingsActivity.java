@@ -1,18 +1,18 @@
 package com.adamnickle.deck;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.adamnickle.deck.Game.DeckSettings;
 
-public class DeckSettingsActivity extends Activity
+public class DeckSettingsActivity extends ActionBarActivity
 {
     @Override
     protected void onCreate( Bundle savedInstanceState )

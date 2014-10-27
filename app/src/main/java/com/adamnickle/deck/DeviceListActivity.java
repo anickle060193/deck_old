@@ -33,6 +33,7 @@ public class DeviceListActivity extends ActionBarActivity
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setContentView( R.layout.content );
 
         if( savedInstanceState == null )
         {
@@ -45,7 +46,7 @@ public class DeviceListActivity extends ActionBarActivity
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace( android.R.id.content, mDeviceListFragment, DeviceListFragment.class.getName() )
+                .replace( R.id.content, mDeviceListFragment, DeviceListFragment.class.getName() )
                 .commit();
     }
 
@@ -66,14 +67,20 @@ public class DeviceListActivity extends ActionBarActivity
             super.onCreate( savedInstanceState );
             setRetainInstance( true );
 
-            getActivity().setResult( Activity.RESULT_CANCELED );
-
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             if( !mBluetoothAdapter.isEnabled() )
             {
                 Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE );
                 startActivityForResult( intent, REQUEST_BLUETOOTH_ENABLE );
             }
+        }
+
+        @Override
+        public void onAttach( Activity activity )
+        {
+            super.onAttach( activity );
+
+            activity.setResult( Activity.RESULT_CANCELED );
         }
 
         @Override

@@ -18,9 +18,10 @@ public class DeckSettingsActivity extends ActionBarActivity
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setContentView( R.layout.content );
 
         getFragmentManager().beginTransaction()
-                .replace( android.R.id.content, new DeckPreferenceFragment() )
+                .replace( R.id.content, new DeckPreferenceFragment() )
                 .commit();
     }
 

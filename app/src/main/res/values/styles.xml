@@ -4,6 +4,17 @@
 
         <item name="colorPrimary">#333333</item>
         <item name="colorAccent">@color/ModerateCyan</item>
+        <item name="colorControlNormal">@color/ModerateCyan</item>
+        <item name="colorControlActivated">@color/ModerateCyan</item>
+        <item name="colorControlHighlight">@color/ModerateCyan</item>
+        <item name="colorSwitchThumbNormal">@color/ModerateCyan</item>
+        <!--
+        <item name="colorAccent">#DC3522</item>
+        <item name="colorControlNormal">#DC3522</item>
+        <item name="colorControlActivated">#DC3522</item>
+        <item name="colorControlHighlight">#DC3522</item>
+        <item name="colorSwitchThumbNormal">#DC3522</item>
+        -->
 
     </style>
 

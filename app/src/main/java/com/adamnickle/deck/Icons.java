@@ -13,6 +13,8 @@ public final class Icons
     private static IconDrawable GAME_SAVE_DELETE;
     private static IconDrawable SCRATCH_PAD_SAVE;
     private static IconDrawable SCRATCH_PAD_LOAD;
+    private static IconDrawable DELETE_ACTION;
+    private static IconDrawable CLOSE_ACTION;
 
     public static IconDrawable getGameSaveSwipeInfo( Context context )
     {
@@ -56,5 +58,27 @@ public final class Icons
                     .actionBarSize();
         }
         return SCRATCH_PAD_LOAD;
+    }
+
+    public static IconDrawable getDeleteAction( Context context )
+    {
+        if( DELETE_ACTION == null )
+        {
+            DELETE_ACTION = new IconDrawable( context, Iconify.IconValue.fa_trash_o )
+                    .colorRes( R.color.ModerateCyan )
+                    .actionBarSize();
+        }
+        return DELETE_ACTION;
+    }
+
+    public static IconDrawable getCloseAction( Context context )
+    {
+        if( CLOSE_ACTION == null )
+        {
+            CLOSE_ACTION = new IconDrawable( context, Iconify.IconValue.fa_times )
+                    .actionBarSize()
+                    .colorRes( R.color.ModerateCyan );
+        }
+        return CLOSE_ACTION;
     }
 }

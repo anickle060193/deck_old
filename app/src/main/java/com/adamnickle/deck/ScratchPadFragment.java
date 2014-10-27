@@ -54,6 +54,10 @@ public class ScratchPadFragment extends Fragment
         {
             mScratchPadView = (ScratchPadView) inflater.inflate( R.layout.drawing_layout, container, false );
         }
+        else
+        {
+            container.removeView( mScratchPadView );
+        }
 
         mScratchPadView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
         {
@@ -115,9 +119,14 @@ public class ScratchPadFragment extends Fragment
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
         super.onCreateOptionsMenu( menu, inflater );
-        inflater.inflate( R.menu.scratch_pad, menu );
-        menu.findItem( R.id.actionSaveScratchPad ).setIcon( Icons.getScratchPadSave( getActivity() ) );
-        menu.findItem( R.id.actionLoadScratchPad ).setIcon( Icons.getScratchPadLoad( getActivity() ) );
+        if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+        {
+            inflater.inflate( R.menu.scratch_pad, menu );
+            menu.findItem( R.id.actionSaveScratchPad ).setIcon( Icons.getScratchPadSave( getActivity() ) );
+            menu.findItem( R.id.actionLoadScratchPad ).setIcon( Icons.getScratchPadLoad( getActivity() ) );
+            menu.findItem( R.id.actionClearScratchPad ).setIcon( Icons.getDeleteAction( getActivity() ) );
+            menu.findItem( R.id.actionCloseScratchPad ).setIcon( Icons.getCloseAction( getActivity() ) );
+        }
     }
 
     @Override
@@ -125,10 +134,13 @@ public class ScratchPadFragment extends Fragment
     {
         super.onPrepareOptionsMenu( menu );
 
-        final boolean isEraser = mScratchPadView.isEraser();
-        menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
-        menu.findItem( R.id.actionPen ).setVisible( isEraser );
-        menu.findItem( R.id.actionSetPaintColor ).setVisible( !isEraser );
+        if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+        {
+            final boolean isEraser = mScratchPadView.isEraser();
+            menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
+            menu.findItem( R.id.actionPen ).setVisible( isEraser );
+            menu.findItem( R.id.actionSetPaintColor ).setVisible( !isEraser );
+        }
     }
 
     @Override

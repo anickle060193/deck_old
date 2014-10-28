@@ -1,7 +1,6 @@
 package com.adamnickle.deck;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -51,15 +50,9 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
-    }
-
-    @Override
-    public void onAttach( Activity activity )
-    {
-        super.onAttach( activity );
 
         FLING_VELOCITY *= getResources().getDisplayMetrics().density;
-        mSlidingTableLayout = (SlidingFrameLayout) activity.findViewById( R.id.table );
+        mSlidingTableLayout = (SlidingFrameLayout) getActivity().findViewById( R.id.table );
     }
 
     @Override
@@ -150,7 +143,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         }
         else
         {
-            container.removeView( mTableView );
+            ( (ViewGroup) mTableView.getParent() ).removeView( mTableView );
         }
 
         return mTableView;

@@ -65,14 +65,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
         setHasOptionsMenu( true );
+
+        mSlidingTableLayout = (SlidingFrameLayout) getActivity().findViewById( R.id.table );
     }
 
     @Override
     public void onAttach( Activity activity )
     {
         super.onAttach( activity );
-
-        mSlidingTableLayout = (SlidingFrameLayout) activity.findViewById( R.id.table );
     }
 
     @Override
@@ -151,7 +151,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         }
         else
         {
-            container.removeView( mCardDisplay );
+            ( (ViewGroup) mCardDisplay.getParent() ).removeView( mCardDisplay );
 
             final int newOrientation = getResources().getConfiguration().orientation;
             if( newOrientation != mLastOrientation )

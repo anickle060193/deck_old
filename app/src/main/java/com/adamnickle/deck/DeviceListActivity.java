@@ -38,16 +38,16 @@ public class DeviceListActivity extends ActionBarActivity
         if( savedInstanceState == null )
         {
             mDeviceListFragment = new DeviceListFragment();
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add( R.id.content, mDeviceListFragment, DeviceListFragment.class.getName() )
+                    .commit();
         }
         else
         {
             mDeviceListFragment = (DeviceListFragment) getSupportFragmentManager().findFragmentByTag( DeviceListFragment.class.getName() );
         }
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace( R.id.content, mDeviceListFragment, DeviceListFragment.class.getName() )
-                .commit();
     }
 
     public static class DeviceListFragment extends Fragment
@@ -84,19 +84,6 @@ public class DeviceListActivity extends ActionBarActivity
         }
 
         @Override
-        public void onResume()
-        {
-            super.onResume();
-
-            IntentFilter filter = new IntentFilter();
-            filter.addAction( BluetoothDevice.ACTION_FOUND );
-            filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
-            filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
-            getActivity().registerReceiver( mReceiver, filter );
-            mRegisteredReceiver = true;
-        }
-
-        @Override
         public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
         {
             if( mDevicesView == null )
@@ -128,10 +115,23 @@ public class DeviceListActivity extends ActionBarActivity
             }
             else
             {
-                container.removeView( mDevicesView );
+                ( (ViewGroup) mDevicesView.getParent() ).removeView( mDevicesView );
             }
 
             return mDevicesView;
+        }
+
+        @Override
+        public void onResume()
+        {
+            super.onResume();
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction( BluetoothDevice.ACTION_FOUND );
+            filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
+            filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
+            getActivity().registerReceiver( mReceiver, filter );
+            mRegisteredReceiver = true;
         }
 
         @Override

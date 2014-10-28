@@ -56,7 +56,7 @@ public class ScratchPadFragment extends Fragment
         }
         else
         {
-            container.removeView( mScratchPadView );
+            ( (ViewGroup) mScratchPadView.getParent() ).removeView( mScratchPadView );
         }
 
         mScratchPadView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()

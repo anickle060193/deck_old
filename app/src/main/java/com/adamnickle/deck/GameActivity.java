@@ -27,11 +27,7 @@ public class GameActivity extends ActionBarActivity
 {
     public final static int REQUEST_START_GAME = 1;
 
-    public final static int RESULT_BLUETOOTH_DISABLED = Activity.RESULT_FIRST_USER;
-    public final static int RESULT_DISCONNECTED_FROM_SERVER = RESULT_BLUETOOTH_DISABLED + 1;
-    public final static int RESULT_BLUETOOTH_NOT_ENABLED = RESULT_DISCONNECTED_FROM_SERVER + 1;
-    public final static int RESULT_BLUETOOTH_NOT_SUPPORTED = RESULT_BLUETOOTH_NOT_ENABLED + 1;
-    public final static int RESULT_NOT_CONNECTED_TO_DEVICE = RESULT_BLUETOOTH_NOT_SUPPORTED + 1;
+    public final static int RESULT_DISCONNECTED_FROM_SERVER = Activity.RESULT_FIRST_USER;
 
     private ConnectionFragment mConnectionFragment;
     private GameConnection mGameConnection;
@@ -47,7 +43,6 @@ public class GameActivity extends ActionBarActivity
     {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_game );
-        setResult( Activity.RESULT_CANCELED );
 
         mTableView = (SlidingFrameLayout) findViewById( R.id.table );
         mDrawerLayout = (DrawerLayout) findViewById( R.id.drawerLayout );
@@ -232,7 +227,7 @@ public class GameActivity extends ActionBarActivity
                         @Override
                         public void onClick( DialogInterface dialogInterface, int i )
                         {
-                            setResult( Activity.RESULT_CANCELED );
+                            setResult( Activity.RESULT_CANCELED, new Intent( GameActivity.class.getName() ) );
                             GameActivity.this.finish();
                         }
                     } )
@@ -241,8 +236,7 @@ public class GameActivity extends ActionBarActivity
         }
         else
         {
-
-            setResult( Activity.RESULT_CANCELED );
+            setResult( Activity.RESULT_CANCELED, new Intent( GameActivity.class.getName() ) );
             GameActivity.this.finish();
         }
     }

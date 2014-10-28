@@ -20,7 +20,6 @@ import ru.noties.debug.Debug;
 
 public class MainActivity extends ActionBarActivity
 {
-
     private Crouton mCrouton;
 
     @Override
@@ -83,36 +82,47 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onActivityResult( int requestCode, int resultCode, Intent data )
     {
-        switch( requestCode )
+        if( data != null )
         {
-            case GameActivity.REQUEST_START_GAME:
+            final String action = data.getAction();
+            if( GameActivity.class.getName().equals( action ) )
+            {
                 switch( resultCode )
                 {
-                    case GameActivity.RESULT_BLUETOOTH_DISABLED:
-                        mCrouton = Crouton.makeText( this, "Bluetooth was disabled", Style.ALERT );
-                        break;
-
                     case GameActivity.RESULT_DISCONNECTED_FROM_SERVER:
                         mCrouton = Crouton.makeText( this, "Disconnected from server", Style.ALERT );
-                        break;
-
-                    case GameActivity.RESULT_BLUETOOTH_NOT_ENABLED:
-                        mCrouton = Crouton.makeText( this, "Bluetooth was not enabled. Bluetooth must be enabled to use application.", Style.ALERT );
-                        break;
-
-                    case GameActivity.RESULT_BLUETOOTH_NOT_SUPPORTED:
-                        mCrouton = Crouton.makeText( this, "Bluetooth not supported by device. Bluetooth must be enabled to use application.", Style.ALERT );
-                        break;
-
-                    case GameActivity.RESULT_NOT_CONNECTED_TO_DEVICE:
-                        mCrouton = Crouton.makeText( this, "No server device selected.", Style.INFO );
                         break;
 
                     case Activity.RESULT_CANCELED:
                         mCrouton = Crouton.makeText( this, "Game Closed", Style.INFO );
                         break;
                 }
-                break;
+            }
+            else if( ConnectionFragment.class.getName().equals( action ) )
+            {
+                switch( resultCode )
+                {
+                    case ConnectionFragment.RESULT_BLUETOOTH_NOT_SUPPORTED:
+                        mCrouton = Crouton.makeText( this, "Bluetooth not supported by device. Bluetooth must be enabled to use application.", Style.ALERT );
+                        break;
+
+                    case ConnectionFragment.RESULT_BLUETOOTH_NOT_ENABLED:
+                        mCrouton = Crouton.makeText( this, "Bluetooth was not enabled. Bluetooth must be enabled to use application.", Style.ALERT );
+                        break;
+
+                    case ConnectionFragment.RESULT_BLUETOOTH_DISABLED:
+                        mCrouton = Crouton.makeText( this, "Bluetooth was disabled", Style.ALERT );
+                        break;
+
+                    case ConnectionFragment.RESULT_NOT_CONNECTED_TO_DEVICE:
+                        mCrouton = Crouton.makeText( this, "No server device selected.", Style.INFO );
+                        break;
+
+                    case ConnectionFragment.RESULT_SERVER_CLOSED:
+                        mCrouton = Crouton.makeText( this, "Game Closed", Style.INFO );
+                        break;
+                }
+            }
         }
     }
 

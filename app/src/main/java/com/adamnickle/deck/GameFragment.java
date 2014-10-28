@@ -4,6 +4,7 @@ package com.adamnickle.deck;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -555,7 +556,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         Activity activity = getActivity();
         if( activity != null )
         {
-            activity.setResult( GameActivity.RESULT_DISCONNECTED_FROM_SERVER );
+            activity.setResult( GameActivity.RESULT_DISCONNECTED_FROM_SERVER, new Intent( GameActivity.class.getName() ) );
             activity.finish();
         }
     }

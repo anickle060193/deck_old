@@ -18,10 +18,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.dd.processbutton.iml.ActionProcessButton;
 
 import java.util.ArrayList;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import ru.noties.debug.Debug;
 
 
@@ -47,6 +50,17 @@ public class DeviceListActivity extends ActionBarActivity
         else
         {
             mDeviceListFragment = (DeviceListFragment) getSupportFragmentManager().findFragmentByTag( DeviceListFragment.class.getName() );
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged( boolean hasFocus )
+    {
+        super.onWindowFocusChanged( hasFocus );
+
+        if( hasFocus && getIntent().getBooleanExtra( ConnectionFragment.EXTRA_RETRYING_FIND, false ) )
+        {
+            DialogHelper.displayNotification( this, "Could not connect to device.", Style.INFO );
         }
     }
 
@@ -147,7 +161,7 @@ public class DeviceListActivity extends ActionBarActivity
                     }
                     else
                     {
-                        getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_ENABLED );
+                        getActivity().setResult( ConnectionFragment.RESULT_BLUETOOTH_NOT_ENABLED );
                         getActivity().finish();
                     }
             }
@@ -158,10 +172,12 @@ public class DeviceListActivity extends ActionBarActivity
         {
             super.onPause();
 
-            if( mRegisteredReceiver )
+            final Activity activity = getActivity();
+            if( activity != null )
             {
-                Activity activity = getActivity();
-                if( activity != null )
+                Crouton.clearCroutonsForActivity( getActivity() );
+
+                if( mRegisteredReceiver )
                 {
                     activity.unregisterReceiver( mReceiver );
                 }
@@ -235,7 +251,7 @@ public class DeviceListActivity extends ActionBarActivity
                     final int state = intent.getIntExtra( BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR );
                     if( state == BluetoothAdapter.STATE_OFF )
                     {
-                        getActivity().setResult( GameActivity.RESULT_BLUETOOTH_DISABLED );
+                        getActivity().setResult( ConnectionFragment.RESULT_BLUETOOTH_DISABLED );
                         getActivity().finish();
                     }
                 }

@@ -38,7 +38,6 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     private static final int REQUEST_MAKE_DISCOVERABLE = 3;
 
     private static final int DISCOVERABLE_DURATION = 300;
-    public static final String EXTRA_DEVICE_ADDRESS = "device_address";
 
     private static final Pattern BLUETOOTH_ADDRESS = Pattern.compile( "\\w\\w:\\w\\w:\\w\\w:\\w\\w:\\w\\w:\\w\\w" );
 
@@ -51,6 +50,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     private ConnectionType mConnectionType;
     private boolean mAskedToDiscoverable;
     private int mOldScanMode;
+    private boolean mRetryFindDevice;
 
     public BluetoothConnectionFragment()
     {
@@ -59,6 +59,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         this.mConnectionType = ConnectionType.NONE;
         mAskedToDiscoverable = false;
         mOldScanMode = -1;
+        mRetryFindDevice = false;
 
         mConnectedThreads = new ArrayList< ConnectedThread >();
     }
@@ -78,7 +79,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
         if( mBluetoothAdapter == null )
         {
-            activity.setResult( GameActivity.RESULT_BLUETOOTH_NOT_SUPPORTED );
+            activity.setResult( RESULT_BLUETOOTH_NOT_SUPPORTED, new Intent( ConnectionFragment.class.getName() ) );
             activity.finish();
         }
 
@@ -167,6 +168,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
             case R.id.actionCloseServer:
                 stopConnection();
+                getActivity().setResult( RESULT_SERVER_CLOSED, new Intent( ConnectionFragment.class.getName() ) );
                 getActivity().finish();
                 return true;
 
@@ -262,7 +264,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 else
                 {
                     Debug.d( "ENABLE BLUETOOTH - CANCEL" );
-                    getActivity().setResult( GameActivity.RESULT_BLUETOOTH_NOT_ENABLED );
+                    getActivity().setResult( RESULT_BLUETOOTH_NOT_ENABLED, new Intent( ConnectionFragment.class.getName() )  );
                     getActivity().finish();
                 }
                 break;
@@ -283,15 +285,27 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                 break;
 
             case REQUEST_FIND_DEVICE:
-                if( resultCode == Activity.RESULT_OK )
+                switch( resultCode )
                 {
-                    final String address = data.getStringExtra( EXTRA_DEVICE_ADDRESS );
-                    connect( mBluetoothAdapter.getRemoteDevice( address ) );
-                }
-                else
-                {
-                    getActivity().setResult( GameActivity.RESULT_NOT_CONNECTED_TO_DEVICE );
-                    getActivity().finish();
+                    case Activity.RESULT_OK:
+                        final String address = data.getStringExtra( EXTRA_DEVICE_ADDRESS );
+                        connect( mBluetoothAdapter.getRemoteDevice( address ) );
+                        break;
+
+                    case RESULT_BLUETOOTH_NOT_ENABLED:
+                        getActivity().setResult( RESULT_BLUETOOTH_NOT_ENABLED, new Intent( ConnectionFragment.class.getName() ) );
+                        getActivity().finish();
+                        break;
+
+                    case RESULT_BLUETOOTH_DISABLED:
+                        getActivity().setResult( RESULT_BLUETOOTH_DISABLED, new Intent( ConnectionFragment.class.getName() ) );
+                        getActivity().finish();
+                        break;
+
+                    default:
+                        getActivity().setResult( RESULT_NOT_CONNECTED_TO_DEVICE, new Intent( ConnectionFragment.class.getName() )  );
+                        getActivity().finish();
+                        break;
                 }
                 break;
         }
@@ -463,7 +477,9 @@ public class BluetoothConnectionFragment extends ConnectionFragment
     public void findServer()
     {
         Intent intent = new Intent( getActivity(), DeviceListActivity.class );
+        intent.putExtra( EXTRA_RETRYING_FIND, mRetryFindDevice );
         startActivityForResult( intent, REQUEST_FIND_DEVICE );
+        mRetryFindDevice = false;
     }
 
     @Override
@@ -554,17 +570,19 @@ public class BluetoothConnectionFragment extends ConnectionFragment
 
     private void connectionFailed()
     {
-        if( mListener != null )
-        {
-            mListener.onConnectionFailed();
-        }
-
         switch( getConnectionType() )
         {
             case CLIENT:
                 stopConnection();
+                mRetryFindDevice = true;
+                this.findServer();
                 break;
+
             case SERVER:
+                if( mListener != null )
+                {
+                    mListener.onConnectionFailed();
+                }
                 restartConnection();
                 break;
         }
@@ -859,7 +877,7 @@ public class BluetoothConnectionFragment extends ConnectionFragment
                     case BluetoothAdapter.STATE_OFF:
                     case BluetoothAdapter.STATE_TURNING_OFF:
                         stopConnection();
-                        getActivity().setResult( GameActivity.RESULT_BLUETOOTH_DISABLED );
+                        getActivity().setResult( RESULT_BLUETOOTH_DISABLED, new Intent( ConnectionFragment.class.getName() )  );
                         getActivity().finish();
                         break;
                 }

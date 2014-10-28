@@ -11,11 +11,4 @@
         android:singleLine="true"
         android:maxLines="1" />
 
-    <ListPreference
-        android:key="background_pref"
-        android:title="Game background"
-        android:entries="@array/backgrounds"
-        android:entryValues="@array/backgrounds"
-        android:defaultValue="White" />
-
 </PreferenceScreen>

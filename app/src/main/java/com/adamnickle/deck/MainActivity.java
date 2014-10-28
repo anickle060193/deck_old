@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 
+import com.adamnickle.deck.Game.DeckSettings;
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -19,16 +20,14 @@ import ru.noties.debug.Debug;
 
 public class MainActivity extends ActionBarActivity
 {
-    private static final String CHANGE_LOG_SHOWN_VERSION = "change_log_shown";
 
     private Crouton mCrouton;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
+        Debug.d();
         super.onCreate( savedInstanceState );
-
-        Debug.d( "+++ ON CREATE +++" );
         setContentView( R.layout.activity_main );
 
         findViewById( R.id.startGameButton ).setOnClickListener( new View.OnClickListener()
@@ -66,7 +65,7 @@ public class MainActivity extends ActionBarActivity
         } );
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
-        int lastShownVersion = sharedPreferences.getInt( CHANGE_LOG_SHOWN_VERSION, 0 );
+        int lastShownVersion = sharedPreferences.getInt( DeckSettings.CHANGE_LOG_SHOWN_VERSION, 0 );
         if( lastShownVersion != BuildConfig.VERSION_CODE )
         {
             new AlertDialog.Builder( this )
@@ -76,7 +75,7 @@ public class MainActivity extends ActionBarActivity
                     .show();
 
             sharedPreferences.edit()
-                    .putInt( CHANGE_LOG_SHOWN_VERSION, BuildConfig.VERSION_CODE )
+                    .putInt( DeckSettings.CHANGE_LOG_SHOWN_VERSION, BuildConfig.VERSION_CODE )
                     .apply();
         }
     }

@@ -81,7 +81,7 @@ public class ServerGameConnection extends GameConnection
             // Send new player to all connected remote players
             for( CardHolder player : mPlayers.values() )
             {
-                if( !player.getID().equals( getLocalPlayerID() ) )
+                if( !player.getID().equals( getLocalPlayerID() ) && mConnectionFragment.isPlayerID( player.getID() ) )
                 {
                     newPlayerMessage.setReceiverID( player.getID() );
                     this.sendMessageToDevice( newPlayerMessage, deviceID, player.getID() );

@@ -27,9 +27,13 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     public static final String TABLE_ID = "table";
     public static final String TABLE_NAME = "Table";
 
-    private static final String DRAW_PILE_ID_PREFIX = "draw_pile_";
+    public static final String DRAW_PILE_ID_PREFIX = "draw_pile_";
     private static final String DRAW_PILE_NAME_PREFIX = "Draw Pile ";
     private int DRAW_PILE_COUNT = 0;
+
+    public static final String DISCARD_PILE_ID_PREFIX = "discard_pile";
+    private static final String DISCARD_PILE_NAME_PREFIX = "Discard Pile ";
+    private int DISCARD_PILE_COUNT = 0;
 
     private static float FLING_VELOCITY = 400;
 
@@ -37,12 +41,14 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     private CardDisplayLayout mTableView;
     private CardHolder mTable;
     private final HashMap< String, CardHolder > mDrawPiles;
+    private final HashMap< String, CardHolder > mDiscardPiles;
 
     private SlidingFrameLayout mSlidingTableLayout;
 
     public TableFragment()
     {
         mDrawPiles = new HashMap< String, CardHolder >();
+        mDiscardPiles = new HashMap< String, CardHolder >();
     }
 
     @Override
@@ -235,13 +241,17 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         {
             mGameConnection.sendCardHolderName( TABLE_ID, GameConnection.MOCK_SERVER_ADDRESS, TABLE_NAME );
         }
-        DRAW_PILE_COUNT++;
-        final CardHolder drawPile = new CardHolder( DRAW_PILE_ID_PREFIX + DRAW_PILE_COUNT, DRAW_PILE_NAME_PREFIX + DRAW_PILE_COUNT );
-        drawPile.setCardHolderListener( mTableView );
-        mDrawPiles.put( drawPile.getID(), drawPile );
-        if( mGameConnection.isServer() )
+
+        for( int i = 0; i < 2; i++ )
         {
-            mGameConnection.sendCardHolderName( drawPile.getID(), GameConnection.MOCK_SERVER_ADDRESS, drawPile.getName() );
+            DRAW_PILE_COUNT++;
+            final CardHolder drawPile = new CardHolder( DRAW_PILE_ID_PREFIX + DRAW_PILE_COUNT, DRAW_PILE_NAME_PREFIX + DRAW_PILE_COUNT );
+            drawPile.setCardHolderListener( mTableView );
+            mDrawPiles.put( drawPile.getID(), drawPile );
+            if( mGameConnection.isServer() )
+            {
+                mGameConnection.sendCardHolderName( drawPile.getID(), GameConnection.MOCK_SERVER_ADDRESS, drawPile.getName() );
+            }
         }
     }
 

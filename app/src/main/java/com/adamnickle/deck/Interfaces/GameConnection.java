@@ -64,6 +64,11 @@ public abstract class GameConnection implements ConnectionListener
         return mConnectionFragment.getLocalDeviceName();
     }
 
+    public boolean isPlayerID( String ID )
+    {
+        return mConnectionFragment.isPlayerID( ID );
+    }
+
     /*******************************************************************
      * ConnectionListener Methods
      *******************************************************************/

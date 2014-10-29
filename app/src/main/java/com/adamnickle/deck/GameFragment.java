@@ -487,9 +487,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onCardHolderConnect( String ID, String name )
     {
+        if( ID.startsWith( TableFragment.DRAW_PILE_ID_PREFIX ) )
+        {
+            return;
+        }
+
         final CardHolder cardHolder = new CardHolder( ID, name );
         mCardHolders.put( ID, cardHolder );
-        if( !ID.equals( TableFragment.TABLE_ID ) )
+        if( mGameConnection.isPlayerID( ID ) )
         {
             mPlayers.add( cardHolder );
             DialogHelper.displayNotification( getActivity(), name + " joined the game.", Style.CONFIRM );

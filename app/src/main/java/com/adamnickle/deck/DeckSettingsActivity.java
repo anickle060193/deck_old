@@ -20,7 +20,8 @@ public class DeckSettingsActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.content );
 
-        getFragmentManager().beginTransaction()
+        getFragmentManager()
+                .beginTransaction()
                 .replace( R.id.content, new DeckPreferenceFragment() )
                 .commit();
     }

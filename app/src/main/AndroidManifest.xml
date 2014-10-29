@@ -26,28 +26,28 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="e1a1841ff9279cd6da2f637481db99e1ca4fa5d1" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".DeviceListActivity"
-            android:label="@string/device_list_activity_title" >
-        </activity>
+            android:label="@string/device_list_activity_title" />
+
         <activity
             android:name=".GameActivity"
             android:hardwareAccelerated="true"
-            android:label="@string/game_activity_title">
-        </activity>
-
-        <meta-data
-            android:name="com.crashlytics.ApiKey"
-            android:value="e1a1841ff9279cd6da2f637481db99e1ca4fa5d1" />
+            android:label="@string/game_activity_title" />
 
         <activity
             android:name=".DeckSettingsActivity"
@@ -57,6 +57,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.adamnickle.deck.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".GameCreatorActivity"
+            android:label="@string/game_creator_activity_title" />
+
     </application>
 
 </manifest>

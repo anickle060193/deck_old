@@ -135,6 +135,8 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 }
             };
 
+            inflater.inflate( R.layout.card_display, mCardDisplay, true );
+
             final String backgroundName = PreferenceManager
                     .getDefaultSharedPreferences( getActivity() )
                     .getString( DeckSettings.BACKGROUND, "White" );

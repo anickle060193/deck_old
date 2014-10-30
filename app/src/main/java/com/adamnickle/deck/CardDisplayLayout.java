@@ -65,12 +65,17 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     @Override
     protected void onLayout( boolean changed, int left, int top, int right, int bottom )
     {
+        super.onLayout( changed, left, top, right, bottom );
+
         final int childCount = getChildCount();
         for( int i = 0; i < childCount; i++ )
         {
             final View child = getChildAt( i );
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            child.layout( lp.Left, lp.Top, lp.Left + child.getMeasuredWidth(), lp.Top + child.getMeasuredHeight() );
+            if( child instanceof PlayingCardView )
+            {
+                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                child.layout( lp.Left, lp.Top, lp.Left + child.getMeasuredWidth(), lp.Top + child.getMeasuredHeight() );
+            }
         }
     }
 
@@ -130,9 +135,12 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         for( int i = 0; i < childCount; i++ )
         {
             final View view = getChildAt( i );
-            final float x = view.getX();
-            view.setX( view.getY() );
-            view.setY( x );
+            if( view instanceof PlayingCardView )
+            {
+                final float x = view.getX();
+                view.setX( view.getY() );
+                view.setY( x );
+            }
         }
     }
 
@@ -174,10 +182,13 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         final int childCount = getChildCount();
         for( int i = childCount - 1; i >= 0; i-- )
         {
-            final PlayingCardView child = (PlayingCardView) getChildAt( i );
-            if( child.contains( x, y ) )
+            final View child = getChildAt( i );
+            if( child instanceof PlayingCardView )
             {
-                return child;
+                if( ( (PlayingCardView) child ).contains( x, y ) )
+                {
+                    return (PlayingCardView) child;
+                }
             }
         }
         return null;
@@ -317,7 +328,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         final int childCount = getChildCount();
         for( int i = 0; i < childCount; i++ )
         {
-            playingCardViews.add( (PlayingCardView) getChildAt( i ) );
+            final View child = getChildAt( i );
+            if( child instanceof PlayingCardView )
+            {
+                playingCardViews.add( (PlayingCardView) child );
+            }
         }
         Collections.sort( playingCardViews, new PlayingCardView.PlayingCardViewComparator( sortingType ) );
         for( PlayingCardView playingCardView : playingCardViews )
@@ -338,16 +353,20 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         final int childCount = getChildCount();
         for( int i = 0; i < childCount; i++ )
         {
-            final PlayingCardView playingCardView = (PlayingCardView) this.getChildAt( i );
-            playingCardView.stop();
-            playingCardView.flip( true, false );
-            playingCardView.setX( x );
-            playingCardView.setY( y );
-            x += (int) ( playingCardView.getWidth() * 0.30f );
-            if( x + playingCardView.getWidth() > this.getWidth() )
+            final View child = getChildAt( i );
+            if( child instanceof PlayingCardView )
             {
-                x = 50;
-                y += playingCardView.getHeight() + 10;
+                final PlayingCardView playingCardView = (PlayingCardView) child;
+                playingCardView.stop();
+                playingCardView.flip( true, false );
+                playingCardView.setX( x );
+                playingCardView.setY( y );
+                x += (int) ( playingCardView.getWidth() * 0.30f );
+                if( x + playingCardView.getWidth() > this.getWidth() )
+                {
+                    x = 50;
+                    y += playingCardView.getHeight() + 10;
+                }
             }
         }
     }
@@ -499,13 +518,15 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
             @Override
             public void run()
             {
-                final ArrayList< PlayingCardView > playingCardViews = mCardViewsByOwner.remove( cardHolderID );
+                ArrayList< PlayingCardView > playingCardViews = mCardViewsByOwner.remove( cardHolderID );
                 if( playingCardViews != null )
                 {
                     for( PlayingCardView cardView : playingCardViews )
                     {
                         CardDisplayLayout.this.removeView( cardView );
                     }
+                    playingCardViews = null;
+                    System.gc();
                 }
             }
         } );

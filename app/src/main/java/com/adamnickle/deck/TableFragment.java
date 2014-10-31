@@ -122,7 +122,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                         super.onCardScroll( event1, event2, distanceX, distanceY, playingCardView );
                         if( playingCardView.getTop() > ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
                         {
-                            TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard() );
+                            TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard(), Side.NONE );
                         }
                     }
                 }
@@ -132,7 +132,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 {
                     if( playingCardView.getOwnerID().startsWith( DRAW_PILE_ID_PREFIX ) )
                     {
-                        TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard() );
+                        TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard(), Side.NONE );
                     }
                 }
 
@@ -162,7 +162,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
-    public boolean onAttemptSendCard( String ownerID, Card card )
+    public boolean onAttemptSendCard( String ownerID, Card card, CardDisplayLayout.Side side )
     {
         if( this.canSendCard( ownerID, card ) )
         {

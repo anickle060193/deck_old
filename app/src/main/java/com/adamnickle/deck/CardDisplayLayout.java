@@ -6,7 +6,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,7 +36,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     private final GestureDetector mDetector;
     private final Vibrator mVibrator;
     private GameUiListener mGameUiListener;
-    private SparseArray< PlayingCardView > mMoving;
 
     protected final HashMap< String, ArrayList< PlayingCardView > > mCardViewsByOwner;
 
@@ -57,7 +55,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
         mDetector = new GestureDetector( getContext(), new CardDisplayGestureListener() );
 
-        mMoving = new SparseArray< PlayingCardView >();
         mCardViewsByOwner = new HashMap< String, ArrayList< PlayingCardView > >();
         mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
     }
@@ -144,11 +141,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
     }
 
-    public void childViewOffScreen( PlayingCardView playingCardView )
+    public void childViewOffScreen( PlayingCardView playingCardView, Side side )
     {
         if( mGameUiListener != null )
         {
-            mGameUiListener.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard() );
+            mGameUiListener.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard(), side );
         }
     }
 

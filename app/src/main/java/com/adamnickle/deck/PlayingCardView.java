@@ -19,6 +19,8 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.Comparator;
 
+import ru.noties.debug.Debug;
+
 public class PlayingCardView extends ImageView
 {
     private static final float MINIMUM_VELOCITY = 50.0f;
@@ -144,12 +146,6 @@ public class PlayingCardView extends ImageView
                     PlayingCardView.this.stop();
                 }
 
-                if( !PlayingCardView.this.isOnScreen() )
-                {
-                    PlayingCardView.this.stop();
-                    parent.childViewOffScreen( PlayingCardView.this );
-                }
-
                 final CardDisplayLayout.Side side = PlayingCardView.this.hasHitWall();
 
                 if( side != CardDisplayLayout.Side.NONE && parent.childShouldBounce( PlayingCardView.this, side ) )
@@ -178,6 +174,13 @@ public class PlayingCardView extends ImageView
                     }
                 }
 
+                final CardDisplayLayout.Side offSide = PlayingCardView.this.getWallSlidPast();
+                if( offSide != CardDisplayLayout.Side.NONE )
+                {
+                    Debug.d( offSide.toString() );
+                    PlayingCardView.this.stop();
+                    parent.childViewOffScreen( PlayingCardView.this, offSide );
+                }
 
                 if( Math.abs( mVelocityX ) < MINIMUM_VELOCITY )
                 {
@@ -246,32 +249,32 @@ public class PlayingCardView extends ImageView
         }
     }
 
-    private synchronized boolean isOnScreen()
+    private CardDisplayLayout.Side getWallSlidPast()
     {
         final ViewGroup parent = (ViewGroup) this.getParent();
         if( parent == null )
         {
-            return true;
+            return CardDisplayLayout.Side.NONE;
         }
-        else if( this.getRight() <= 0 )
+        else if( this.getRight() < 0 )
         {
-            return false;
+            return CardDisplayLayout.Side.LEFT;
         }
-        else if( this.getLeft() >= parent.getWidth() )
+        else if( this.getBottom() < 0 )
         {
-            return false;
+            return CardDisplayLayout.Side.TOP;
         }
-        else if( this.getBottom() <= 0 )
+        else if( this.getLeft() > parent.getWidth() )
         {
-            return false;
+            return CardDisplayLayout.Side.RIGHT;
         }
-        else if( this.getTop() >= parent.getHeight() )
+        else if( this.getTop() > parent.getHeight() )
         {
-            return false;
+            return CardDisplayLayout.Side.BOTTOM;
         }
         else
         {
-            return true;
+            return CardDisplayLayout.Side.NONE;
         }
     }
 
@@ -282,19 +285,19 @@ public class PlayingCardView extends ImageView
         {
             return CardDisplayLayout.Side.NONE;
         }
-        else if( this.getLeft() <= parent.getLeft() )
+        else if( this.getLeft() <= 0 )
         {
             return CardDisplayLayout.Side.LEFT;
         }
-        else if( this.getTop() <= parent.getTop() )
+        else if( this.getTop() <= 0 )
         {
             return CardDisplayLayout.Side.TOP;
         }
-        else if( this.getRight() >= parent.getRight() )
+        else if( this.getRight() >= parent.getWidth() )
         {
             return CardDisplayLayout.Side.RIGHT;
         }
-        else if( this.getBottom() >= parent.getBottom() )
+        else if( this.getBottom() >= parent.getHeight() )
         {
             return CardDisplayLayout.Side.BOTTOM;
         }

@@ -20,7 +20,10 @@ public class DeckApplication extends Application
 
         Debug.init( BuildConfig.DEBUG );
 
-        Crashlytics.start( this );
+        if( !BuildConfig.DEBUG )
+        {
+            Crashlytics.start( this );
+        }
 
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH )
         {

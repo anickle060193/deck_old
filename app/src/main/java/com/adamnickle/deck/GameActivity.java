@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -149,7 +150,7 @@ public class GameActivity extends ActionBarActivity
         }
         else
         {
-            final android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+            final FragmentManager fragmentManager = getSupportFragmentManager();
             mTableFragment = (TableFragment) fragmentManager.findFragmentByTag( TableFragment.class.getName() );
             mGameFragment = (GameFragment) fragmentManager.findFragmentByTag( GameFragment.class.getName() );
             mDrawingFragment = (ScratchPadFragment) fragmentManager.findFragmentByTag( ScratchPadFragment.class.getName() );

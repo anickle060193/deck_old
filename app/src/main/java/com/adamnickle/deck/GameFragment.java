@@ -74,12 +74,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
-    public void onAttach( Activity activity )
-    {
-        super.onAttach( activity );
-    }
-
-    @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedStateInstance )
     {
         if( mCardDisplay == null )
@@ -131,6 +125,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 {
                     super.onCardScroll( event1, event2, distanceX, distanceY, playingCardView );
 
+                    boolean isOpen = mSlidingTableLayout.isOpen();
+                    int cardBottom = playingCardView.getBottom();
+                    int slidingBottom = mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom();
                     if( mSlidingTableLayout.isOpen() && playingCardView.getBottom() < ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
                     {
                         mGameConnection.sendCard( playingCardView.getOwnerID(), TableFragment.TABLE_ID, playingCardView.getCard(), playingCardView.getOwnerID() );

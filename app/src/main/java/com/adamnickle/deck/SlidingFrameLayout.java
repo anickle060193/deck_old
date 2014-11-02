@@ -1,10 +1,13 @@
 package com.adamnickle.deck;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
 
@@ -13,14 +16,16 @@ public class SlidingFrameLayout extends FrameLayout
     private enum State
     {
         COLLAPSED,
-        EXPANDED,
         COLLAPSING,
+        EXPANDED,
         EXPANDING,
     }
 
+    private static final int ANIMATOR_DURATION = 500;
+
     private State mCurrentState;
-    private Animation mExpandAnimation;
-    private Animation mCollapseAnimation;
+    private final ObjectAnimator mSlidingAnimator;
+    private boolean mFirstLayout;
 
     public SlidingFrameLayout( Context context )
     {
@@ -36,70 +41,55 @@ public class SlidingFrameLayout extends FrameLayout
     {
         super( context, attrs, defStyle );
 
-        this.setVisibility( INVISIBLE );
         this.setFocusableInTouchMode( true );
         mCurrentState = State.COLLAPSED;
+        mFirstLayout = true;
 
-        mExpandAnimation = AnimationUtils.loadAnimation( context, R.anim.slide_view_in );
-        mExpandAnimation.setAnimationListener( new Animation.AnimationListener()
+        mSlidingAnimator = ObjectAnimator.ofFloat( this, "Y", 0.0f, 0.0f )
+                .setDuration( ANIMATOR_DURATION );
+        mSlidingAnimator.addListener( new AnimatorListenerAdapter()
         {
             @Override
-            public void onAnimationStart( Animation animation )
+            public void onAnimationEnd( Animator animation )
             {
-                SlidingFrameLayout.this.setVisibility( VISIBLE );
-                mCurrentState = State.EXPANDING;
-            }
+                switch( mCurrentState )
+                {
+                    case EXPANDING:
+                        mCurrentState = State.EXPANDED;
+                        break;
 
-            @Override
-            public void onAnimationEnd( Animation animation )
-            {
-                mCurrentState = State.EXPANDED;
-                SlidingFrameLayout.this.requestFocus();
-            }
-
-            @Override
-            public void onAnimationRepeat( Animation animation )
-            {
-
-            }
-        } );
-
-        mCollapseAnimation = AnimationUtils.loadAnimation( context, R.anim.slide_view_out );
-        mCollapseAnimation.setAnimationListener( new Animation.AnimationListener()
-        {
-            @Override
-            public void onAnimationStart( Animation animation )
-            {
-                mCurrentState = State.COLLAPSING;
-            }
-
-            @Override
-            public void onAnimationEnd( Animation animation )
-            {
-                SlidingFrameLayout.this.setVisibility( GONE );
-                mCurrentState = State.COLLAPSED;
-            }
-
-            @Override
-            public void onAnimationRepeat( Animation animation )
-            {
-
+                    case COLLAPSING:
+                        mCurrentState = State.COLLAPSED;
+                        break;
+                }
             }
         } );
     }
 
     @Override
-    protected void onAttachedToWindow()
+    protected void onLayout( boolean changed, int left, int top, int right, int bottom )
     {
-        super.onAttachedToWindow();
-    }
-
-    public void collapseFrame()
-    {
-        if( mCurrentState == State.EXPANDED )
+        if( mFirstLayout )
         {
-            this.startAnimation( mCollapseAnimation );
+            switch( mCurrentState )
+            {
+                case EXPANDING:
+                    mCurrentState = State.EXPANDED;
+                case EXPANDED:
+                    bottom = bottom - top;
+                    top = 0;
+                    break;
+
+                case COLLAPSING:
+                    mCurrentState = State.COLLAPSED;
+                case COLLAPSED:
+                    top = -( bottom - top );
+                    bottom = 0;
+                    break;
+            }
+            mFirstLayout = false;
         }
+        super.onLayout( changed, left, top, right, bottom );
     }
 
     @Override
@@ -126,26 +116,125 @@ public class SlidingFrameLayout extends FrameLayout
 
     public void expandFrame()
     {
-        if( mCurrentState == State.COLLAPSED )
+        expandFrame( true );
+    }
+
+    public void expandFrame( boolean animate )
+    {
+        mSlidingAnimator.cancel();
+        if( animate )
         {
-            this.startAnimation( mExpandAnimation );
+            mCurrentState = State.EXPANDING;
+            mSlidingAnimator.setFloatValues( this.getY(), 0.0f );
+            mSlidingAnimator.start();
+        }
+        else
+        {
+            this.setY( 0.0f );
+            mCurrentState = State.EXPANDED;
+        }
+    }
+
+    public void collapseFrame()
+    {
+        collapseFrame( true );
+    }
+
+    public void collapseFrame( boolean animate )
+    {
+        mSlidingAnimator.cancel();
+        if( animate )
+        {
+            mCurrentState = State.COLLAPSING;
+            mSlidingAnimator.setFloatValues( this.getY(), -this.getHeight() );
+            mSlidingAnimator.start();
+        }
+        else
+        {
+            this.setY( -this.getHeight() );
+            mCurrentState = State.COLLAPSED;
         }
     }
 
     public void toggleState()
     {
-        if( mCurrentState == State.EXPANDED )
+        switch( mCurrentState )
         {
-            collapseFrame();
-        }
-        else if( mCurrentState == State.COLLAPSED )
-        {
-            expandFrame();
+            case EXPANDED:
+            case EXPANDING:
+                collapseFrame();
+                break;
+
+            case COLLAPSED:
+            case COLLAPSING:
+                expandFrame();
+                break;
         }
     }
 
     public boolean isOpen()
     {
-        return mCurrentState == State.EXPANDED;
+        return mCurrentState == State.EXPANDED || mCurrentState == State.EXPANDING;
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState()
+    {
+        SavedState savedState = new SavedState( super.onSaveInstanceState() );
+        savedState.isOpen = isOpen();
+        return savedState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState( Parcelable state )
+    {
+        if( state instanceof SavedState )
+        {
+            super.onRestoreInstanceState( ( (SavedState) state ).getSuperState() );
+            mCurrentState = ( (SavedState) state ).isOpen ? State.EXPANDED : State.COLLAPSED;
+        }
+        else
+        {
+            super.onRestoreInstanceState( state );
+        }
+    }
+
+    public static class SavedState extends BaseSavedState
+    {
+        boolean isOpen;
+
+        public SavedState( Parcel source )
+        {
+            super( source );
+
+            isOpen = source.readInt() != 0;
+        }
+
+        public SavedState( Parcelable superState )
+        {
+            super( superState );
+        }
+
+        @Override
+        public void writeToParcel( Parcel dest, int flags )
+        {
+            super.writeToParcel( dest, flags );
+            dest.writeInt( isOpen ? 1 : 0 );
+        }
+
+        public static final Creator< SavedState > CREATOR = new Creator< SavedState >()
+        {
+            @Override
+            public SavedState createFromParcel( Parcel source )
+            {
+                return new SavedState( source );
+            }
+
+            @Override
+            public SavedState[] newArray( int size )
+            {
+                return new SavedState[ size ];
+            }
+        };
     }
 }

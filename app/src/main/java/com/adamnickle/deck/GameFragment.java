@@ -135,6 +135,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     if( mSlidingTableLayout.isOpen() && playingCardView.getBottom() < ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
                     {
                         mGameConnection.sendCard( playingCardView.getOwnerID(), TableFragment.TABLE_ID, playingCardView.getCard(), playingCardView.getOwnerID() );
+                        this.onTouchEvent( MotionEvent.obtain( 0L, 0L, MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0 ) );
                     }
                 }
             };

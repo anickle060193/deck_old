@@ -5,6 +5,7 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -36,6 +37,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     private final GestureDetector mDetector;
     private final Vibrator mVibrator;
     private GameUiListener mGameUiListener;
+    private boolean mStillDown;
 
     protected final HashMap< String, ArrayList< PlayingCardView > > mCardViewsByOwner;
 
@@ -57,6 +59,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
         mCardViewsByOwner = new HashMap< String, ArrayList< PlayingCardView > >();
         mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
+        mStillDown = false;
     }
 
     @Override
@@ -179,8 +182,28 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     }
 
     @Override
-    public boolean onTouchEvent( MotionEvent event )
+    public boolean onTouchEvent( @NonNull MotionEvent event )
     {
+        final int action = event.getAction();
+        switch( action )
+        {
+            case MotionEvent.ACTION_DOWN:
+                mStillDown = true;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                if( !mStillDown )
+                {
+                    return false;
+                }
+                break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mStillDown = false;
+                break;
+        }
+
         mDetector.onTouchEvent( event );
         return true;
     }

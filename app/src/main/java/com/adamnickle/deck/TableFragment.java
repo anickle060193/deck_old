@@ -123,6 +123,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                         if( playingCardView.getTop() > ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
                         {
                             TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard(), Side.NONE );
+                            this.onTouchEvent( MotionEvent.obtain( 0L, 0L, MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0 ) );
                         }
                     }
                 }

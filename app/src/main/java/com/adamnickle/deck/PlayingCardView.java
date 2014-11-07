@@ -37,6 +37,7 @@ public class PlayingCardView extends ImageView
     private long mLastUpdate;
     private float mScale;
     private boolean mAttachedToWindow;
+    private boolean mBitmapLoaded;
 
     public PlayingCardView( Context context, String ownerID, Card card, final float scale )
     {
@@ -50,6 +51,7 @@ public class PlayingCardView extends ImageView
         mVelocityY = 0.0f;
         mScale = scale;
         mAttachedToWindow = false;
+        mBitmapLoaded = false;
 
         this.setLayoutParams( new CardDisplayLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
         this.setScaleType( ScaleType.CENTER_CROP );
@@ -69,6 +71,7 @@ public class PlayingCardView extends ImageView
                         }
                     }
                     mCardBitmap = Picasso.with( getContext() ).load( mCard.getResource() ).get();
+                    mBitmapLoaded = true;
 
                     new Handler( Looper.getMainLooper() ).post( new Runnable()
                     {
@@ -242,7 +245,7 @@ public class PlayingCardView extends ImageView
     {
         super.onLayout( changed, left, top, right, bottom );
 
-        if( mResetCard )
+        if( mResetCard && mBitmapLoaded )
         {
             mResetCard = false;
             reset();
@@ -402,8 +405,8 @@ public class PlayingCardView extends ImageView
         final float newX = ( parentWidth - width ) / 2.0f + randomXOffset;
         final float newY = ( parentHeight - height ) / 2.0f + randomYOffset;
 
-        this.setX( 100.0f );
-        this.setY( 100.0f );
+        this.setX( newX );
+        this.setY( newY );
     }
 
     public boolean contains( float x, float y )

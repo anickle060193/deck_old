@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
@@ -25,7 +26,6 @@ public class SlidingFrameLayout extends FrameLayout
 
     private State mCurrentState;
     private final ObjectAnimator mSlidingAnimator;
-    private boolean mFirstLayout;
 
     public SlidingFrameLayout( Context context )
     {
@@ -43,7 +43,6 @@ public class SlidingFrameLayout extends FrameLayout
 
         this.setFocusableInTouchMode( true );
         mCurrentState = State.COLLAPSED;
-        mFirstLayout = true;
 
         mSlidingAnimator = ObjectAnimator.ofFloat( this, "Y", 0.0f, 0.0f )
                 .setDuration( ANIMATOR_DURATION );
@@ -69,31 +68,26 @@ public class SlidingFrameLayout extends FrameLayout
     @Override
     protected void onLayout( boolean changed, int left, int top, int right, int bottom )
     {
-        if( mFirstLayout )
-        {
-            switch( mCurrentState )
-            {
-                case EXPANDING:
-                    mCurrentState = State.EXPANDED;
-                case EXPANDED:
-                    bottom = bottom - top;
-                    top = 0;
-                    break;
-
-                case COLLAPSING:
-                    mCurrentState = State.COLLAPSED;
-                case COLLAPSED:
-                    top = -( bottom - top );
-                    bottom = 0;
-                    break;
-            }
-            mFirstLayout = false;
-        }
         super.onLayout( changed, left, top, right, bottom );
+
+        switch( mCurrentState )
+        {
+            case EXPANDING:
+                mCurrentState = State.EXPANDED;
+            case EXPANDED:
+                expandFrame( false );
+                break;
+
+            case COLLAPSING:
+                mCurrentState = State.COLLAPSED;
+            case COLLAPSED:
+                collapseFrame( false );
+                break;
+        }
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event)
     {
         if( KeyEvent.KEYCODE_BACK == keyCode && this.isOpen() )
         {
@@ -216,10 +210,10 @@ public class SlidingFrameLayout extends FrameLayout
         }
 
         @Override
-        public void writeToParcel( Parcel dest, int flags )
+        public void writeToParcel( @NonNull Parcel destination, int flags )
         {
-            super.writeToParcel( dest, flags );
-            dest.writeInt( isOpen ? 1 : 0 );
+            super.writeToParcel( destination, flags );
+            destination.writeInt( isOpen ? 1 : 0 );
         }
 
         public static final Creator< SavedState > CREATOR = new Creator< SavedState >()

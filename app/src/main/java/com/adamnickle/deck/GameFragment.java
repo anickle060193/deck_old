@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,6 +70,12 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
         setHasOptionsMenu( true );
+    }
+
+    @Override
+    public void onActivityCreated( @Nullable Bundle savedInstanceState )
+    {
+        super.onActivityCreated( savedInstanceState );
 
         mSlidingTableLayout = (SlidingFrameLayout) getActivity().findViewById( R.id.table );
     }
@@ -125,9 +132,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 {
                     super.onCardScroll( event1, event2, distanceX, distanceY, playingCardView );
 
-                    boolean isOpen = mSlidingTableLayout.isOpen();
-                    int cardBottom = playingCardView.getBottom();
-                    int slidingBottom = mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom();
                     if( mSlidingTableLayout.isOpen() && playingCardView.getBottom() < ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
                     {
                         mGameConnection.sendCard( playingCardView.getOwnerID(), TableFragment.TABLE_ID, playingCardView.getCard(), playingCardView.getOwnerID() );
@@ -185,6 +189,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         super.onPause();
 
         Crouton.clearCroutonsForActivity( getActivity() );
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+
+        mCardDisplay.onViewDestroy();
     }
 
     @Override

@@ -156,6 +156,14 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+
+        mTableView.onViewDestroy();
+    }
+
+    @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
         inflater.inflate( R.menu.table, menu );

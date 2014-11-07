@@ -391,17 +391,19 @@ public class PlayingCardView extends ImageView
         this.stop();
 
         final ViewGroup parent = (ViewGroup) this.getParent();
-        final int width = parent.getWidth();
-        final float widthQuarter = width * 0.25f;
-        final int height = parent.getHeight();
-        final float heightQuarter = height * 0.25f;
-        final int randomXOffset = (int) ( Math.random() * widthQuarter - 0.5f * widthQuarter );
-        final int randomYOffset = (int) ( Math.random() * heightQuarter - 0.5f * heightQuarter );
-        final int newX = (int) ( ( width - this.getWidth() ) / 2.0f + randomXOffset );
-        final int newY = (int) ( ( height - this.getHeight() ) / 2.0f + randomYOffset );
+        final int parentWidth = parent.getWidth();
+        final int parentHeight = parent.getHeight();
+        final int width = this.getWidth();
+        final int height = this.getHeight();
+        final float horizontalOffsetRange = parentWidth * 0.2f;
+        final float verticalOffsetRange = parentHeight * 0.2f;
+        final float randomXOffset = (float) ( horizontalOffsetRange * Math.random() - horizontalOffsetRange / 2.0f );
+        final float randomYOffset = (float) ( verticalOffsetRange * Math.random() - verticalOffsetRange / 2.0f );
+        final float newX = ( parentWidth - width ) / 2.0f + randomXOffset;
+        final float newY = ( parentHeight - height ) / 2.0f + randomYOffset;
 
-        this.setX( newX );
-        this.setY( newY );
+        this.setX( 100.0f );
+        this.setY( 100.0f );
     }
 
     public boolean contains( float x, float y )

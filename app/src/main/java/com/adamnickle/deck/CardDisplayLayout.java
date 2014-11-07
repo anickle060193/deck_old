@@ -105,6 +105,17 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
     }
 
+    public void onViewDestroy()
+    {
+        for( ArrayList< PlayingCardView > views : mCardViewsByOwner.values() )
+        {
+            views.clear();
+        }
+        mCardViewsByOwner.clear();
+        this.removeAllViews();
+        System.gc();
+    }
+
     public CardHolderListener getCardHolderListener()
     {
         return this;
@@ -495,6 +506,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
                     playingCardViews = mCardViewsByOwner.get( playerID );
                 }
 
+                System.gc();
                 for( Card card : cards )
                 {
                     final PlayingCardView playingCardView = createPlayingCardView( playerID, card );

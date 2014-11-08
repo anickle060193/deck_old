@@ -310,15 +310,40 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         sideDialog.show();
     }
 
+    private CardHolder[] getDealableCardHolders( boolean includeDrawPiles)
+    {
+        ArrayList< CardHolder > cardHolders = new ArrayList< CardHolder >( mPlayers );
+        if( includeDrawPiles )
+        {
+            for( CardHolder cardHolder : mCardHolders.values() )
+            {
+                if( cardHolder.getID().startsWith( TableFragment.DRAW_PILE_ID_PREFIX ) )
+                {
+                    cardHolders.add( cardHolder );
+                }
+            }
+        }
+        return cardHolders.toArray( new CardHolder[ cardHolders.size() ] );
+    }
+
+    private void handleClearPlayerHandsClick()
+    {
+        for( CardHolder player : mCardHolders.values() )
+        {
+            mGameConnection.clearCards( mLocalPlayer.getID(), player.getID() );
+        }
+        mDeck.resetCards();
+    }
+
     private void handleDealCardsClick()
     {
-        if( mDeck.getCardCount() < mCardHolders.size() )
+        final CardHolder[] players = getDealableCardHolders( false );
+        if( mDeck.getCardCount() < players.length )
         {
             DialogHelper.showPopup( getActivity(), "No Cards Left", "There are not enough cards left to evenly deal to players." );
         }
         else
         {
-            final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
             final int maxCardsPerPlayer = mDeck.getCardCount() / players.length;
             final Integer[] cardsDealAmounts = new Integer[ maxCardsPerPlayer ];
             for( int i = 1; i <= maxCardsPerPlayer; i++ )
@@ -349,18 +374,10 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         }
     }
 
-    private void handleClearPlayerHandsClick()
-    {
-        for( CardHolder player : mCardHolders.values() )
-        {
-            mGameConnection.clearCards( mLocalPlayer.getID(), player.getID() );
-        }
-        mDeck.resetCards();
-    }
-
     private void handleDealSingleCardClick()
     {
-        if( mCardHolders.size() == 0 )
+        final CardHolder[] players = getDealableCardHolders( true );
+        if( players.length == 0 )
         {
             DialogHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from." );
         }
@@ -370,7 +387,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         }
         else
         {
-            final CardHolder[] players = mPlayers.toArray( new CardHolder[ mPlayers.size() ] );
             final String[] playerNames = new String[ players.length ];
             final String[] playerIDs = new String[ players.length ];
             for( int i = 0; i < players.length; i++ )
@@ -384,7 +400,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 public void onClick( DialogInterface dialogInterface, int index )
                 {
                     final String playerID = playerIDs[ index ];
-                    mGameConnection.sendCard( mLocalPlayer.getID(), playerID, mDeck.removeTopCard(), null );
+                    mGameConnection.sendCard( GameConnection.MOCK_SERVER_ADDRESS, playerID, mDeck.removeTopCard(), null );
                     dialogInterface.dismiss();
                 }
             } ).show();
@@ -571,11 +587,6 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onCardHolderConnect( String ID, String name )
     {
-        if( ID.startsWith( TableFragment.DRAW_PILE_ID_PREFIX ) )
-        {
-            return;
-        }
-
         final CardHolder cardHolder = new CardHolder( ID, name );
         mCardHolders.put( ID, cardHolder );
         if( mGameConnection.isPlayerID( ID ) )
@@ -706,9 +717,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
-    public void onClearCards( String commanderID, String commandeeID )
+    public void onClearCards( String commanderID, String commandedID )
     {
-        if( commandeeID.equals( mLocalPlayer.getID() ) )
+        if( commandedID.equals( mLocalPlayer.getID() ) )
         {
             mLocalPlayer.clearCards();
             String notification;

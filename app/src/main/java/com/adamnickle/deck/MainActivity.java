@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 
 import com.adamnickle.deck.Game.DeckSettings;
+import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -20,6 +21,8 @@ import ru.noties.debug.Debug;
 
 public class MainActivity extends ActionBarActivity
 {
+    public static final int REQUEST_CREATE_GAME = 1;
+
     private Crouton mCrouton;
 
     @Override
@@ -34,10 +37,14 @@ public class MainActivity extends ActionBarActivity
             @Override
             public void onClick( View view )
             {
+                Intent createGame = new Intent( MainActivity.this, GameCreatorActivity.class );
+                startActivityForResult( createGame, REQUEST_CREATE_GAME );
+                /*
                 Intent startServer = new Intent( MainActivity.this, GameActivity.class );
                 startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_TYPE, ConnectionFragment.ConnectionType.SERVER );
                 startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
                 startActivityForResult( startServer, GameActivity.REQUEST_START_GAME );
+                */
             }
         } );
 
@@ -82,6 +89,26 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onActivityResult( int requestCode, int resultCode, Intent data )
     {
+        if( requestCode == REQUEST_CREATE_GAME )
+        {
+            switch( resultCode )
+            {
+                case Activity.RESULT_CANCELED:
+                    mCrouton = Crouton.makeText( this, "Game creation canceled", Style.INFO );
+                    break;
+
+                case Activity.RESULT_OK:
+                    final Game game = data.getParcelableExtra( GameCreatorActivity.EXTRA_GAME );
+
+                    final Intent startServer = new Intent( MainActivity.this, GameActivity.class );
+                    startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_TYPE, ConnectionFragment.ConnectionType.SERVER );
+                    startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
+                    startServer.putExtra( GameCreatorActivity.EXTRA_GAME, game );
+                    startActivityForResult( startServer, GameActivity.REQUEST_START_GAME );
+                    break;
+            }
+        }
+
         if( data != null )
         {
             final String action = data.getAction();

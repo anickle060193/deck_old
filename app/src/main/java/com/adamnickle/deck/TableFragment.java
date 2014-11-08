@@ -1,6 +1,7 @@
 package com.adamnickle.deck;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
+import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.GameMessage;
 import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
@@ -31,7 +33,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     private static final String DRAW_PILE_NAME_PREFIX = "Draw Pile ";
     private int DRAW_PILE_COUNT = 0;
 
-    public static final String DISCARD_PILE_ID_PREFIX = "discard_pile";
+    public static final String DISCARD_PILE_ID_PREFIX = "discard_pile_";
     private static final String DISCARD_PILE_NAME_PREFIX = "Discard Pile ";
     private int DISCARD_PILE_COUNT = 0;
 
@@ -72,11 +74,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 public PlayingCardView createPlayingCardView( String cardHolderID, final Card card )
                 {
                     final PlayingCardView playingCardView = new PlayingCardView( getContext(), cardHolderID, card, 0.5f );
-                    if( !cardHolderID.startsWith( DRAW_PILE_ID_PREFIX ) )
-                    {
-                        playingCardView.flip( true, false );
-                    }
-                    else
+                    if( cardHolderID.startsWith( DRAW_PILE_ID_PREFIX ) )
                     {
                         playingCardView.addOnLayoutChangeListener( new OnLayoutChangeListener()
                         {
@@ -87,11 +85,33 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                                 final int count = Integer.parseInt( cardView.getOwnerID().substring( DRAW_PILE_ID_PREFIX.length() ) );
                                 final int padding = getResources().getDimensionPixelOffset( R.dimen.table_padding );
                                 final int x = ( count == 1 ) ? padding : padding + ( padding + right - left ) * ( count - 1 );
-                                final int y = mTableView.getBottom() - ( bottom - top ) - padding;
+                                final int y = mTableView.getTop() + padding;
                                 cardView.setX( x );
                                 cardView.setY( y );
                             }
                         } );
+                    }
+                    else
+                    {
+                        if( cardHolderID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+                        {
+                            playingCardView.addOnLayoutChangeListener( new OnLayoutChangeListener()
+                            {
+                                @Override
+                                public void onLayoutChange( View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom )
+                                {
+                                    final PlayingCardView cardView = (PlayingCardView) view;
+                                    final int count = Integer.parseInt( cardView.getOwnerID().substring( DISCARD_PILE_ID_PREFIX.length() ) );
+                                    final int padding = getResources().getDimensionPixelOffset( R.dimen.table_padding );
+                                    final int x = ( count == 1 ) ? padding : padding + ( padding + right - left ) * ( count - 1 );
+                                    final int y = mTableView.getBottom() - ( bottom - top ) - padding;
+                                    cardView.setX( x );
+                                    cardView.setY( y );
+                                }
+                            } );
+                        }
+
+                        playingCardView.flip( true, false );
                     }
                     return playingCardView;
                 }
@@ -108,7 +128,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 @Override
                 public void onCardFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY, PlayingCardView playingCardView )
                 {
-                    if( !playingCardView.getOwnerID().startsWith( DRAW_PILE_ID_PREFIX ) )
+                    if( !isCardPile( playingCardView.getOwnerID() ) )
                     {
                         super.onCardFling( event, event2, velocityX, velocityY, playingCardView );
                     }
@@ -117,7 +137,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 @Override
                 public void onCardScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY, PlayingCardView playingCardView )
                 {
-                    if( !playingCardView.getOwnerID().startsWith( DRAW_PILE_ID_PREFIX ) )
+                    if( !isCardPile( playingCardView.getOwnerID() ) )
                     {
                         super.onCardScroll( event1, event2, distanceX, distanceY, playingCardView );
                         if( playingCardView.getTop() > ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
@@ -131,7 +151,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 @Override
                 public void onCardSingleTap( MotionEvent event, PlayingCardView playingCardView )
                 {
-                    if( playingCardView.getOwnerID().startsWith( DRAW_PILE_ID_PREFIX ) )
+                    if( isCardPile( playingCardView.getOwnerID() ) )
                     {
                         TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard(), Side.NONE );
                     }
@@ -170,6 +190,11 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         inflater.inflate( R.menu.table, menu );
     }
 
+    private boolean isCardPile( String cardHolderID )
+    {
+        return cardHolderID.startsWith( DRAW_PILE_ID_PREFIX ) || cardHolderID.startsWith( DISCARD_PILE_ID_PREFIX );
+    }
+
     @Override
     public boolean onAttemptSendCard( String ownerID, Card card, CardDisplayLayout.Side side )
     {
@@ -196,6 +221,11 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
             final CardHolder drawPile = mDrawPiles.get( ownerID );
             return drawPile != null && drawPile.hasCard( card );
         }
+        else if( ownerID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            final CardHolder discardPile = mDiscardPiles.get( ownerID );
+            return discardPile != null && discardPile.hasCard( card );
+        }
         else
         {
             return false;
@@ -211,7 +241,10 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     @Override
     public boolean canHandleMessage( GameMessage message )
     {
-        return message.getReceiverID().equals( TABLE_ID ) || message.getReceiverID().startsWith( DRAW_PILE_ID_PREFIX );
+        final String receiverID = message.getReceiverID();
+        return receiverID.equals( TABLE_ID )
+            || receiverID.startsWith( DRAW_PILE_ID_PREFIX )
+            || receiverID.startsWith( DISCARD_PILE_ID_PREFIX );
     }
 
     @Override
@@ -249,17 +282,34 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         if( mGameConnection.isServer() )
         {
             mGameConnection.sendCardHolderName( TABLE_ID, GameConnection.MOCK_SERVER_ADDRESS, TABLE_NAME );
-        }
 
-        for( int i = 0; i < 2; i++ )
-        {
-            DRAW_PILE_COUNT++;
-            final CardHolder drawPile = new CardHolder( DRAW_PILE_ID_PREFIX + DRAW_PILE_COUNT, DRAW_PILE_NAME_PREFIX + DRAW_PILE_COUNT );
-            drawPile.setCardHolderListener( mTableView );
-            mDrawPiles.put( drawPile.getID(), drawPile );
-            if( mGameConnection.isServer() )
+            //TODO Send all piles at same time
+            final Intent gameIntent = getActivity().getIntent();
+            final Game game = gameIntent.getParcelableExtra( GameCreatorActivity.EXTRA_GAME );
+            if( game != null )
             {
-                mGameConnection.sendCardHolderName( drawPile.getID(), GameConnection.MOCK_SERVER_ADDRESS, drawPile.getName() );
+                for( int i = 0; i < game.DrawPiles; i++ )
+                {
+                    DRAW_PILE_COUNT++;
+                    final CardHolder drawPile = new CardHolder( DRAW_PILE_ID_PREFIX + DRAW_PILE_COUNT, DRAW_PILE_NAME_PREFIX + DRAW_PILE_COUNT );
+                    drawPile.setCardHolderListener( mTableView );
+                    mDrawPiles.put( drawPile.getID(), drawPile );
+                    if( mGameConnection.isServer() )
+                    {
+                        mGameConnection.sendCardHolderName( drawPile.getID(), GameConnection.MOCK_SERVER_ADDRESS, drawPile.getName() );
+                    }
+                }
+                for( int i = 0; i < game.DiscardPiles; i++ )
+                {
+                    DISCARD_PILE_COUNT++;
+                    final CardHolder discardPile = new CardHolder( DISCARD_PILE_ID_PREFIX + DISCARD_PILE_COUNT, DISCARD_PILE_NAME_PREFIX + DISCARD_PILE_COUNT );
+                    discardPile.setCardHolderListener( mTableView );
+                    mDiscardPiles.put( discardPile.getID(), discardPile );
+                    if( mGameConnection.isServer() )
+                    {
+                        mGameConnection.sendCardHolderName( discardPile.getID(), GameConnection.MOCK_SERVER_ADDRESS, discardPile.getName() );
+                    }
+                }
             }
         }
     }
@@ -293,6 +343,10 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         {
             mDrawPiles.get( receiverID ).addCard( card );
         }
+        else if( receiverID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            mDiscardPiles.get( receiverID ).addCard( card );
+        }
     }
 
     @Override
@@ -305,6 +359,10 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         else if( receiverID.startsWith( DRAW_PILE_ID_PREFIX ) )
         {
             mDrawPiles.get( receiverID ).addCards( cards );
+        }
+        else if( receiverID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            mDiscardPiles.get( receiverID ).addCards( cards );
         }
     }
 
@@ -319,6 +377,10 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         {
             mDrawPiles.get( removedID ).removeCard( card );
         }
+        else if( removedID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            mDiscardPiles.get( removedID ).removeCard( card );
+        }
     }
 
     @Override
@@ -332,24 +394,45 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
         {
             mDrawPiles.get( removedID ).removeCards( cards );
         }
+        else if( removedID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            mDiscardPiles.get( removedID ).removeCards( cards );
+        }
     }
 
     @Override
-    public void onClearCards( String commanderID, String commandeeID )
+    public void onClearCards( String commanderID, String commandedID )
     {
-        if( commandeeID.equals( TABLE_ID ) )
+        if( commandedID.equals( TABLE_ID ) )
         {
             mTable.clearCards();
         }
-        else if( commandeeID.startsWith( DRAW_PILE_ID_PREFIX ) )
+        else if( commandedID.startsWith( DRAW_PILE_ID_PREFIX ) )
         {
-            mDrawPiles.get( commandeeID ).clearCards();
+            mDrawPiles.get( commandedID ).clearCards();
+        }
+        else if( commandedID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            mDiscardPiles.get( commandedID ).clearCards();
         }
     }
 
     @Override
     public void onReceiveCardHolders( String senderID, String receiverID, CardHolder[] cardHolders )
     {
-
+        for( CardHolder cardHolder : cardHolders )
+        {
+            final String cardHolderID = cardHolder.getID();
+            if( cardHolderID.startsWith( DRAW_PILE_ID_PREFIX ) )
+            {
+                cardHolder.setCardHolderListener( mTableView.getCardHolderListener() );
+                mDrawPiles.put( cardHolderID, cardHolder );
+            }
+            else if( cardHolderID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+            {
+                cardHolder.setCardHolderListener( mTableView.getCardHolderListener() );
+                mDiscardPiles.put( cardHolderID, cardHolder );
+            }
+        }
     }
 }

@@ -134,7 +134,10 @@ public abstract class GameConnection implements ConnectionListener
             case MESSAGE_CARD_HOLDERS:
             {
                 final CardHolder[] players = message.getCardHolders();
-                listener.onReceiveCardHolders( originalSenderID, receiverID, players );
+                for( GameConnectionListener listener2 : mListeners )
+                {
+                    listener2.onReceiveCardHolders( originalSenderID, receiverID, players );
+                }
                 break;
             }
 

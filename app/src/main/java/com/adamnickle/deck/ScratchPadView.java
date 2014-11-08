@@ -64,15 +64,17 @@ public class ScratchPadView extends View
         mDrawingPaint = new Paint();
         mDrawingPaint.setColor( paintColor );
         mDrawingPaint.setAntiAlias( true );
-        mDrawingPaint.setStrokeWidth( getResources().getDimensionPixelSize( R.dimen.default_stroke_size ) );
+        mDrawingPaint.setStrokeWidth( getResources().getDimensionPixelSize( R.dimen.default_paint_stroke_size ) );
         mDrawingPaint.setStyle( Paint.Style.STROKE );
         mDrawingPaint.setStrokeJoin( Paint.Join.ROUND );
         mDrawingPaint.setStrokeCap( Paint.Cap.ROUND );
 
         mEraserPointPaint = new Paint( mDrawingPaint );
+        mEraserPointPaint.setStrokeWidth( getResources().getDimensionPixelSize( R.dimen.default_eraser_stroke_size ) );
         mEraserPointPaint.setColor( getResources().getColor( R.color.PaleGreen ) );
 
         mErasingPaint = new Paint( mDrawingPaint );
+        mErasingPaint.setStrokeWidth( getResources().getDimensionPixelSize( R.dimen.default_eraser_stroke_size ) );
         mErasingPaint.setColor( Color.TRANSPARENT );
         mErasingPaint.setXfermode( new PorterDuffXfermode( PorterDuff.Mode.CLEAR ) );
 

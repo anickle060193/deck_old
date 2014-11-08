@@ -103,8 +103,8 @@ public class ScratchPadFragment extends Fragment
             }
 
             mBitmap = bitmap;
+            mScratchPadView.setScratchPadBitmap( mBitmap );
         }
-        mScratchPadView.setScratchPadBitmap( mBitmap );
     }
 
     @Override

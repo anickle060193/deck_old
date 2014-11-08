@@ -1,6 +1,7 @@
 package com.adamnickle.deck;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -37,7 +38,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     private final GestureDetector mDetector;
     private final Vibrator mVibrator;
     private GameUiListener mGameUiListener;
-    private boolean mStillDown;
 
     protected final HashMap< String, ArrayList< PlayingCardView > > mCardViewsByOwner;
 
@@ -59,7 +59,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
         mCardViewsByOwner = new HashMap< String, ArrayList< PlayingCardView > >();
         mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
-        mStillDown = false;
     }
 
     @Override
@@ -92,7 +91,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     }
 
     @Override
-    protected LayoutParams generateLayoutParams( ViewGroup.LayoutParams p )
+    protected LayoutParams generateLayoutParams( @NonNull ViewGroup.LayoutParams p )
     {
         return new LayoutParams( p.width, p.height );
     }
@@ -140,6 +139,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
     }
 
+    @SuppressWarnings( "SuspiciousNameCombination" )
     public void onOrientationChange()
     {
         final int childCount = getChildCount();
@@ -181,27 +181,85 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         return true;
     }
 
+    private HashMap< Integer, PlayingCardView > mMovingCards = new HashMap< Integer, PlayingCardView >();
+    private HashMap< Integer, PointF > mLastPoints = new HashMap< Integer, PointF >();
+    private MotionEvent mCurrentDownEvent;
+
     @Override
     public boolean onTouchEvent( @NonNull MotionEvent event )
     {
-        final int action = event.getAction();
+        final int action = event.getActionMasked();
+        final int pointerIndex = event.getActionIndex();
+        final int pointerId = event.getPointerId( pointerIndex );
+        final float x = event.getX( pointerIndex );
+        final float y = event.getY( pointerIndex );
+
         switch( action )
         {
             case MotionEvent.ACTION_DOWN:
-                mStillDown = true;
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                if( !mStillDown )
+            case MotionEvent.ACTION_POINTER_DOWN:
+            {
+                mCurrentDownEvent = event;
+                PlayingCardView playingCardView = findFirstCardUnder( x, y );
+                if( mMovingCards.containsValue( playingCardView ) )
                 {
-                    return false;
+                    return true;
+                }
+                mLastPoints.put( pointerId, new PointF( x, y ) );
+                if( playingCardView != null )
+                {
+                    CardDisplayLayout.this.onCardDown( event, playingCardView );
+                    mMovingCards.put( pointerId, playingCardView );
+                }
+                else
+                {
+                    CardDisplayLayout.this.onBackgroundDown( event );
                 }
                 break;
+            }
+
+            case MotionEvent.ACTION_MOVE:
+            {
+                for( int i = 0; i < event.getPointerCount(); i++ )
+                {
+                    final int movePointerID = event.getPointerId( i );
+                    final PointF lastPoint = mLastPoints.get( movePointerID );
+                    if( lastPoint != null )
+                    {
+                        final float moveX = event.getX( i );
+                        final float moveY = event.getY( i );
+                        final float deltaX = lastPoint.x - moveX;
+                        final float deltaY = lastPoint.y - moveY;
+                        final PlayingCardView playingCardView = mMovingCards.get( movePointerID );
+                        if( playingCardView != null )
+                        {
+                            CardDisplayLayout.this.onCardScroll( mCurrentDownEvent, event, deltaX, deltaY, playingCardView );
+                        }
+                        else
+                        {
+                            CardDisplayLayout.this.onBackgroundScroll( mCurrentDownEvent, event, deltaX, deltaY );
+                        }
+
+                        lastPoint.set( moveX, moveY );
+                    }
+                }
+                break;
+            }
 
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                mStillDown = false;
+            case MotionEvent.ACTION_POINTER_UP:
+            {
+                mMovingCards.remove( pointerId );
+                mLastPoints.remove( pointerId );
                 break;
+            }
+
+            case MotionEvent.ACTION_CANCEL:
+            {
+                mMovingCards.clear();
+                mLastPoints.clear();
+                break;
+            }
         }
 
         mDetector.onTouchEvent( event );
@@ -230,16 +288,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onDown( MotionEvent event )
         {
-            final int pointerIndex = event.getActionIndex();
-            final PlayingCardView playingCardView = findFirstCardUnder( event.getX( pointerIndex ), event.getY( pointerIndex ) );
-            if( playingCardView != null )
-            {
-                CardDisplayLayout.this.onCardDown( event, playingCardView );
-            }
-            else
-            {
-                CardDisplayLayout.this.onBackgroundDown( event );
-            }
             return true;
         }
 
@@ -278,16 +326,6 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         @Override
         public boolean onScroll( MotionEvent event, MotionEvent event2, float distanceX, float distanceY )
         {
-            final int pointerIndex = event.getActionIndex();
-            final PlayingCardView playingCardView = findFirstCardUnder( event2.getX( pointerIndex ), event2.getY( pointerIndex ) );
-            if( playingCardView != null )
-            {
-                CardDisplayLayout.this.onCardScroll( event, event2, distanceX, distanceY, playingCardView );
-            }
-            else
-            {
-                CardDisplayLayout.this.onBackgroundScroll( event, event2, distanceX, distanceY );
-            }
             return true;
         }
 
@@ -334,10 +372,10 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     {
     }
 
-    public void onCardScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY, PlayingCardView playingCardView )
+    public void onCardScroll( MotionEvent initialDownEvent, MotionEvent event, float deltaX, float deltaY, PlayingCardView playingCardView )
     {
-        playingCardView.setX( playingCardView.getX() - distanceX );
-        playingCardView.setY( playingCardView.getY() - distanceY );
+        playingCardView.setX( playingCardView.getX() - deltaX );
+        playingCardView.setY( playingCardView.getY() - deltaY );
     }
 
     public void onBackgroundScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY )
@@ -427,11 +465,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
             @Override
             public void run()
             {
-                ArrayList<PlayingCardView> cardViews = mCardViewsByOwner.get( playerID );
+                ArrayList< PlayingCardView > cardViews = mCardViewsByOwner.get( playerID );
                 if( cardViews != null )
                 {
                     PlayingCardView removingCardView = null;
-                    Iterator<PlayingCardView> playingCardViewIterator = cardViews.iterator();
+                    Iterator< PlayingCardView > playingCardViewIterator = cardViews.iterator();
                     while( playingCardViewIterator.hasNext() )
                     {
                         PlayingCardView playingCardView = playingCardViewIterator.next();
@@ -557,7 +595,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
                     {
                         CardDisplayLayout.this.removeView( cardView );
                     }
-                    playingCardViews = null;
+                    playingCardViews.clear();
                     System.gc();
                 }
             }

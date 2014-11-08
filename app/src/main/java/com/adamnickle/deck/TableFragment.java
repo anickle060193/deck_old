@@ -135,15 +135,17 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 }
 
                 @Override
-                public void onCardScroll( MotionEvent event1, MotionEvent event2, float distanceX, float distanceY, PlayingCardView playingCardView )
+                public void onCardScroll( MotionEvent initialDownEvent, MotionEvent event, float deltaX, float deltaY, PlayingCardView playingCardView )
                 {
                     if( !isCardPile( playingCardView.getOwnerID() ) )
                     {
-                        super.onCardScroll( event1, event2, distanceX, distanceY, playingCardView );
+                        super.onCardScroll( initialDownEvent, event, deltaX, deltaY, playingCardView );
                         if( playingCardView.getTop() > ( mSlidingTableLayout.getBottom() - mSlidingTableLayout.getPaddingBottom() ) )
                         {
                             TableFragment.this.onAttemptSendCard( playingCardView.getOwnerID(), playingCardView.getCard(), Side.NONE );
-                            this.onTouchEvent( MotionEvent.obtain( 0L, 0L, MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0 ) );
+                            final MotionEvent up = MotionEvent.obtain( event );
+                            up.setAction( MotionEvent.ACTION_UP );
+                            this.onTouchEvent( up );
                         }
                     }
                 }

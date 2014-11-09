@@ -11,6 +11,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -22,6 +23,7 @@ import com.adamnickle.deck.Interfaces.GameConnection;
 import java.security.InvalidParameterException;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import ru.noties.debug.Debug;
 
 
 public class GameActivity extends ActionBarActivity
@@ -37,7 +39,6 @@ public class GameActivity extends ActionBarActivity
     private SlidingFrameLayout mTableView;
     private DrawerLayout mDrawerLayout;
     private ScratchPadFragment mDrawingFragment;
-    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
@@ -45,15 +46,18 @@ public class GameActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_game );
 
+        getSupportActionBar().setDisplayShowTitleEnabled( false );
+        getSupportActionBar().setIcon( R.drawable.ic_launcher );
+        getSupportActionBar().setDisplayShowHomeEnabled( true );
+
         mTableView = (SlidingFrameLayout) findViewById( R.id.table );
         mDrawerLayout = (DrawerLayout) findViewById( R.id.drawerLayout );
         mDrawerLayout.setScrimColor( Color.TRANSPARENT );
-        mDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle( this, mDrawerLayout, R.string.drawerOpen, R.string.drawerClosed )
+        mDrawerLayout.setDrawerListener( new ActionBarDrawerToggle( this, mDrawerLayout, R.string.drawerOpen, R.string.drawerClosed )
         {
             @Override
             public void onDrawerSlide( View drawerView, float slideOffset )
             {
-                super.onDrawerSlide( drawerView, slideOffset );
                 if( mTableView.isOpen() )
                 {
                     mTableView.collapseFrame();
@@ -64,7 +68,6 @@ public class GameActivity extends ActionBarActivity
             @Override
             public void onDrawerOpened( View drawerView )
             {
-                super.onDrawerOpened( drawerView );
                 mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.END );
                 invalidateOptionsMenu();
             }
@@ -72,14 +75,10 @@ public class GameActivity extends ActionBarActivity
             @Override
             public void onDrawerClosed( View drawerView )
             {
-                super.onDrawerClosed( drawerView );
                 mDrawerLayout.setDrawerLockMode( DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END );
                 invalidateOptionsMenu();
             }
-        };
-
-        mDrawerLayout.setDrawerListener( mDrawerToggle );
-
+        } );
 
         if( savedInstanceState == null )
         {
@@ -169,7 +168,7 @@ public class GameActivity extends ActionBarActivity
     @Override
     public void invalidateOptionsMenu()
     {
-        if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+        if( mDrawerLayout.isDrawerOpen( Gravity.END ) )
         {
             mTableFragment.setHasOptionsMenu( false );
             mGameFragment.setHasOptionsMenu( false );
@@ -206,7 +205,15 @@ public class GameActivity extends ActionBarActivity
     @Override
     public void onBackPressed()
     {
-        if( mConnectionFragment != null && mConnectionFragment.isConnected() )
+        if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+        {
+            mDrawerLayout.closeDrawer( GravityCompat.END );
+        }
+        else if( mTableView.isOpen() )
+        {
+            mTableView.collapseFrame();
+        }
+        else if( mConnectionFragment != null && mConnectionFragment.isConnected() )
         {
             String message = null;
             switch( mConnectionFragment.getConnectionType() )

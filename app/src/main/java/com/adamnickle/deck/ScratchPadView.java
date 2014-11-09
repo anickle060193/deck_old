@@ -133,18 +133,23 @@ public class ScratchPadView extends View
         }
     }
 
+    public boolean canUndo()
+    {
+        return !mDrawingSteps.empty();
+    }
+
     public void undo()
     {
         if( !mDrawingSteps.empty() )
         {
             mUndoneDrawingSteps.push( mDrawingSteps.pop() );
             invalidate();
-        }
-    }
 
-    public boolean canUndo()
-    {
-        return !mDrawingSteps.empty();
+            if( getContext() instanceof Activity )
+            {
+                ( (Activity) getContext() ).invalidateOptionsMenu();
+            }
+        }
     }
 
     public boolean canRedo()
@@ -158,6 +163,11 @@ public class ScratchPadView extends View
         {
             mDrawingSteps.push( mUndoneDrawingSteps.pop() );
             invalidate();
+
+            if( getContext() instanceof Activity )
+            {
+                ( (Activity) getContext() ).invalidateOptionsMenu();
+            }
         }
     }
 
@@ -212,14 +222,18 @@ public class ScratchPadView extends View
         }
         mBaseBitmap = bitmap;
 
-        if( mCacheBitmap.getWidth() == mBaseBitmap.getWidth()
+        if( mCacheBitmap != null
+         && mCacheBitmap.getWidth() == mBaseBitmap.getWidth()
          && mCacheBitmap.getHeight() == mBaseBitmap.getHeight() )
         {
             clearCacheBitmap();
         }
         else
         {
-            mCacheBitmap.recycle();
+            if( mCacheBitmap != null )
+            {
+                mCacheBitmap.recycle();
+            }
             mCacheBitmap = Bitmap.createBitmap( mBaseBitmap.getWidth(), mBaseBitmap.getHeight(), Bitmap.Config.ARGB_8888 );
             mCacheCanvas.setBitmap( mCacheBitmap );
         }
@@ -297,6 +311,12 @@ public class ScratchPadView extends View
             mBaseBitmap = null;
         }
         invalidate();
+
+        if( getContext() instanceof Activity )
+        {
+            ( (Activity) getContext() ).invalidateOptionsMenu();
+        }
+        System.gc();
     }
 
     @Override

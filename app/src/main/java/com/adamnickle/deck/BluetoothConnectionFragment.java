@@ -119,33 +119,34 @@ public class BluetoothConnectionFragment extends ConnectionFragment
         {
             case CLIENT:
             {
-                if( mState == State.CONNECTED )
+                switch( mState )
                 {
-                    menu.findItem( R.id.actionLeaveServer ).setVisible( true );
-                }
-                else
-                {
-                    menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+                    case CONNECTED:
+                        menu.findItem( R.id.actionLeaveServer ).setVisible( true );
+                        break;
+                    default:
+                        menu.findItem( R.id.actionLeaveServer ).setVisible( false );
+                        break;
                 }
                 break;
             }
 
             case SERVER:
             {
-                if( mState == State.LISTENING )
+                switch( mState )
                 {
-                    menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-                    menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-                }
-                else if( mState == State.CONNECTED_LISTENING )
-                {
-                    menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
-                    menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
-                }
-                else if( mState == State.CONNECTED )
-                {
-                    menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
-                    menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+                    case LISTENING:
+                        menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                        menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+                        break;
+                    case CONNECTED_LISTENING:
+                        menu.findItem( R.id.actionFinishConnecting ).setVisible( true );
+                        menu.findItem( R.id.actionRestartConnecting ).setVisible( false );
+                        break;
+                    case CONNECTED:
+                        menu.findItem( R.id.actionFinishConnecting ).setVisible( false );
+                        menu.findItem( R.id.actionRestartConnecting ).setVisible( true );
+                        break;
                 }
                 break;
             }

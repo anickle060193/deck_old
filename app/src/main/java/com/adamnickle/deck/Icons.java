@@ -9,13 +9,8 @@ import com.joanzapata.android.iconify.Iconify;
 public final class Icons
 {
     private final static int GAME_SAVE_ICON_SIZE = 30;
-    private static IconDrawable GAME_SAVE_INFO;
-    private static IconDrawable GAME_SAVE_DELETE;
-    private static IconDrawable SCRATCH_PAD_SAVE;
-    private static IconDrawable SCRATCH_PAD_LOAD;
-    private static IconDrawable DELETE_ACTION;
-    private static IconDrawable CLOSE_ACTION;
 
+    private static IconDrawable GAME_SAVE_INFO;
     public static IconDrawable getGameSaveSwipeInfo( Context context )
     {
         if( GAME_SAVE_INFO == null )
@@ -27,6 +22,7 @@ public final class Icons
         return GAME_SAVE_INFO;
     }
 
+    private static IconDrawable GAME_SAVE_DELETE;
     public static IconDrawable getGameSaveDelete( Context context )
     {
         if( GAME_SAVE_DELETE == null )
@@ -38,6 +34,7 @@ public final class Icons
         return GAME_SAVE_DELETE;
     }
 
+    private static IconDrawable SCRATCH_PAD_SAVE;
     public static IconDrawable getScratchPadSave( Context context )
     {
         if( SCRATCH_PAD_SAVE == null )
@@ -49,6 +46,7 @@ public final class Icons
         return SCRATCH_PAD_SAVE;
     }
 
+    private static IconDrawable SCRATCH_PAD_LOAD;
     public static IconDrawable getScratchPadLoad( Context context )
     {
         if( SCRATCH_PAD_LOAD == null )
@@ -60,6 +58,7 @@ public final class Icons
         return SCRATCH_PAD_LOAD;
     }
 
+    private static IconDrawable DELETE_ACTION;
     public static IconDrawable getDeleteAction( Context context )
     {
         if( DELETE_ACTION == null )
@@ -71,6 +70,7 @@ public final class Icons
         return DELETE_ACTION;
     }
 
+    private static IconDrawable CLOSE_ACTION;
     public static IconDrawable getCloseAction( Context context )
     {
         if( CLOSE_ACTION == null )
@@ -80,5 +80,29 @@ public final class Icons
                     .colorRes( R.color.ModerateCyan );
         }
         return CLOSE_ACTION;
+    }
+
+    private static IconDrawable SCRATCH_PAD_UNDO;
+    public static IconDrawable getScratchPadUndo( Context context )
+    {
+        if( SCRATCH_PAD_UNDO == null )
+        {
+            SCRATCH_PAD_UNDO = new IconDrawable( context, Iconify.IconValue.fa_undo )
+                    .actionBarSize()
+                    .colorRes( R.color.ModerateCyan );
+        }
+        return SCRATCH_PAD_UNDO;
+    }
+
+    private static IconDrawable SCRATCH_PAD_REDO;
+    public static IconDrawable getScratchPadRedo( Context context )
+    {
+        if( SCRATCH_PAD_REDO == null )
+        {
+            SCRATCH_PAD_REDO = new IconDrawable( context, Iconify.IconValue.fa_repeat )
+                    .actionBarSize()
+                    .colorRes( R.color.ModerateCyan );
+        }
+        return SCRATCH_PAD_REDO;
     }
 }

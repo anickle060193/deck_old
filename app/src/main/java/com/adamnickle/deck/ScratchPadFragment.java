@@ -1,6 +1,7 @@
 package com.adamnickle.deck;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
@@ -33,6 +34,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class ScratchPadFragment extends Fragment
 {
+    private ViewGroup mContent;
     private ScratchPadView mScratchPadView;
     private DrawerLayout mDrawerLayout;
 
@@ -47,16 +49,17 @@ public class ScratchPadFragment extends Fragment
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        if( mScratchPadView == null )
+        if( mContent == null )
         {
-            mScratchPadView = (ScratchPadView) inflater.inflate( R.layout.drawing_layout, container, false );
+            mContent = (ViewGroup) inflater.inflate( R.layout.scratchpad_layout, container, false );
+            mScratchPadView = (ScratchPadView) mContent.findViewById( R.id.scratchpadView );
         }
         else
         {
-            ( (ViewGroup) mScratchPadView.getParent() ).removeView( mScratchPadView );
+            ( (ViewGroup) mContent.getParent() ).removeView( mContent );
         }
 
-        return mScratchPadView;
+        return mContent;
     }
 
     @Override
@@ -70,31 +73,25 @@ public class ScratchPadFragment extends Fragment
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
-        super.onCreateOptionsMenu( menu, inflater );
-        if( hasOptionsMenu() )
-        {
-            inflater.inflate( R.menu.scratch_pad, menu );
-            menu.findItem( R.id.actionSaveScratchPad ).setIcon( Icons.getScratchPadSave( getActivity() ) );
-            menu.findItem( R.id.actionLoadScratchPad ).setIcon( Icons.getScratchPadLoad( getActivity() ) );
-            menu.findItem( R.id.actionClearScratchPad ).setIcon( Icons.getDeleteAction( getActivity() ) );
-            menu.findItem( R.id.actionCloseScratchPad ).setIcon( Icons.getCloseAction( getActivity() ) );
-        }
+        inflater.inflate( R.menu.scratch_pad, menu );
+        final Context context = getActivity();
+        menu.findItem( R.id.actionSaveScratchPad ).setIcon( Icons.getScratchPadSave( context ) );
+        menu.findItem( R.id.actionLoadScratchPad ).setIcon( Icons.getScratchPadLoad( context ) );
+        menu.findItem( R.id.actionClearScratchPad ).setIcon( Icons.getDeleteAction( context ) );
+        menu.findItem( R.id.actionCloseScratchPad ).setIcon( Icons.getCloseAction( context ) );
+        menu.findItem( R.id.actionUndo ).setIcon( Icons.getScratchPadUndo( context ) );
+        menu.findItem( R.id.actionRedo ).setIcon( Icons.getScratchPadRedo( context ) );
     }
 
     @Override
     public void onPrepareOptionsMenu( Menu menu )
     {
-        super.onPrepareOptionsMenu( menu );
-
-        if( hasOptionsMenu() )
-        {
-            final boolean isEraser = mScratchPadView.isEraser();
-            menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
-            menu.findItem( R.id.actionPen ).setVisible( isEraser );
-            menu.findItem( R.id.actionSetPaintColor ).setVisible( !isEraser );
-            menu.findItem( R.id.undo ).setEnabled( mScratchPadView.canUndo() );
-            menu.findItem( R.id.redo ).setEnabled( mScratchPadView.canRedo() );
-        }
+        final boolean isEraser = mScratchPadView.isEraser();
+        menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
+        menu.findItem( R.id.actionPen ).setVisible( isEraser );
+        menu.findItem( R.id.actionSetPaintColor ).setVisible( !isEraser );
+        menu.findItem( R.id.actionUndo ).setEnabled( mScratchPadView.canUndo() );
+        menu.findItem( R.id.actionRedo ).setEnabled( mScratchPadView.canRedo() );
     }
 
     @Override
@@ -132,11 +129,11 @@ public class ScratchPadFragment extends Fragment
                 handleSetPaintColor();
                 return true;
 
-            case R.id.undo:
+            case R.id.actionUndo:
                 mScratchPadView.undo();
                 return true;
 
-            case R.id.redo:
+            case R.id.actionRedo:
                 mScratchPadView.redo();
                 return true;
 
@@ -196,10 +193,14 @@ public class ScratchPadFragment extends Fragment
             }
 
             @Override
-            public void onStartTrackingTouch( SeekBar seekBar ) { }
+            public void onStartTrackingTouch( SeekBar seekBar )
+            {
+            }
 
             @Override
-            public void onStopTrackingTouch( SeekBar seekBar ) { }
+            public void onStopTrackingTouch( SeekBar seekBar )
+            {
+            }
         } );
 
         DialogHelper

@@ -15,6 +15,16 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/actionUndo"
+        android:title="Undo"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/actionRedo"
+        android:title="Redo"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/actionEraser"
         android:title="Eraser"
         android:icon="@drawable/ic_eraser"
@@ -46,15 +56,5 @@
         android:id="@+id/actionSetPaintColor"
         android:title="Set Paint Color"
         app:showAsAction="never" />
-
-    <item
-        android:id="@+id/undo"
-        android:title="Undo"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/redo"
-        android:title="Redo"
-        app:showAsAction="ifRoom" />
 
 </menu>

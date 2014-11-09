@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
@@ -19,7 +18,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -36,7 +34,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 public class ScratchPadFragment extends Fragment
 {
     private ScratchPadView mScratchPadView;
-    private Bitmap mBitmap;
     private DrawerLayout mDrawerLayout;
 
     @Override
@@ -44,7 +41,7 @@ public class ScratchPadFragment extends Fragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
-        setHasOptionsMenu( true );
+        setHasOptionsMenu( false );
     }
 
     @Override
@@ -59,52 +56,7 @@ public class ScratchPadFragment extends Fragment
             ( (ViewGroup) mScratchPadView.getParent() ).removeView( mScratchPadView );
         }
 
-        mScratchPadView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
-        {
-            @Override
-            public void onGlobalLayout()
-            {
-                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
-                {
-                    mScratchPadView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-                }
-                else
-                {
-                    mScratchPadView.getViewTreeObserver().removeGlobalOnLayoutListener( this );
-                }
-
-                createBitmap();
-            }
-        } );
-
         return mScratchPadView;
-    }
-
-    private void createBitmap()
-    {
-        final int drawingViewWidth = mScratchPadView.getWidth();
-        final int drawingViewHeight = mScratchPadView.getHeight();
-
-        final int bitmapWidth = mBitmap != null ? mBitmap.getWidth() : 0;
-        final int bitmapHeight = mBitmap != null ? mBitmap.getHeight() : 0;
-
-        final int width = Math.max( drawingViewWidth, bitmapWidth );
-        final int height = Math.max( drawingViewHeight, bitmapHeight );
-
-        if( width > bitmapWidth || height > bitmapHeight )
-        {
-            final Bitmap bitmap = Bitmap.createBitmap( width, height, Bitmap.Config.ARGB_8888 );
-
-            if( mBitmap != null )
-            {
-                final Canvas canvas = new Canvas( bitmap );
-                canvas.drawBitmap( mBitmap, 0, 0, null );
-                mBitmap.recycle();
-            }
-
-            mBitmap = bitmap;
-            mScratchPadView.setScratchPadBitmap( mBitmap );
-        }
     }
 
     @Override
@@ -119,7 +71,7 @@ public class ScratchPadFragment extends Fragment
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
         super.onCreateOptionsMenu( menu, inflater );
-        if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+        if( hasOptionsMenu() )
         {
             inflater.inflate( R.menu.scratch_pad, menu );
             menu.findItem( R.id.actionSaveScratchPad ).setIcon( Icons.getScratchPadSave( getActivity() ) );
@@ -134,12 +86,14 @@ public class ScratchPadFragment extends Fragment
     {
         super.onPrepareOptionsMenu( menu );
 
-        if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+        if( hasOptionsMenu() )
         {
             final boolean isEraser = mScratchPadView.isEraser();
             menu.findItem( R.id.actionEraser ).setVisible( !isEraser );
             menu.findItem( R.id.actionPen ).setVisible( isEraser );
             menu.findItem( R.id.actionSetPaintColor ).setVisible( !isEraser );
+            menu.findItem( R.id.undo ).setEnabled( mScratchPadView.canUndo() );
+            menu.findItem( R.id.redo ).setEnabled( mScratchPadView.canRedo() );
         }
     }
 
@@ -171,11 +125,19 @@ public class ScratchPadFragment extends Fragment
                 return true;
 
             case R.id.actionSetStrokeSize:
-                handleSetStrokeSize( item );
+                handleSetStrokeSize();
                 return true;
 
             case R.id.actionSetPaintColor:
                 handleSetPaintColor();
+                return true;
+
+            case R.id.undo:
+                mScratchPadView.undo();
+                return true;
+
+            case R.id.redo:
+                mScratchPadView.redo();
                 return true;
 
             default:
@@ -208,7 +170,7 @@ public class ScratchPadFragment extends Fragment
                 } ).show();
     }
 
-    private void handleSetStrokeSize( MenuItem item )
+    private void handleSetStrokeSize()
     {
         final ViewGroup contentView = (ViewGroup) LayoutInflater.from( getActivity() ).inflate( R.layout.seekbar_popup, null );
 
@@ -262,7 +224,7 @@ public class ScratchPadFragment extends Fragment
             @Override
             public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
             {
-                ScratchPadIO.saveScratchPad( getActivity(), text, mBitmap, new ScratchPadIO.Callback()
+                ScratchPadIO.saveScratchPad( getActivity(), text, mScratchPadView.getBitmap(), new ScratchPadIO.Callback()
                 {
                     @Override
                     public void onSuccess()
@@ -299,10 +261,7 @@ public class ScratchPadFragment extends Fragment
                     Bitmap bitmap = ScratchPadIO.openScratchPad( getActivity(), scratchPad );
                     if( bitmap != null )
                     {
-                        final Bitmap temp = mBitmap;
-                        mBitmap = bitmap;
-                        mScratchPadView.setScratchPadBitmap( mBitmap );
-                        temp.recycle();
+                        mScratchPadView.setScratchPadBitmap( bitmap );
                         DialogHelper.displayNotification( getActivity(), "Scratch pad load successful.", Style.CONFIRM );
                     }
                     else

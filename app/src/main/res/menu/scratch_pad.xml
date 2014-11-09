@@ -47,4 +47,14 @@
         android:title="Set Paint Color"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/undo"
+        android:title="Undo"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/redo"
+        android:title="Redo"
+        app:showAsAction="ifRoom" />
+
 </menu>

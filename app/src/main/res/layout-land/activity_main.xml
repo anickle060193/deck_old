@@ -36,8 +36,15 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start Game"
-            android:id="@+id/startGameButton"
+            android:text="Quick Start Game"
+            android:id="@+id/quickStartGameButton"
+            android:layout_margin="2dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Game"
+            android:id="@+id/newGameButton"
             android:layout_margin="2dp" />
 
         <Button

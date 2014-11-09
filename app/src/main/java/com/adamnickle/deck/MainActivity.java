@@ -32,19 +32,25 @@ public class MainActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-        findViewById( R.id.startGameButton ).setOnClickListener( new View.OnClickListener()
+        findViewById( R.id.quickStartGameButton ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View view )
+            {
+                Intent startServer = new Intent( MainActivity.this, GameActivity.class );
+                startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_TYPE, ConnectionFragment.ConnectionType.SERVER );
+                startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
+                startActivityForResult( startServer, GameActivity.REQUEST_START_GAME );
+            }
+        } );
+
+        findViewById( R.id.newGameButton ).setOnClickListener( new View.OnClickListener()
         {
             @Override
             public void onClick( View view )
             {
                 Intent createGame = new Intent( MainActivity.this, GameCreatorActivity.class );
                 startActivityForResult( createGame, REQUEST_CREATE_GAME );
-                /*
-                Intent startServer = new Intent( MainActivity.this, GameActivity.class );
-                startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_TYPE, ConnectionFragment.ConnectionType.SERVER );
-                startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
-                startActivityForResult( startServer, GameActivity.REQUEST_START_GAME );
-                */
             }
         } );
 

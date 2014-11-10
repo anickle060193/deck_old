@@ -9,4 +9,6 @@
     <dimen name="min_stroke_size">1px</dimen>
 
     <dimen name="table_padding">10dp</dimen>
+
+    <dimen name="max_edge_distance">10dp</dimen>
 </resources>

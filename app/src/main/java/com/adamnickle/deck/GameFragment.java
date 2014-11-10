@@ -3,10 +3,12 @@ package com.adamnickle.deck;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -41,6 +43,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class GameFragment extends Fragment implements GameConnectionListener, GameUiListener
 {
+    private static final long LONG_PRESS_VIBRATE = 40L;
+
     private int mLastOrientation;
     private CardDisplayLayout mCardDisplay;
     private GameConnection mGameConnection;
@@ -54,6 +58,8 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private SlidingFrameLayout mSlidingTableLayout;
     private final EnumMap< CardDisplayLayout.Side, CardHolder > mSidesCardHolders;
+
+    private Vibrator mVibrator;
 
     public GameFragment()
     {
@@ -73,6 +79,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
+    public void onAttach( Activity activity )
+    {
+        super.onAttach( activity );
+
+        mVibrator = (Vibrator) activity.getSystemService( Context.VIBRATOR_SERVICE );
+    }
+
+    @Override
     public void onActivityCreated( @Nullable Bundle savedInstanceState )
     {
         super.onActivityCreated( savedInstanceState );
@@ -87,6 +101,8 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         {
             mCardDisplay = new CardDisplayLayout( getActivity() )
             {
+                private MotionEvent mLastLongPress;
+
                 @Override
                 public void onBackgroundDown( MotionEvent event )
                 {
@@ -138,6 +154,44 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         final MotionEvent up = MotionEvent.obtain( event );
                         up.setAction( MotionEvent.ACTION_UP );
                         this.onTouchEvent( up );
+                    }
+                }
+
+                @Override
+                public void onBackgroundLongPress( MotionEvent event )
+                {
+                    mLastLongPress = event;
+                    mVibrator.vibrate( LONG_PRESS_VIBRATE );
+                }
+
+                @Override
+                public void onBackgroundUp( MotionEvent event )
+                {
+                    if( mLastLongPress != null
+                     && event.getDownTime() == mLastLongPress.getDownTime() )
+                    {
+                        final int pointerIndex = event.getActionIndex();
+                        final float x = event.getX( pointerIndex );
+                        final float y = event.getY( pointerIndex );
+                        final float edgeDistance = getResources().getDimensionPixelSize( R.dimen.max_edge_distance );
+
+                        if( x < edgeDistance )
+                        {
+                            pickPlayerForSide( Side.LEFT );
+                        }
+                        else if( x > ( this.getWidth() - edgeDistance ) )
+                        {
+                            pickPlayerForSide( Side.RIGHT );
+                        }
+                        else if( y < edgeDistance )
+                        {
+                            pickPlayerForSide( Side.TOP );
+                        }
+                        else if( y > this.getHeight() - edgeDistance )
+                        {
+                            pickPlayerForSide( Side.BOTTOM );
+                        }
+                        mLastLongPress = null;
                     }
                 }
             };
@@ -257,9 +311,9 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void handleSetPlayerSidesClick()
     {
-        final String[] sides = { "Left", "Top", "Right", "Bottom" };
+        final String[] sideNames = { "Left", "Top", "Right", "Bottom" };
         final AlertDialog sideDialog = DialogHelper
-                .createSelectItemDialog( getActivity(), "Assign players to side to assist passing:", sides, null )
+                .createSelectItemDialog( getActivity(), "Assign players to side to assist passing:", sideNames, null )
                 .setPositiveButton( "Close", null )
                 .create();
 
@@ -268,48 +322,68 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             @Override
             public void onItemClick( AdapterView< ? > parent, View view, final int whichSide, long id )
             {
-                final CardHolder[] cardHolders = mCardHolders.values().toArray( new CardHolder[ mCardHolders.size() + 1 ] );
-                final String[] cardHolderStrings = new String[ cardHolders.length ];
-                for( int i = 0; i < cardHolders.length - 1; i++ )
+                switch( whichSide )
                 {
-                    cardHolderStrings[ i ] = cardHolders[ i ].toString();
+                    case 0:
+                        pickPlayerForSide( CardDisplayLayout.Side.LEFT );
+                        break;
+                    case 1:
+                        pickPlayerForSide( CardDisplayLayout.Side.TOP );
+                        break;
+                    case 2:
+                        pickPlayerForSide( CardDisplayLayout.Side.RIGHT );
+                        break;
+                    case 3:
+                        pickPlayerForSide( CardDisplayLayout.Side.BOTTOM );
+                        break;
                 }
-                cardHolderStrings[ cardHolderStrings.length - 1 ] = "Clear Player";
-
-                DialogHelper.createSelectItemDialog( getActivity(), "Select player to to side:", cardHolderStrings, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, final int whichPlayer )
-                    {
-                        final CardHolder cardHolder = cardHolders[ whichPlayer ];
-                        switch( whichSide )
-                        {
-                            case 0:
-                                mSidesCardHolders.put( CardDisplayLayout.Side.LEFT, cardHolder );
-                                mCardDisplay.findViewById( R.id.leftBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                                break;
-
-                            case 1:
-                                mSidesCardHolders.put( CardDisplayLayout.Side.TOP, cardHolder );
-                                mCardDisplay.findViewById( R.id.topBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                                break;
-
-                            case 2:
-                                mSidesCardHolders.put( CardDisplayLayout.Side.RIGHT, cardHolder );
-                                mCardDisplay.findViewById( R.id.rightBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                                break;
-
-                            case 3:
-                                mSidesCardHolders.put( CardDisplayLayout.Side.BOTTOM, cardHolder );
-                                mCardDisplay.findViewById( R.id.bottomBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                                break;
-                        }
-                    }
-                } ).show();
             }
         } );
 
         sideDialog.show();
+    }
+
+    private void pickPlayerForSide( final CardDisplayLayout.Side side )
+    {
+        final CardHolder[] cardHolders = mCardHolders.values().toArray( new CardHolder[ mCardHolders.size() + 1 ] );
+        final String[] cardHolderStrings = new String[ cardHolders.length ];
+        for( int i = 0; i < cardHolders.length - 1; i++ )
+        {
+            cardHolderStrings[ i ] = cardHolders[ i ].toString();
+        }
+        cardHolderStrings[ cardHolderStrings.length - 1 ] = "Clear Player";
+
+        final String title = "Assign player to " + side.name() + " side:";
+        DialogHelper.createSelectItemDialog( getActivity(), title, cardHolderStrings, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick( DialogInterface dialog, final int whichPlayer )
+            {
+                final CardHolder cardHolder = cardHolders[ whichPlayer ];
+                switch( side )
+                {
+                    case LEFT:
+                        mSidesCardHolders.put( CardDisplayLayout.Side.LEFT, cardHolder );
+                        mCardDisplay.findViewById( R.id.leftBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
+                        break;
+
+                    case TOP:
+                        mSidesCardHolders.put( CardDisplayLayout.Side.TOP, cardHolder );
+                        mCardDisplay.findViewById( R.id.topBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
+                        break;
+
+                    case RIGHT:
+                        mSidesCardHolders.put( CardDisplayLayout.Side.RIGHT, cardHolder );
+                        mCardDisplay.findViewById( R.id.rightBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
+                        break;
+
+                    case BOTTOM:
+                        mSidesCardHolders.put( CardDisplayLayout.Side.BOTTOM, cardHolder );
+                        mCardDisplay.findViewById( R.id.bottomBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
+                        break;
+                }
+            }
+        } ).show();
     }
 
     private CardHolder[] getDealableCardHolders( boolean includeDrawPiles)

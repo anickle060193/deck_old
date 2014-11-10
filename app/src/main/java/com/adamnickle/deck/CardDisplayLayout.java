@@ -220,7 +220,8 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
             case MotionEvent.ACTION_MOVE:
             {
-                for( int i = 0; i < event.getPointerCount(); i++ )
+                final int pointerCount = event.getPointerCount();
+                for( int i = 0; i < pointerCount; i++ )
                 {
                     final int movePointerID = event.getPointerId( i );
                     final PointF lastPoint = mLastPoints.get( movePointerID );
@@ -249,6 +250,15 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
             {
+                final PlayingCardView playingCardView = mMovingCards.get( pointerId );
+                if( playingCardView != null )
+                {
+                    CardDisplayLayout.this.onCardUp( event, playingCardView );
+                }
+                else
+                {
+                    CardDisplayLayout.this.onBackgroundUp( event );
+                }
                 mMovingCards.remove( pointerId );
                 mLastPoints.remove( pointerId );
                 break;
@@ -292,7 +302,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
 
         @Override
-        public boolean onSingleTapUp( MotionEvent event )
+        public boolean onSingleTapConfirmed( MotionEvent event )
         {
             final int pointerIndex = event.getActionIndex();
             final PlayingCardView playingCardView = findFirstCardUnder( event.getX( pointerIndex ), event.getY( pointerIndex ) );
@@ -327,6 +337,21 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         public boolean onScroll( MotionEvent event, MotionEvent event2, float distanceX, float distanceY )
         {
             return true;
+        }
+
+        @Override
+        public void onLongPress( MotionEvent event )
+        {
+            final int pointerIndex = event.getActionIndex();
+            final PlayingCardView playingCardView = findFirstCardUnder( event.getX( pointerIndex ), event.getY( pointerIndex ) );
+            if( playingCardView != null )
+            {
+                CardDisplayLayout.this.onCardLongPress( event, playingCardView );
+            }
+            else
+            {
+                CardDisplayLayout.this.onBackgroundLongPress( event );
+            }
         }
 
         @Override
@@ -382,12 +407,28 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     {
     }
 
+    public void onBackgroundLongPress( MotionEvent event )
+    {
+    }
+
+    public void onCardLongPress( MotionEvent event, PlayingCardView playingCardView )
+    {
+    }
+
     public void onCardFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY, PlayingCardView playingCardView )
     {
         playingCardView.fling( velocityX, velocityY );
     }
 
     public void onBackgroundFling( MotionEvent event, MotionEvent event2, float velocityX, float velocityY )
+    {
+    }
+
+    public void onBackgroundUp( MotionEvent event )
+    {
+    }
+
+    public void onCardUp( MotionEvent event, PlayingCardView playingCardView )
     {
     }
 

@@ -115,23 +115,39 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 @Override
                 public void onBackgroundDoubleTap( MotionEvent event )
                 {
+                    final String[] backgroundNames = getResources().getStringArray( R.array.backgrounds );
+
+                    final String currentBackground = PreferenceManager
+                            .getDefaultSharedPreferences( getContext().getApplicationContext() )
+                            .getString( DeckSettings.BACKGROUND, DeckSettings.DEFAULT_BACKGROUND_VALUE );
+
+                    int selectedBackground = 0;
+                    for( int i = 0; i < backgroundNames.length; i++ )
+                    {
+                        if( backgroundNames[ i ].equals( currentBackground ) )
+                        {
+                            selectedBackground = i;
+                            break;
+                        }
+                    }
+
                     new AlertDialog.Builder( getContext() )
                             .setTitle( "Pick background" )
-                            .setItems( R.array.backgrounds, new DialogInterface.OnClickListener()
+                            .setSingleChoiceItems( R.array.backgrounds, selectedBackground, new DialogInterface.OnClickListener()
                             {
                                 @Override
                                 public void onClick( DialogInterface dialogInterface, int index )
                                 {
-                                    final String[] backgroundNames = getResources().getStringArray( R.array.backgrounds );
                                     final String backgroundName = backgroundNames[ index ];
                                     final int backgroundResource = DeckSettings.getBackgroundResourceFromString( getResources(), backgroundName );
-                                    
+
                                     PreferenceManager
                                             .getDefaultSharedPreferences( getContext().getApplicationContext() )
                                             .edit()
                                             .putString( DeckSettings.BACKGROUND, backgroundName )
                                             .apply();
                                     setBackgroundResource( backgroundResource );
+                                    dialogInterface.dismiss();
                                 }
                             } )
                             .show();
@@ -200,7 +216,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
             final String backgroundName = PreferenceManager
                     .getDefaultSharedPreferences( getActivity() )
-                    .getString( DeckSettings.BACKGROUND, "White" );
+                    .getString( DeckSettings.BACKGROUND, DeckSettings.DEFAULT_BACKGROUND_VALUE );
             final int backgroundResource = DeckSettings.getBackgroundResourceFromString( getResources(), backgroundName );
             mCardDisplay.setBackgroundResource( backgroundResource );
 

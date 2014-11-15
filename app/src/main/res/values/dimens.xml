@@ -10,5 +10,12 @@
 
     <dimen name="table_padding">10dp</dimen>
 
-    <dimen name="max_edge_distance">10dp</dimen>
+    <dimen name="max_edge_distance">3mm</dimen>
+
+    <dimen name="card_width">139.33dp</dimen>
+    <dimen name="card_height">194.33dp</dimen>
+
+    <dimen name="card_outline_width">2dp</dimen>
+    <dimen name="card_outline_space">.5dp</dimen>
+    <dimen name="card_corner_radius">5dp</dimen>
 </resources>

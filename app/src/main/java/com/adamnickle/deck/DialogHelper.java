@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.adamnickle.deck.Game.CardHolder;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -113,6 +115,29 @@ public class DialogHelper
                 }
             } );
         }
+    }
+
+    public static AlertDialog.Builder displayCardHolderList( Context context, String title, Collection< CardHolder > cardHolders, final CardHolderOnClickListener onClickListener )
+    {
+        final CardHolderAdapter adapter = new CardHolderAdapter( context, cardHolders );
+        return DialogHelper
+                .createBlankAlertDialog( context, title )
+                .setAdapter( adapter, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
+                    {
+                        if( onClickListener != null )
+                        {
+                            onClickListener.onClick( dialog, adapter.getItem( which ) );
+                        }
+                    }
+                } );
+    }
+
+    public static interface CardHolderOnClickListener
+    {
+        public void onClick( DialogInterface dialog, CardHolder cardHolder );
     }
 
     public static abstract class SwipeArrayAdapter<T> extends BaseSwipeAdapter

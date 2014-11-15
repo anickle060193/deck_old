@@ -18,6 +18,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import ru.noties.debug.Debug;
 
@@ -25,7 +26,7 @@ public class PlayingCardView extends ImageView
 {
     private static final float MINIMUM_VELOCITY = 50.0f;
 
-    private static Bitmap mBlueBackBitmap;
+    private static final HashMap< Float, Bitmap > sScaledBackBitmaps = new HashMap< Float, Bitmap >();
 
     private Bitmap mCardBitmap;
     private final Card mCard;
@@ -39,7 +40,7 @@ public class PlayingCardView extends ImageView
     private boolean mAttachedToWindow;
     private boolean mBitmapLoaded;
 
-    public PlayingCardView( Context context, String ownerID, Card card, final float scale )
+    public PlayingCardView( Context context, String ownerID, Card card, float scale )
     {
         super( context );
 
@@ -49,12 +50,32 @@ public class PlayingCardView extends ImageView
         mResetCard = true;
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
-        mScale = scale;
+        mScale = Math.round( scale * 100.0f ) / 100.0f;
         mAttachedToWindow = false;
         mBitmapLoaded = false;
 
         this.setLayoutParams( new CardDisplayLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
         this.setScaleType( ScaleType.CENTER_CROP );
+
+        boolean hasBackground = false;
+        if( mOwnerID.startsWith( TableFragment.DISCARD_PILE_ID_PREFIX ) )
+        {
+            this.setBackgroundResource( R.drawable.discard_pile_outline );
+            hasBackground = true;
+        }
+        else if( mOwnerID.startsWith( TableFragment.DRAW_PILE_ID_PREFIX ) )
+        {
+            this.setBackgroundResource( R.drawable.draw_pile_outline );
+            hasBackground = true;
+        }
+
+        if( hasBackground )
+        {
+            final int cardOutlineWidth = getResources().getDimensionPixelSize( R.dimen.card_outline_width );
+            final int cardOutlineSpace = getResources().getDimensionPixelSize( R.dimen.card_outline_space );
+            final int padding = cardOutlineWidth + cardOutlineSpace;
+            this.setPadding( padding, padding, padding, padding );
+        }
 
         new Thread()
         {
@@ -63,14 +84,26 @@ public class PlayingCardView extends ImageView
             {
                 try
                 {
+                    final int cardWidth = (int) ( getResources().getDimensionPixelSize( R.dimen.card_width ) * mScale );
+                    final int cardHeight = (int) ( getResources().getDimensionPixelSize( R.dimen.card_height ) * mScale );
+
                     synchronized( PlayingCardView.class )
                     {
-                        if( mBlueBackBitmap == null )
+                        if( !sScaledBackBitmaps.containsKey( mScale ) )
                         {
-                            mBlueBackBitmap = Picasso.with( getContext() ).load( CardResources.BLUE_CARD_BACK ).get();
+                            final Bitmap bitmap = Picasso
+                                    .with( getContext() )
+                                    .load( CardResources.RED_CARD_BACK )
+                                    .resize( cardWidth, cardHeight )
+                                    .get();
+                            sScaledBackBitmaps.put( mScale, bitmap );
                         }
                     }
-                    mCardBitmap = Picasso.with( getContext() ).load( mCard.getResource() ).get();
+                    mCardBitmap = Picasso
+                            .with( getContext() )
+                            .load( mCard.getResource() )
+                            .resize( cardWidth, cardHeight )
+                            .get();
                     mBitmapLoaded = true;
 
                     new Handler( Looper.getMainLooper() ).post( new Runnable()
@@ -79,13 +112,6 @@ public class PlayingCardView extends ImageView
                         public void run()
                         {
                             setCardBitmap();
-                            if( mScale != 1.0f )
-                            {
-                                CardDisplayLayout.LayoutParams lp = (CardDisplayLayout.LayoutParams) PlayingCardView.this.getLayoutParams();
-                                lp.width = (int) ( PlayingCardView.this.getDrawable().getIntrinsicWidth() * mScale );
-                                lp.height = (int) ( PlayingCardView.this.getDrawable().getIntrinsicHeight() * mScale );
-                                PlayingCardView.this.setLayoutParams( lp );
-                            }
                         }
                     } );
                 }
@@ -382,9 +408,9 @@ public class PlayingCardView extends ImageView
         }
         else
         {
-            if( mBlueBackBitmap != null )
+            if( sScaledBackBitmaps.containsKey( mScale ) )
             {
-                this.setImageBitmap( mBlueBackBitmap );
+                this.setImageBitmap( sScaledBackBitmaps.get( mScale ) );
             }
         }
     }

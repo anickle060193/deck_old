@@ -361,45 +361,52 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void pickPlayerForSide( final CardDisplayLayout.Side side )
     {
-        final CardHolder[] cardHolders = mCardHolders.values().toArray( new CardHolder[ mCardHolders.size() + 1 ] );
-        final String[] cardHolderStrings = new String[ cardHolders.length ];
-        for( int i = 0; i < cardHolders.length - 1; i++ )
-        {
-            cardHolderStrings[ i ] = cardHolders[ i ].toString();
-        }
-        cardHolderStrings[ cardHolderStrings.length - 1 ] = "Clear Player";
-
         final String title = "Assign player to " + side.name() + " side:";
-        DialogHelper.createSelectItemDialog( getActivity(), title, cardHolderStrings, new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick( DialogInterface dialog, final int whichPlayer )
-            {
-                final CardHolder cardHolder = cardHolders[ whichPlayer ];
-                switch( side )
+        DialogHelper
+                .displayCardHolderList( getActivity(), title, mCardHolders.values(), new DialogHelper.CardHolderOnClickListener()
                 {
-                    case LEFT:
-                        mSidesCardHolders.put( CardDisplayLayout.Side.LEFT, cardHolder );
-                        mCardDisplay.findViewById( R.id.leftBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                        break;
+                    @Override
+                    public void onClick( DialogInterface dialog, CardHolder cardHolder )
+                    {
+                        setCardHolderToSide( side, cardHolder );
+                    }
+                } )
+                .setPositiveButton( "Clear Player", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int whichButton )
+                    {
+                        setCardHolderToSide( side, null );
+                    }
+                } )
+                .setNegativeButton( "Cancel", null )
+                .show();
+    }
 
-                    case TOP:
-                        mSidesCardHolders.put( CardDisplayLayout.Side.TOP, cardHolder );
-                        mCardDisplay.findViewById( R.id.topBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                        break;
+    private void setCardHolderToSide( CardDisplayLayout.Side side, @Nullable CardHolder cardHolder )
+    {
+        switch( side )
+        {
+            case LEFT:
+                mSidesCardHolders.put( CardDisplayLayout.Side.LEFT, cardHolder );
+                mCardDisplay.findViewById( R.id.leftBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.INVISIBLE );
+                break;
 
-                    case RIGHT:
-                        mSidesCardHolders.put( CardDisplayLayout.Side.RIGHT, cardHolder );
-                        mCardDisplay.findViewById( R.id.rightBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                        break;
+            case TOP:
+                mSidesCardHolders.put( CardDisplayLayout.Side.TOP, cardHolder );
+                mCardDisplay.findViewById( R.id.topBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.INVISIBLE );
+                break;
 
-                    case BOTTOM:
-                        mSidesCardHolders.put( CardDisplayLayout.Side.BOTTOM, cardHolder );
-                        mCardDisplay.findViewById( R.id.bottomBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.GONE );
-                        break;
-                }
-            }
-        } ).show();
+            case RIGHT:
+                mSidesCardHolders.put( CardDisplayLayout.Side.RIGHT, cardHolder );
+                mCardDisplay.findViewById( R.id.rightBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.INVISIBLE );
+                break;
+
+            case BOTTOM:
+                mSidesCardHolders.put( CardDisplayLayout.Side.BOTTOM, cardHolder );
+                mCardDisplay.findViewById( R.id.bottomBorder ).setVisibility( cardHolder != null ? View.VISIBLE : View.INVISIBLE );
+                break;
+        }
     }
 
     private CardHolder[] getDealableCardHolders( boolean includeDrawPiles)
@@ -468,7 +475,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void handleDealSingleCardClick()
     {
-        final CardHolder[] players = getDealableCardHolders( true );
+        final CardHolder[] players = getDealableCardHolders( false );
         if( players.length == 0 )
         {
             DialogHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from." );
@@ -479,23 +486,17 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         }
         else
         {
-            final String[] playerNames = new String[ players.length ];
-            final String[] playerIDs = new String[ players.length ];
-            for( int i = 0; i < players.length; i++ )
-            {
-                playerNames[ i ] = players[ i ].getName();
-                playerIDs[ i ] = players[ i ].getID();
-            }
-            DialogHelper.createSelectItemDialog( getActivity(), "Select player to deal card to:", playerNames, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick( DialogInterface dialogInterface, int index )
-                {
-                    final String playerID = playerIDs[ index ];
-                    mGameConnection.sendCard( GameConnection.MOCK_SERVER_ADDRESS, playerID, mDeck.removeTopCard(), null );
-                    dialogInterface.dismiss();
-                }
-            } ).show();
+            final CardHolderAdapter cardHolderAdapter = new CardHolderAdapter( getActivity(), players );
+            DialogHelper.createBlankAlertDialog( getActivity(), "Select player to deal card to:" )
+                    .setAdapter( cardHolderAdapter, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick( DialogInterface dialog, int which )
+                        {
+                            final CardHolder cardHolder = cardHolderAdapter.getItem( which );
+                            mGameConnection.sendCard( GameConnection.MOCK_SERVER_ADDRESS, cardHolder.getID(), mDeck.removeTopCard(), null );
+                        }
+                    } ).show();
         }
     }
 
@@ -622,16 +623,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             }
             else
             {
-                final CardHolder[] players = mCardHolders.values().toArray( new CardHolder[ mCardHolders.size() ] );
-                DialogHelper.createSelectItemDialog( getActivity(), "Select player to send card to:", players, new DialogInterface.OnClickListener()
+                DialogHelper.displayCardHolderList( getActivity(), "Select player to send card to:", mCardHolders.values(), new DialogHelper.CardHolderOnClickListener()
                 {
                     @Override
-                    public void onClick( DialogInterface dialogInterface, int i )
+                    public void onClick( DialogInterface dialogInterface, CardHolder clickedCardHolder )
                     {
-                        final CardHolder player = players[ i ];
-                        if( player != null )
+                        if( clickedCardHolder != null )
                         {
-                            mGameConnection.sendCard( ownerID, player.getID(), card, ownerID );
+                            mGameConnection.sendCard( ownerID, clickedCardHolder.getID(), card, ownerID );
                         }
                         else
                         {

@@ -5,10 +5,12 @@ import android.util.JsonToken;
 import android.util.JsonWriter;
 
 import com.adamnickle.deck.Interfaces.CardHolderListener;
+import com.adamnickle.deck.TableFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 
 
 public class CardHolder
@@ -189,5 +191,53 @@ public class CardHolder
         reader.endObject();
 
         return player;
+    }
+
+    public static class CardHolderComparator implements Comparator< CardHolder >
+    {
+        private CardHolderComparator() { }
+
+        private static final CardHolderComparator COMPARATOR = new CardHolderComparator();
+
+        public static CardHolderComparator getInstance()
+        {
+            return COMPARATOR;
+        }
+
+        @Override
+        public int compare( CardHolder one, CardHolder two )
+        {
+            final int numberOne = getValue( one );
+            final int numberTwo = getValue( two );
+
+            int compare = numberOne - numberTwo;
+            if( compare == 0 )
+            {
+                compare = one.getName().compareTo( two.getName() );
+            }
+
+            return (int) Math.signum( compare );
+        }
+
+        private int getValue( CardHolder cardHolder )
+        {
+            final String ID = cardHolder.getID();
+            if( ID.startsWith( TableFragment.TABLE_ID ) )
+            {
+                return 1;
+            }
+            else if( ID.startsWith( TableFragment.DRAW_PILE_ID_PREFIX ) )
+            {
+                return 2;
+            }
+            else if( ID.startsWith( TableFragment.DISCARD_PILE_ID_PREFIX ) )
+            {
+                return 3;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
 }

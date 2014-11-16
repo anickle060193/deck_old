@@ -2,6 +2,22 @@
 
 <changelog bulletedList="true">
 
+    <changelogversion versionName="0.5.0" changeDate="November 15, 2014" >
+        <changelogtext>Upgraded to using the Support v21 library for Material Design!</changelogtext>
+        <changelogtext>[b]New![/b] Added ability to designate players to certain sides to make passing cards easier.</changelogtext>
+        <changelogtext>Added ability to send cards straight to Table when it is open and a card is slide under it.</changelogtext>
+        <changelogtext>Improved player selection lists to allow easier player selection.</changelogtext>
+        <changelogtext>[b]New![/b] Added draw and discard piles to Table.</changelogtext>
+        <changelogtext>Added outline to discard and draw card piles on Table.</changelogtext>
+        <changelogtext>[b]New![/b] Added ability to save and re-load Scratch Pads.</changelogtext>
+        <changelogtext>[b]New![/b] Can now change color of pen in Scratch Pad.</changelogtext>
+        <changelogtext>[b]New![/b] Can now change size of pen in Scratch Pad.</changelogtext>
+        <changelogtext>[b]New![/b] Added undo/redo functionality to Scratch Pad.</changelogtext>
+        <changelogtext>Changed several notifications to be more accurate and descriptive.</changelogtext>
+        <changelogtext>Several improvements and optimizations to memory usage.</changelogtext>
+        <changelogtext>Changed version naming. Are you happy, Chris?</changelogtext>
+    </changelogversion>
+
     <changelogversion versionName="Beta 4.0" changeDate="October 19, 2014">
         <changelogtext>Fixed issue with being able to duplicate cards taken from Table.</changelogtext>
         <changelogtext>[b]New![/b] Added a scratchpad for in-game notes.</changelogtext>

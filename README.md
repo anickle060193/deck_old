@@ -5,11 +5,26 @@ Virtual Android Deck Application
 The developmental website for the Deck application can be found at: https://anickle060193.github.io/deck
 
 
-##Versions
+##Release Versions
+
+###Version 0.5.0
+- Upgraded to using the Support v21 library for Material Design!
+- **New!** Added ability to designate players to certain sides to make passing cards easier.
+- Added ability to send cards straight to Table when it is open and a card is slide under it.
+- Improved player selection lists to allow easier player selection.
+- **New!** Added draw and discard piles to Table.
+- Added outline to discard and draw card piles on Table.
+- **New!** Added ability to save and re-load Scratch Pads.
+- **New!** Can now change color of pen in Scratch Pad.
+- **New!** Can now change size of pen in Scratch Pad.
+- **New!** Added undo/redo functionality to Scratch Pad.
+- Changed several notifications to be more accurate and descriptive.
+- Several improvements and optimizations to memory usage.
+- Changed version naming. Are you happy, Chris?
 
 ###Beta 4.0
 - Fixed issue with being able to duplicate cards taken from Table.
-- Added a scratchpad for in-game notes.
+- **New!** Added a scratchpad for in-game notes.
 - Improved game save selection list.
 - Switched from using Toasts to Croutons for in-app notifications.
 - Improved Device List Activity UI.
@@ -24,7 +39,7 @@ The developmental website for the Deck application can be found at: https://anic
 - Made various changes and improvements to how cards are passed between card holders.
 
 ###Beta 3.0
-- Added a Table that cards can be placed on.
+- **New!** Added a Table that cards can be placed on.
 
 ###Beta 2.1
 - Fixed problems.
@@ -33,9 +48,9 @@ The developmental website for the Deck application can be found at: https://anic
 ###Beta 2.0
 - Fixed bugs.
 - Improved robustness throughout.
-- Added ability to save and restore games.
-- Added application settings.
-- Added ability to layout cards by suit or rank.
+- **New!** Added ability to save and restore games.
+- **New!** Added application settings.
+- **New!** Added ability to layout cards by suit or rank.
 - Many small improvements.
 
 ###Beta 1.1
@@ -43,5 +58,6 @@ The developmental website for the Deck application can be found at: https://anic
 - Added settings.
 - Other general changes.
 
+
 ###Beta 1.0
-- First beta destribution
+- Initial beta distribution.

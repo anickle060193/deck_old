@@ -10,21 +10,54 @@ import com.adamnickle.deck.Game.GameMessage;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import de.keyboardsurfer.android.widget.crouton.Style;
+import ru.noties.debug.Debug;
 
 public abstract class GameConnection implements ConnectionListener
 {
     public static final String MOCK_SERVER_ADDRESS = "mock_server_address";
     public static final String MOCK_SERVER_NAME = "Server Host";
 
-    protected ConnectionFragment mConnectionFragment;
-    protected LinkedList<GameConnectionListener> mListeners;
+    protected final ConnectionFragment mConnectionFragment;
+    protected final LinkedList<GameConnectionListener> mListeners;
+
+    private final ArrayBlockingQueue<GameMessage> mMessages;
 
     public GameConnection( ConnectionFragment connectionFragment )
     {
         mConnectionFragment = connectionFragment;
         mListeners = new LinkedList< GameConnectionListener >();
+        mMessages = new ArrayBlockingQueue< GameMessage >( 10 );
+
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                while( true )
+                {
+                    try
+                    {
+                        final GameMessage message = mMessages.take();
+                        Debug.d( "HANDLING MESSAGE: " + message.getMessageType().name() );
+                        final String originalSenderID = message.getOriginalSenderID();
+                        final String receiverID = message.getReceiverID();
+                        final GameConnectionListener listener = findAppropriateListener( message );
+                        if( listener != null )
+                        {
+                            GameConnection.this.onMessageHandle( listener, originalSenderID, receiverID, message );
+                        }
+                    }
+                    catch( InterruptedException e )
+                    {
+                        Debug.e( e );
+                        break;
+                    }
+                }
+            }
+        }.start();
     }
 
     public void addGameConnectionListener( GameConnectionListener listener )
@@ -73,22 +106,24 @@ public abstract class GameConnection implements ConnectionListener
      * ConnectionListener Methods
      *******************************************************************/
     @Override
-    public synchronized final void onMessageReceive( String senderID, int bytes, byte[] allData )
+    public final void onMessageReceive( String senderID, int bytes, byte[] allData )
     {
         final byte[] data = Arrays.copyOf( allData, bytes );
         final GameMessage message = GameMessage.deserializeMessage( data );
 
-       final String originalSenderID = message.getOriginalSenderID();
-        final String receiverID = message.getReceiverID();
-        final GameConnectionListener listener = findAppropriateListener( message );
-        if( listener != null )
+        try
         {
-            this.onMessageHandle( listener, originalSenderID, receiverID, message );
+            Debug.d( "RECEIVED MESSAGE: " + message.getMessageType().name() );
+            mMessages.put( message );
+        }
+        catch( InterruptedException e )
+        {
+            e.printStackTrace();
         }
     }
 
     @Override
-    public synchronized void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
+    public void onMessageHandle( GameConnectionListener listener, String originalSenderID, String receiverID, GameMessage message )
     {
         switch( message.getMessageType() )
         {

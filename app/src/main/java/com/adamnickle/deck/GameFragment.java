@@ -831,6 +831,16 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     }
 
     @Override
+    public void onGameOpen( String senderID, String receiverID, Card[] cards )
+    {
+        if( receiverID.equals( mLocalPlayer.getID() ) )
+        {
+            mLocalPlayer.clearCards();
+            mLocalPlayer.addCards( cards );
+        }
+    }
+
+    @Override
     public void onReceiveCardHolders( String senderID, String receiverID, CardHolder[] cardHolders )
     {
         for( CardHolder cardHolder : cardHolders )

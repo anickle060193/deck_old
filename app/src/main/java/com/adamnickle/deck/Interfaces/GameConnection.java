@@ -189,6 +189,13 @@ public abstract class GameConnection implements ConnectionListener
                 listener.onCardsRemove( originalSenderID, receiverID, cards );
                 break;
             }
+
+            case MESSAGE_GAME_OPEN:
+            {
+                final Card[] cards = message.getCards();
+                listener.onGameOpen( originalSenderID, receiverID, cards );
+                break;
+            }
         }
     }
 
@@ -269,6 +276,13 @@ public abstract class GameConnection implements ConnectionListener
     {
         final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_CLEAR_CARDS, commandingDeviceID, toBeClearedDeviceID );
         this.sendMessageToDevice( message, commandingDeviceID, toBeClearedDeviceID );
+    }
+
+    public void sendGameOpen( String senderID, String receiverID, Card[] cards )
+    {
+        final GameMessage message = new GameMessage( GameMessage.MessageType.MESSAGE_GAME_OPEN, senderID, receiverID );
+        message.putCards( cards );
+        this.sendMessageToDevice( message, senderID, receiverID );
     }
 
     public void sendCardHolderName( String senderID, String receiverID, String name )

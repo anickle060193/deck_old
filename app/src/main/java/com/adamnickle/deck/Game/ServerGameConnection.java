@@ -241,10 +241,6 @@ public class ServerGameConnection extends GameConnection
 
         if( GameSaveIO.openGameSave( gameSave, players, players ) )
         {
-            for( CardHolder player : mPlayers.values() )
-            {
-                this.clearCards( MOCK_SERVER_ADDRESS, player.getID() );
-            }
             mLeftPlayers.clear();
 
             Iterator<CardHolder> cardHolderIterator = players.values().iterator();
@@ -253,7 +249,7 @@ public class ServerGameConnection extends GameConnection
                 final CardHolder cardHolder = cardHolderIterator.next();
                 if( mPlayers.containsKey( cardHolder.getID() ) )
                 {
-                    this.sendCards( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolder.getCards() );
+                    this.sendGameOpen( MOCK_SERVER_ADDRESS, cardHolder.getID(), cardHolder.getCards() );
                     cardHolderIterator.remove();
                 }
             }

@@ -420,6 +420,28 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
     }
 
     @Override
+    public void onGameOpen( String senderID, String receiverID, Card[] cards )
+    {
+        if( receiverID.equals( TABLE_ID ) )
+        {
+            mTable.clearCards();
+            mTable.addCards( cards );
+        }
+        else if( receiverID.startsWith( DRAW_PILE_ID_PREFIX ) )
+        {
+            final CardHolder drawPile = mDrawPiles.get( receiverID );
+            drawPile.clearCards();
+            drawPile.addCards( cards );
+        }
+        else if( receiverID.startsWith( DISCARD_PILE_ID_PREFIX ) )
+        {
+            final CardHolder discardPile = mDiscardPiles.get( receiverID );
+            discardPile.clearCards();
+            discardPile.addCards( cards );
+        }
+    }
+
+    @Override
     public void onReceiveCardHolders( String senderID, String receiverID, CardHolder[] cardHolders )
     {
         for( CardHolder cardHolder : cardHolders )

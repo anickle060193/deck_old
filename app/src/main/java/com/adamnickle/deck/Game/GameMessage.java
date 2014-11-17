@@ -21,6 +21,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         MESSAGE_SET_NAME,
         MESSAGE_PLAYER_LEFT,
         MESSAGE_CARD_HOLDERS,
+        MESSAGE_GAME_OPEN,
     }
 
     protected enum Key

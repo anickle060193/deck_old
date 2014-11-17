@@ -28,6 +28,7 @@ public abstract class GameConnection implements ConnectionListener
     protected final LinkedList<GameConnectionListener> mListeners;
 
     private final ArrayBlockingQueue<GameMessage> mMessages;
+    private final MessageHandlingThread mMessageHandlingThread;
 
     public GameConnection( ConnectionFragment connectionFragment )
     {
@@ -35,33 +36,42 @@ public abstract class GameConnection implements ConnectionListener
         mListeners = new LinkedList< GameConnectionListener >();
         mMessages = new ArrayBlockingQueue< GameMessage >( 10 );
 
-        new Thread()
+        mMessageHandlingThread = new MessageHandlingThread();
+    }
+
+    private class MessageHandlingThread extends Thread
+    {
+        private boolean mHandling = true;
+
+        @Override
+        public void run()
         {
-            @Override
-            public void run()
+            while( mHandling )
             {
-                while( true )
+                try
                 {
-                    try
+                    final GameMessage message = mMessages.take();
+                    Debug.d( "HANDLING MESSAGE: " + message.getMessageType().name() );
+                    final String originalSenderID = message.getOriginalSenderID();
+                    final String receiverID = message.getReceiverID();
+                    final GameConnectionListener listener = findAppropriateListener( message );
+                    if( listener != null )
                     {
-                        final GameMessage message = mMessages.take();
-                        Debug.d( "HANDLING MESSAGE: " + message.getMessageType().name() );
-                        final String originalSenderID = message.getOriginalSenderID();
-                        final String receiverID = message.getReceiverID();
-                        final GameConnectionListener listener = findAppropriateListener( message );
-                        if( listener != null )
-                        {
-                            GameConnection.this.onMessageHandle( listener, originalSenderID, receiverID, message );
-                        }
-                    }
-                    catch( InterruptedException e )
-                    {
-                        Debug.e( e );
-                        break;
+                        GameConnection.this.onMessageHandle( listener, originalSenderID, receiverID, message );
                     }
                 }
+                catch( InterruptedException e )
+                {
+                    Debug.e( e );
+                }
             }
-        }.start();
+        }
+
+        public void cancel()
+        {
+            mHandling = false;
+            this.interrupt();
+        }
     }
 
     public void addGameConnectionListener( GameConnectionListener listener )
@@ -238,6 +248,23 @@ public abstract class GameConnection implements ConnectionListener
     @Override
     public void onConnectionStateChange( ConnectionFragment.State newState )
     {
+        if( newState == ConnectionFragment.State.NONE )
+        {
+            if( mMessageHandlingThread.isAlive() )
+            {
+                Debug.d( "THREAD CANCELLED" );
+                mMessageHandlingThread.cancel();
+            }
+        }
+        else
+        {
+            if( !mMessageHandlingThread.isAlive() )
+            {
+                Debug.d( "THREAD STARTED" );
+                mMessageHandlingThread.start();
+            }
+        }
+
         for( GameConnectionListener listener : mListeners )
         {
             listener.onConnectionStateChange( newState );

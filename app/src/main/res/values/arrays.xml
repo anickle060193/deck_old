@@ -46,4 +46,9 @@
         <item>@drawable/triangles_pattern</item>
     </integer-array>
 
+    <string-array name="card_backs">
+        <item>Blue Back</item>
+        <item>Red Back</item>
+    </string-array>
+
 </resources>

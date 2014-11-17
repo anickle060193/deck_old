@@ -11,4 +11,11 @@
         android:singleLine="true"
         android:maxLines="1" />
 
+    <ListPreference
+        android:key="card_back_pref"
+        android:title="Card back style"
+        android:defaultValue="Blue Back"
+        android:entries="@array/card_backs"
+        android:entryValues="@array/card_backs" />
+
 </PreferenceScreen>

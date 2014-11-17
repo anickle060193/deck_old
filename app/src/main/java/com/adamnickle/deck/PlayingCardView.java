@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
+import com.adamnickle.deck.Game.DeckSettings;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class PlayingCardView extends ImageView
     private static final float MINIMUM_VELOCITY = 50.0f;
 
     private static final HashMap< Float, Bitmap > sScaledBackBitmaps = new HashMap< Float, Bitmap >();
+    private static int sCardBackResource = 0;
 
     private Bitmap mCardBitmap;
     private final Card mCard;
@@ -40,7 +42,7 @@ public class PlayingCardView extends ImageView
     private boolean mAttachedToWindow;
     private boolean mBitmapLoaded;
 
-    public PlayingCardView( Context context, String ownerID, Card card, float scale )
+    public PlayingCardView( final Context context, String ownerID, Card card, float scale )
     {
         super( context );
 
@@ -89,11 +91,21 @@ public class PlayingCardView extends ImageView
 
                     synchronized( PlayingCardView.class )
                     {
+                        final int cardBackResource = DeckSettings.getCardBackResource( getContext() );
+                        if( cardBackResource != sCardBackResource )
+                        {
+                            sCardBackResource = cardBackResource;
+                            for( Bitmap bitmap : sScaledBackBitmaps.values() )
+                            {
+                                bitmap.recycle();
+                            }
+                            sScaledBackBitmaps.clear();
+                        }
                         if( !sScaledBackBitmaps.containsKey( mScale ) )
                         {
                             final Bitmap bitmap = Picasso
                                     .with( getContext() )
-                                    .load( CardResources.RED_CARD_BACK )
+                                    .load( sCardBackResource )
                                     .resize( cardWidth, cardHeight )
                                     .get();
                             sScaledBackBitmaps.put( mScale, bitmap );

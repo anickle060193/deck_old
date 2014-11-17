@@ -37,6 +37,7 @@ public class DeckSettingsActivity extends ActionBarActivity
             setRetainInstance( true );
 
             bindPreferenceSummaryToValue( findPreference( DeckSettings.PLAYER_NAME ) );
+            bindPreferenceSummaryToValue( findPreference( DeckSettings.CARD_BACK ) );
         }
 
         private void bindPreferenceSummaryToValue( Preference preference )

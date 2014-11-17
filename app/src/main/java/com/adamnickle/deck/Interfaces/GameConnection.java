@@ -1,13 +1,17 @@
 package com.adamnickle.deck.Interfaces;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardHolder;
 import com.adamnickle.deck.Game.GameMessage;
+import com.adamnickle.deck.GameActivity;
 
 import java.io.File;
+import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -109,7 +113,21 @@ public abstract class GameConnection implements ConnectionListener
     public final void onMessageReceive( String senderID, int bytes, byte[] allData )
     {
         final byte[] data = Arrays.copyOf( allData, bytes );
-        final GameMessage message = GameMessage.deserializeMessage( data );
+        final GameMessage message;
+        try
+        {
+            message = GameMessage.deserializeMessage( data );
+        }
+        catch( InvalidClassException e )
+        {
+            if( !isServer() )
+            {
+                final Activity activity = mConnectionFragment.getActivity();
+                activity.setResult( GameActivity.RESULT_INVALID_VERSIONS, new Intent( GameActivity.class.getName() ) );
+                activity.finish();
+            }
+            return;
+        }
 
         try
         {

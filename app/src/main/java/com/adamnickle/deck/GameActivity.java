@@ -23,7 +23,6 @@ import com.adamnickle.deck.Interfaces.GameConnection;
 import java.security.InvalidParameterException;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
-import ru.noties.debug.Debug;
 
 
 public class GameActivity extends ActionBarActivity
@@ -31,6 +30,7 @@ public class GameActivity extends ActionBarActivity
     public final static int REQUEST_START_GAME = 1;
 
     public final static int RESULT_DISCONNECTED_FROM_SERVER = Activity.RESULT_FIRST_USER;
+    public final static int RESULT_INVALID_VERSIONS = RESULT_DISCONNECTED_FROM_SERVER + 1;
 
     private ConnectionFragment mConnectionFragment;
     private GameConnection mGameConnection;

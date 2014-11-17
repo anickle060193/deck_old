@@ -130,6 +130,10 @@ public class MainActivity extends ActionBarActivity
                     case Activity.RESULT_CANCELED:
                         mCrouton = Crouton.makeText( this, "Game Closed", Style.INFO );
                         break;
+
+                    case GameActivity.RESULT_INVALID_VERSIONS:
+                        mCrouton = Crouton.makeText( this, "Cannot connect to Server. Deck versions differ.", Style.ALERT );
+                        break;
                 }
             }
             else if( ConnectionFragment.class.getName().equals( action ) )

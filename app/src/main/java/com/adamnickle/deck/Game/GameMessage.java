@@ -4,9 +4,12 @@ package com.adamnickle.deck.Game;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EnumMap;
+
+import ru.noties.debug.Debug;
 
 public class GameMessage extends EnumMap< GameMessage.Key, Object >
 {
@@ -114,7 +117,7 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
         return data;
     }
 
-    public static GameMessage deserializeMessage( byte[] data )
+    public static GameMessage deserializeMessage( byte[] data ) throws InvalidClassException
     {
         GameMessage message = null;
         try
@@ -122,6 +125,11 @@ public class GameMessage extends EnumMap< GameMessage.Key, Object >
             ByteArrayInputStream byteInput = new ByteArrayInputStream( data );
             ObjectInputStream input = new ObjectInputStream( byteInput );
             message = (GameMessage) input.readObject();
+        }
+        catch( InvalidClassException e )
+        {
+            Debug.e( e );
+            throw e;
         }
         catch( IOException e )
         {

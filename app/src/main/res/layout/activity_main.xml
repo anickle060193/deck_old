@@ -63,4 +63,19 @@
 
     </LinearLayout>
 
+    <android.widget.IconButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="{fa-info-circle}"
+        android:background="@null"
+        android:shadowColor="#22000000"
+        android:shadowDx="3"
+        android:shadowDy="3"
+        android:shadowRadius="1"
+        android:textSize="50sp"
+        android:textColor="@color/ModerateCyan"
+        android:id="@+id/textView"
+        android:layout_gravity="right|bottom"
+        android:layout_weight="0.5"/>
+
 </LinearLayout>

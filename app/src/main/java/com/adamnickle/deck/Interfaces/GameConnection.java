@@ -261,7 +261,14 @@ public abstract class GameConnection implements ConnectionListener
             if( !mMessageHandlingThread.isAlive() )
             {
                 Debug.d( "THREAD STARTED" );
-                mMessageHandlingThread.start();
+                try
+                {
+                    mMessageHandlingThread.start();
+                }
+                catch( IllegalThreadStateException e )
+                {
+                    Debug.d( "Thread already started." );
+                }
             }
         }
 

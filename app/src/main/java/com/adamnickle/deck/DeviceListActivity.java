@@ -235,7 +235,7 @@ public class DeviceListActivity extends ActionBarActivity
                     BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
                     if( device.getBondState() != BluetoothDevice.BOND_BONDED )
                     {
-                        if( mDevicesArrayAdapter.getPosition( device ) == -1 )
+                        if( !mDevicesArrayAdapter.contains( device ) )
                         {
                             mDevicesArrayAdapter.add( device );
                         }
@@ -269,6 +269,11 @@ public class DeviceListActivity extends ActionBarActivity
         private static class Holder
         {
             TextView DeviceNameTextView;
+        }
+
+        public boolean contains( BluetoothDevice device )
+        {
+            return getPosition( device ) != -1;
         }
 
         @Override

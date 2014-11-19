@@ -4,7 +4,7 @@ package com.adamnickle.deck.Interfaces;
 import android.app.Activity;
 import android.support.v4.app.Fragment;
 
-public abstract class ConnectionFragment extends Fragment
+public abstract class ConnectionFragment<T> extends Fragment
 {
     public static final String EXTRA_CONNECTION_TYPE = "EXTRA_CONNECTION_TYPE";
     public static final String EXTRA_CONNECTION_CLASS_NAME = "EXTRA_CONNECTION_CLASS_NAME";
@@ -44,7 +44,7 @@ public abstract class ConnectionFragment extends Fragment
     public abstract ConnectionType getConnectionType();
     public abstract State getState();
     public abstract void findServer();
-    public abstract void connect( Object device );
+    public abstract void connect( T device );
     public abstract void startConnection();
     public abstract void restartConnection();
     public abstract void finishConnecting();

@@ -35,6 +35,6 @@
     <string name="actionToggleTableText">Toggle Table</string>
     <string name="drawerOpen">Drawer Open</string>
     <string name="drawerClosed">Drawer Closed</string>
-    <string name="info_activity_title">InfoActivity</string>
+    <string name="info_activity_title">Deck Info</string>
 
 </resources>

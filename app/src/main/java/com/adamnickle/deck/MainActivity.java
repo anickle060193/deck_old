@@ -30,7 +30,6 @@ public class MainActivity extends ActionBarActivity
     {
         Debug.d();
         super.onCreate( savedInstanceState );
-        this.getSupportActionBar().hide();
         setContentView( R.layout.activity_main );
 
         findViewById( R.id.quickStartGameButton ).setOnClickListener( new View.OnClickListener()

@@ -77,6 +77,16 @@ public class MainActivity extends ActionBarActivity
             }
         } );
 
+        findViewById( R.id.infoButton ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                Intent openInfo = new Intent( MainActivity.this, InfoActivity.class );
+                startActivity( openInfo );
+            }
+        } );
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
         int lastShownVersion = sharedPreferences.getInt( DeckSettings.CHANGE_LOG_SHOWN_VERSION, 0 );
         if( lastShownVersion != BuildConfig.VERSION_CODE )

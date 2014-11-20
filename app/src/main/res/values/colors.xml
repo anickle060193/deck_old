@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <color name="YellowGreen">#96CA2D</color>
     <color name="PaleGreen">#B5E655</color>
     <color name="AshWhite">#EDF7F2</color>
@@ -9,5 +9,5 @@
 
     <color name="DrawPileBlue">#1B2DA1</color>
     <color name="DiscardPileRed">#BA092D</color>
-    
+
 </resources>

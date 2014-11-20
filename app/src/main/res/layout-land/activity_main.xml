@@ -71,7 +71,7 @@
         android:shadowRadius="1"
         android:textSize="50sp"
         android:textColor="@color/ModerateCyan"
-        android:id="@+id/textView"
+        android:id="@+id/infoButton"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true" />

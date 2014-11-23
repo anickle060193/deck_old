@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -220,27 +222,20 @@ public class ScratchPadFragment extends Fragment
 
     private void handleSaveScratchPadClick()
     {
-        DialogHelper.createEditTextDialog( getActivity(), "Enter scratch pad name:", "Scratch Pad Save", "OK", "Cancel", new DialogHelper.OnEditTextDialogClickListener()
+        ScratchPadIO.saveScratchPad( getActivity(), mScratchPadView.getBitmap(), new ScratchPadIO.Callback()
         {
             @Override
-            public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
+            public void onSuccess()
             {
-                ScratchPadIO.saveScratchPad( getActivity(), text, mScratchPadView.getBitmap(), new ScratchPadIO.Callback()
-                {
-                    @Override
-                    public void onSuccess()
-                    {
-                        DialogHelper.displayNotification( getActivity(), "Scratch Pad save successful.", Style.CONFIRM );
-                    }
-
-                    @Override
-                    public void onFail()
-                    {
-                        DialogHelper.displayNotification( getActivity(), "Scratch Pad save not successful.", Style.ALERT );
-                    }
-                } );
+                DialogHelper.displayNotification( getActivity(), "Scratch Pad save successful.", Style.CONFIRM );
             }
-        } ).show();
+
+            @Override
+            public void onFail()
+            {
+                DialogHelper.displayNotification( getActivity(), "Scratch Pad save not successful.", Style.ALERT );
+            }
+        } );
     }
 
     private void handleLoadScratchPadClick()
@@ -250,34 +245,33 @@ public class ScratchPadFragment extends Fragment
                 .setPositiveButton( "Close", null )
                 .create();
 
-        final ListView scratchpadListView = ScratchPadIO.getScratchPadListView( getActivity() );
-        if( scratchpadListView != null )
+        final RecyclerView recyclerView = ScratchPadIO.getScratchPadCards( getActivity() );
+        if( recyclerView != null )
         {
-            scratchpadListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
+            dialog.setView( recyclerView );
+            ( (ScratchPadIO.ScratchPadCardAdapter) recyclerView.getAdapter() ).setScratchPadOnClickListener( new ScratchPadIO.ScratchPadCardAdapter.ScratchPadOnClickListener()
             {
                 @Override
-                public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
+                public void onScratchPadClick( File scratchPad )
                 {
-                    final File scratchPad = (File) adapterView.getItemAtPosition( i );
-                    Bitmap bitmap = ScratchPadIO.openScratchPad( getActivity(), scratchPad );
+                    Bitmap bitmap = ScratchPadIO.openScratchPad( scratchPad );
                     if( bitmap != null )
                     {
                         mScratchPadView.setScratchPadBitmap( bitmap );
                         DialogHelper.displayNotification( getActivity(), "Scratch pad load successful.", Style.CONFIRM );
-                    }
-                    else
+                    }else
                     {
                         DialogHelper.displayNotification( getActivity(), "Scratch pad load unsuccessful.", Style.ALERT );
                     }
                     dialog.dismiss();
                 }
             } );
-            scratchpadListView.getAdapter().registerDataSetObserver( new DataSetObserver()
+            recyclerView.getAdapter().registerAdapterDataObserver( new RecyclerView.AdapterDataObserver()
             {
                 @Override
                 public void onChanged()
                 {
-                    if( scratchpadListView.getAdapter().getCount() == 0 )
+                    if( recyclerView.getAdapter().getItemCount() == 0 )
                     {
                         if( dialog.isShowing() )
                         {
@@ -291,7 +285,7 @@ public class ScratchPadFragment extends Fragment
                     }
                 }
             } );
-            dialog.setView( scratchpadListView );
+            recyclerView.setItemAnimator( new DefaultItemAnimator() );
         }
         else
         {

@@ -5,23 +5,31 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.text.format.DateFormat;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.ProgressBar;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public final class ScratchPadIO
 {
     private static final String SCRATCH_PAD_SAVE_DIRECTORY = "deck_scratch_pads";
-    private static final String SCRATCH_PAD_SAVE_PREFIX = "scratch_pad_";
-    private static final String SCRATCH_PAD_SAVE_EXTENSION = ".png";
+    private static final String SCRATCHPAD_FILE_NAME_PREFIX = "scratch_pad_";
+    private static final String SCRATCHPAD_FILE_NAME_PATTERN = SCRATCHPAD_FILE_NAME_PREFIX + "%d.png";
+    private static int SCRATCH_PAD_SAVE_NUMBER = 1;
 
     private ScratchPadIO() { }
 
@@ -47,22 +55,21 @@ public final class ScratchPadIO
         return file;
     }
 
-    private static File getScratchPadFile( Context context, String scratchPadName, boolean writing )
+    private synchronized static File getNextScratchPadFile( Context context, boolean writing )
     {
+        File scratchPad = null;
         if( ( writing && isExternalStorageWritable() ) || ( !writing && isExternalStorageReadable() ) )
         {
-            if( !scratchPadName.isEmpty() && !scratchPadName.contains( " " ) && isExternalStorageWritable() )
+            final File scratchPadDirectory = getScratchPadStorageDirectory( context );
+            do
             {
-                return new File( getScratchPadStorageDirectory( context ), SCRATCH_PAD_SAVE_PREFIX + scratchPadName + SCRATCH_PAD_SAVE_EXTENSION );
+                scratchPad = new File( scratchPadDirectory, String.format( SCRATCHPAD_FILE_NAME_PATTERN, SCRATCH_PAD_SAVE_NUMBER ) );
+                SCRATCH_PAD_SAVE_NUMBER++;
             }
+            while( scratchPad.exists() );
         }
-        return null;
-    }
 
-    private static String getScratchPadNameFromFile( File scratchPad )
-    {
-        final String scratchPadName = scratchPad.getName();
-        return scratchPadName.substring( SCRATCH_PAD_SAVE_PREFIX.length(), scratchPadName.length() - SCRATCH_PAD_SAVE_EXTENSION.length() );
+        return scratchPad;
     }
 
     public static interface Callback
@@ -71,7 +78,7 @@ public final class ScratchPadIO
         public void onFail();
     }
 
-    public static void saveScratchPad( final Context context, final String scratchPadName, final Bitmap bitmap, final Callback callback )
+    public static void saveScratchPad( final Context context, final Bitmap bitmap, final Callback callback )
     {
         new Thread()
         {
@@ -79,7 +86,7 @@ public final class ScratchPadIO
             public void run()
             {
 
-                final File output = getScratchPadFile( context, scratchPadName, true );
+                final File output = getNextScratchPadFile( context, true );
                 if( output == null )
                 {
                     callback.onFail();
@@ -127,14 +134,14 @@ public final class ScratchPadIO
         }.start();
     }
 
-    public static Bitmap openScratchPad( Context context, File scratchPad )
+    public static Bitmap openScratchPad( File scratchPad )
     {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inMutable = true;
         return BitmapFactory.decodeFile( scratchPad.getPath(), o );
     }
 
-    public static ListView getScratchPadListView( Context context )
+    public static RecyclerView getScratchPadCards( Context context )
     {
         final File scratchPads = getScratchPadStorageDirectory( context );
         final File[] scratchPadFiles = scratchPads.listFiles( new FilenameFilter()
@@ -142,7 +149,7 @@ public final class ScratchPadIO
             @Override
             public boolean accept( File file, String s )
             {
-                return s.startsWith( SCRATCH_PAD_SAVE_PREFIX );
+                return s.startsWith( SCRATCHPAD_FILE_NAME_PREFIX );
             }
         } );
         if( scratchPadFiles == null || scratchPadFiles.length == 0 )
@@ -151,83 +158,129 @@ public final class ScratchPadIO
         }
         else
         {
-            final ScratchPadSwipeAdapter swipeAdapter = new ScratchPadSwipeAdapter( context, scratchPadFiles );
-            final ListView listView = new ListView( context );
-            listView.setAdapter( swipeAdapter );
-            return listView;
+            final ScratchPadCardAdapter adapter = new ScratchPadCardAdapter( context, scratchPadFiles );
+            final RecyclerView recyclerView = new RecyclerView( context );
+            recyclerView.setAdapter( adapter );
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager( new LinearLayoutManager( context ) );
+            return recyclerView;
         }
     }
 
-    public static class ScratchPadSwipeAdapter extends DialogHelper.SwipeArrayAdapter<File>
+    public static class ScratchPadCardAdapter extends RecyclerView.Adapter<ScratchPadCardAdapter.ScratchPadHolder>
     {
-        public ScratchPadSwipeAdapter( Context context, File[] files )
+        private final Context mContext;
+        private ArrayList<File> mData;
+        private ScratchPadOnClickListener mListener;
+
+        public ScratchPadCardAdapter( Context context, File[] data )
         {
-            super( context, R.layout.two_line_swipe, files );
+            this( context, Arrays.asList( data ) );
+        }
+
+        public ScratchPadCardAdapter( Context context, List<File> data )
+        {
+            mContext = context;
+            mData = new ArrayList<File>( data );
+        }
+
+        public void setScratchPadOnClickListener( ScratchPadOnClickListener listener )
+        {
+            mListener = listener;
         }
 
         @Override
-        public void fillValues( int position, View view )
+        public ScratchPadHolder onCreateViewHolder( ViewGroup viewGroup, int i )
         {
-            ScratchPadHolder holder = (ScratchPadHolder) view.getTag();
-            if( holder == null )
-            {
-                holder = new ScratchPadHolder();
-                holder.Name = (TextView) view.findViewById( android.R.id.text1 );
-                holder.DateTime = (TextView) view.findViewById( android.R.id.text2 );
-                holder.InfoButton = (ImageButton) view.findViewById( R.id.infoButton );
-                holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( getContext() ) );
-                holder.DeleteButton = (ImageButton) view.findViewById( R.id.deleteButton );
-                holder.DeleteButton.setImageDrawable( Icons.getGameSaveDelete( getContext() ) );
-                holder.Under = view.findViewById( R.id.under );
-                view.setTag( holder );
-            }
-
-            final File scratchPad = getItem( position );
-            holder.Name.setText( getScratchPadNameFromFile( scratchPad ) );
-            holder.DateTime.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", scratchPad.lastModified() ) );
-            holder.DeleteButton.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View view )
-                {
-                    if( ScratchPadSwipeAdapter.this.removeItem( scratchPad ) )
-                    {
-                        scratchPad.delete();
-                    }
-                }
-            } );
-            holder.InfoButton.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View view )
-                {
-                    final Bitmap bitmap = ScratchPadIO.openScratchPad( getContext(), scratchPad );
-                    if( bitmap != null )
-                    {
-                        final ImageView imageView = new ImageView( getContext() );
-                        imageView.setBackgroundResource( R.color.DesaturatedCyan );
-                        imageView.setImageBitmap( bitmap );
-
-                        DialogHelper.createBlankAlertDialog( getContext(), getScratchPadNameFromFile( scratchPad ) )
-                                .setView( imageView )
-                                .setPositiveButton( "Close", null )
-                                .show();
-                    }
-                    else
-                    {
-                        DialogHelper.createBlankAlertDialog( getContext(), "Could not preview scratch pad." ).show();
-                    }
-                }
-            } );
+            return new ScratchPadHolder( LayoutInflater.from( mContext ).inflate( R.layout.scratchpad_card_layout, viewGroup, false ) );
         }
 
-        public class ScratchPadHolder
+        @Override
+        public void onBindViewHolder( final ScratchPadHolder scratchPadHolder, final int i )
         {
-            TextView Name;
-            TextView DateTime;
-            ImageButton InfoButton;
-            ImageButton DeleteButton;
-            View Under;
+            final File scratchPad = getItem( i );
+            Picasso.with( mContext ).load( scratchPad ).into( scratchPadHolder.Image, new com.squareup.picasso.Callback()
+            {
+                @Override
+                public void onSuccess()
+                {
+                    scratchPadHolder.Loading.setVisibility( View.GONE );
+                    scratchPadHolder.Image.setVisibility( View.VISIBLE );
+                }
+
+                @Override
+                public void onError()
+                {
+                }
+            } );
+            scratchPadHolder.Card.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View view )
+                {
+                    if( mListener != null )
+                    {
+                        mListener.onScratchPadClick( scratchPad );
+                    }
+                }
+            } );
+            scratchPadHolder.Card.setOnTouchListener( new SwipeDismissTouchListener( scratchPadHolder.Card, null, new SwipeDismissTouchListener.OnDismissCallback()
+            {
+                @Override
+                public void onDismiss( View view, Object token )
+                {
+                    ScratchPadCardAdapter.this.removeItemAt( i );
+                }
+            } ) );
+
+        }
+
+        public File getItem( int i )
+        {
+            return mData.get( i );
+        }
+
+        @Override
+        public int getItemCount()
+        {
+            return mData.size();
+        }
+
+        public boolean removeItemAt( int i )
+        {
+            final File scratchPad = mData.get( i );
+            if( scratchPad != null && scratchPad.delete() )
+            {
+                mData.remove( i );
+                //notifyItemRemoved( i );
+                notifyDataSetChanged();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public class ScratchPadHolder extends RecyclerView.ViewHolder
+        {
+            CardView Card;
+            ImageView Image;
+            ProgressBar Loading;
+
+            public ScratchPadHolder( View itemView )
+            {
+                super( itemView );
+
+                Card = (CardView) itemView;
+                Image = (ImageView) itemView.findViewById( R.id.image );
+                Loading = (ProgressBar) itemView.findViewById( R.id.loading );
+            }
+        }
+
+        public interface ScratchPadOnClickListener
+        {
+            public void onScratchPadClick( File scratchPad );
         }
     }
 }

@@ -349,7 +349,7 @@ public class ScratchPadView extends View
         mX = (int) event.getX();
         mY = (int) event.getY();
 
-        switch( event.getAction() )
+        switch( event.getActionMasked() )
         {
             case MotionEvent.ACTION_DOWN:
                 mDrawEraser = mEraser;
@@ -361,6 +361,7 @@ public class ScratchPadView extends View
                 break;
 
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 mDrawPath.computeBounds( mPathBounds, false );
                 if( mPathBounds.width() < 10 || mPathBounds.height() < 10 )
                 {

@@ -2,17 +2,19 @@ package com.adamnickle.deck.Game;
 
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.JsonReader;
 import android.util.JsonWriter;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ListView;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.adamnickle.deck.DialogHelper;
-import com.adamnickle.deck.Icons;
 import com.adamnickle.deck.R;
+import com.adamnickle.deck.SwipeDismissTouchListener;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,7 +23,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import ru.noties.debug.Debug;
 
@@ -186,7 +191,7 @@ public final class GameSaveIO
         return success;
     }
 
-    public static ListView getGameSaveListView( Context context )
+    public static RecyclerView getGameSaveCards( Context context )
     {
         final File file = new File( context.getFilesDir(), GAME_SAVE_FOLDER );
         final File[] gameSaveFiles = file.listFiles( new FilenameFilter()
@@ -203,84 +208,129 @@ public final class GameSaveIO
         }
         else
         {
-            final GameSaveSwipeAdapter gameSaveSwipeAdapter = new GameSaveSwipeAdapter( context, gameSaveFiles );
-            final ListView listView = new ListView( context );
-            listView.setAdapter( gameSaveSwipeAdapter );
-            return listView;
+            final GameSaveCardAdapter adapter = new GameSaveCardAdapter( context, gameSaveFiles );
+            final RecyclerView recyclerView = new RecyclerView( context );
+            recyclerView.setHasFixedSize( false );
+            recyclerView.setAdapter( adapter );
+            recyclerView.setLayoutManager( new LinearLayoutManager( context ) );
+            return recyclerView;
         }
     }
 
-    public static class GameSaveSwipeAdapter extends DialogHelper.SwipeArrayAdapter<File>
+    public static class GameSaveCardAdapter extends RecyclerView.Adapter<GameSaveCardAdapter.GameSaveHolder>
     {
-        public GameSaveSwipeAdapter( Context context, File[] gameSaves )
+        private final Context mContext;
+        private ArrayList<File> mData;
+        private GameSaveOnClickListener mListener;
+
+        public GameSaveCardAdapter( Context context, File[] data )
         {
-            super( context, R.layout.two_line_swipe, gameSaves );
+            this( context, Arrays.asList( data ) );
+        }
+
+        public GameSaveCardAdapter( Context context, List<File> data )
+        {
+            mContext = context;
+            mData = new ArrayList<File>( data );
+        }
+
+        public void setGameSaveOnClickListener( GameSaveOnClickListener listener )
+        {
+            mListener = listener;
         }
 
         @Override
-        public void fillValues( int position, View view )
+        public GameSaveHolder onCreateViewHolder( ViewGroup viewGroup, int i )
         {
-            GameSaveHolder holder = (GameSaveHolder) view.getTag();
-            if( holder == null )
-            {
-                holder = new GameSaveHolder();
-                holder.GameSaveName = (TextView) view.findViewById( android.R.id.text1 );
-                holder.GameSaveDateTime = (TextView) view.findViewById( android.R.id.text2 );
-                holder.InfoButton = (ImageButton) view.findViewById( R.id.infoButton );
-                holder.InfoButton.setImageDrawable( Icons.getGameSaveSwipeInfo( getContext() ) );
-                holder.DeleteButton = (ImageButton) view.findViewById( R.id.deleteButton );
-                holder.DeleteButton.setImageDrawable( Icons.getGameSaveDelete( getContext() ) );
-                holder.Under = view.findViewById( R.id.under );
-                view.setTag( holder );
-            }
-
-            final File gameSave = getItem( position );
-            holder.GameSaveName.setText( getGameSaveNameFromFile( gameSave ) );
-            holder.GameSaveDateTime.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.lastModified() ) );
-            holder.InfoButton.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View view )
-                {
-                    final HashMap< String, CardHolder > cardHolders = new HashMap< String, CardHolder >();
-                    if( GameSaveIO.openGameSave( gameSave, cardHolders, cardHolders ) )
-                    {
-                        StringBuilder s = new StringBuilder();
-                        s.append( DateFormat.format( "h:mm aa - MMM d, yyyy", gameSave.lastModified() ) ).append( "\n\n" );
-                        s.append( "Players:\n" );
-                        for( CardHolder cardHolder : cardHolders.values() )
-                        {
-                            s.append( "\t" ).append( cardHolder.getName() ).append( "\n" );
-                        }
-                        s.deleteCharAt( s.length() - 1 );
-
-                        DialogHelper.createBlankAlertDialog( getContext(), getGameSaveNameFromFile( gameSave ) )
-                                .setMessage( s.toString() )
-                                .setPositiveButton( "Close", null )
-                                .show();
-                    }
-                }
-            } );
-            holder.DeleteButton.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View view )
-                {
-                    if( GameSaveSwipeAdapter.this.removeItem( gameSave ) )
-                    {
-                        gameSave.delete();
-                    }
-                }
-            } );
+            return new GameSaveHolder( LayoutInflater.from( mContext ).inflate( R.layout.gamesave_card_layout, viewGroup, false ) );
         }
 
-        public class GameSaveHolder
+        @Override
+        public void onBindViewHolder( final GameSaveHolder gameSaveHolder, final int position )
         {
-            TextView GameSaveName;
-            TextView GameSaveDateTime;
-            ImageButton InfoButton;
-            ImageButton DeleteButton;
-            View Under;
+            final File gameSave = getItem( position );
+            gameSaveHolder.Title.setText( getGameSaveNameFromFile( gameSave ) );
+            gameSaveHolder.Subtitle.setText( DateFormat.format( "h:mm aa - MMMM d, yyyy", gameSave.lastModified() ) );
+            gameSaveHolder.Card.setOnTouchListener( new SwipeDismissTouchListener( gameSaveHolder.Card, null, new SwipeDismissTouchListener.OnDismissCallback()
+            {
+                @Override
+                public void onDismiss( View view, Object token )
+                {
+                    GameSaveCardAdapter.this.removeItemAt( position );
+                }
+            } ) );
+            gameSaveHolder.Card.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View view )
+                {
+                    if( mListener != null )
+                    {
+                        mListener.onGameSaveClick( gameSave );
+                    }
+                }
+            } );
+            final HashMap< String, CardHolder > cardHolders = new HashMap< String, CardHolder >();
+            if( GameSaveIO.openGameSave( gameSave, cardHolders, cardHolders ) )
+            {
+                final StringBuilder sb = new StringBuilder();
+                for( CardHolder cardHolder : cardHolders.values() )
+                {
+                    sb.append( cardHolder.getName() ).append( "\n" );
+                }
+                sb.deleteCharAt( sb.length() - 1 );
+                gameSaveHolder.Players.setText( sb.toString() );
+            }
+        }
+
+        public File getItem( int i )
+        {
+            return mData.get( i );
+        }
+
+        @Override
+        public int getItemCount()
+        {
+            return mData.size();
+        }
+
+        public boolean removeItemAt( int i )
+        {
+            final File gameSave = mData.get( i );
+            if( gameSave != null && gameSave.delete() )
+            {
+                mData.remove( i );
+                //notifyItemRemoved( i );
+                notifyDataSetChanged();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public class GameSaveHolder extends RecyclerView.ViewHolder
+        {
+            CardView Card;
+            TextView Title;
+            TextView Subtitle;
+            TextView Players;
+
+            public GameSaveHolder( View itemView )
+            {
+                super( itemView );
+
+                Card = (CardView) itemView;
+                Title = (TextView) itemView.findViewById( R.id.title );
+                Subtitle = (TextView) itemView.findViewById( R.id.subtitle );
+                Players = (TextView) itemView.findViewById( R.id.playerList );
+            }
+        }
+
+        public interface GameSaveOnClickListener
+        {
+            public void onGameSaveClick( File scratchPad );
         }
     }
 }

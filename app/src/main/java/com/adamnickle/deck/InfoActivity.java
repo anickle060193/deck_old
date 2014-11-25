@@ -1,6 +1,5 @@
 package com.adamnickle.deck;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import it.gmariotti.changelibs.library.internal.ChangeLog;
 import it.gmariotti.changelibs.library.view.ChangeLogListView;
 
 

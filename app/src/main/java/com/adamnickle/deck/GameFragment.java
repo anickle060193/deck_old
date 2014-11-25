@@ -12,6 +12,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -560,32 +561,30 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 .setPositiveButton( "Close", null )
                 .create();
 
-        final ListView gameSaveListView = GameSaveIO.getGameSaveListView( getActivity() );
-        if( gameSaveListView != null )
+        final RecyclerView gameSaveRecyclerView = GameSaveIO.getGameSaveCards( getActivity() );
+        if( gameSaveRecyclerView != null )
         {
-            gameSaveListView.setOnItemClickListener( new AdapterView.OnItemClickListener()
+            ( (GameSaveIO.GameSaveCardAdapter) gameSaveRecyclerView.getAdapter() ).setGameSaveOnClickListener( new GameSaveIO.GameSaveCardAdapter.GameSaveOnClickListener()
             {
                 @Override
-                public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
+                public void onGameSaveClick( File gameSaveFile )
                 {
-                    final File gameSaveFile = (File) adapterView.getItemAtPosition( i );
                     if( mGameConnection.openGameSave( getActivity(), gameSaveFile ) )
                     {
                         DialogHelper.displayNotification( getActivity(), "Game open successful.", Style.CONFIRM );
-                    }
-                    else
+                    }else
                     {
                         DialogHelper.displayNotification( getActivity(), "Game open not successful.", Style.ALERT );
                     }
                     dialog.dismiss();
                 }
             } );
-            gameSaveListView.getAdapter().registerDataSetObserver( new DataSetObserver()
+            gameSaveRecyclerView.getAdapter().registerAdapterDataObserver( new RecyclerView.AdapterDataObserver()
             {
                 @Override
                 public void onChanged()
                 {
-                    if( gameSaveListView.getAdapter().getCount() == 0 )
+                    if( gameSaveRecyclerView.getAdapter().getItemCount() == 0 )
                     {
                         if( dialog.isShowing() )
                         {
@@ -599,7 +598,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     }
                 }
             } );
-            dialog.setView( gameSaveListView );
+            dialog.setView( gameSaveRecyclerView );
         }
         else
         {

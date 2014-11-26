@@ -18,4 +18,6 @@
     <dimen name="card_outline_width">2dp</dimen>
     <dimen name="card_outline_space">.5dp</dimen>
     <dimen name="card_corner_radius">5dp</dimen>
+
+    <dimen name="dialog_widget_padding">16dp</dimen>
 </resources>

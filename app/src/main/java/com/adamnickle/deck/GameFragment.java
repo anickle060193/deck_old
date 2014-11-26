@@ -536,21 +536,21 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         if( mGameConnection.isServer() )
         {
-                DialogHelper.createEditTextDialog( getActivity(), "Enter Deck game save name:", "Game Save", "OK", "Cancel", new DialogHelper.OnEditTextDialogClickListener()
+            DialogHelper.createEditTextDialog( getActivity(), "Enter Deck game save name:", "OK", "Cancel", new DialogHelper.OnEditTextDialogClickListener()
+            {
+                @Override
+                public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
                 {
-                    @Override
-                    public void onPositiveButtonClick( DialogInterface dialogInterface, String text )
+                    if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
                     {
-                        if( mGameConnection.saveGame( getActivity().getApplicationContext(), text ) )
-                        {
-                            DialogHelper.displayNotification( getActivity(), "Game save successful.", Style.CONFIRM );
-                        }
-                        else
-                        {
-                            DialogHelper.displayNotification( getActivity(), "Game save not successful.", Style.ALERT );
-                        }
+                        DialogHelper.displayNotification( getActivity(), "Game save successful.", Style.CONFIRM );
                     }
-                } ).show();
+                    else
+                    {
+                        DialogHelper.displayNotification( getActivity(), "Game save not successful.", Style.ALERT );
+                    }
+                }
+            } ).show();
         }
     }
 

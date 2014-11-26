@@ -22,9 +22,11 @@ public class DialogHelper
         public void onNegativeButtonClick( DialogInterface dialogInterface ) { }
     }
 
-    public static AlertDialog.Builder createEditTextDialog( Context context, String title, String preSetText, String positiveButtonText, String negativeButtonText, final OnEditTextDialogClickListener onClickListener )
+    public static AlertDialog.Builder createEditTextDialog( Context context, String title, String positiveButtonText, String negativeButtonText, final OnEditTextDialogClickListener onClickListener )
     {
         final EditText editText = new EditText( context );
+        final int padding = context.getResources().getDimensionPixelSize( R.dimen.dialog_widget_padding );
+        editText.setPadding( padding, padding, padding, padding );
 
         AlertDialog.Builder builder = new AlertDialog.Builder( context )
                 .setTitle( title )

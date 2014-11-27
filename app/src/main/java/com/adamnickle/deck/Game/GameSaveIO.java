@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.adamnickle.deck.BuildConfig;
 import com.adamnickle.deck.R;
 import com.adamnickle.deck.SwipeDismissTouchListener;
 
@@ -277,6 +278,13 @@ public final class GameSaveIO
                 for( CardHolder cardHolder : cardHolders.values() )
                 {
                     sb.append( cardHolder.getName() ).append( "\n" );
+                    if( BuildConfig.DEBUG )
+                    {
+                        for( Card card : cardHolder.getCards() )
+                        {
+                            sb.append( "\t" ).append( card.toString() ).append( "\n" );
+                        }
+                    }
                 }
                 sb.deleteCharAt( sb.length() - 1 );
                 gameSaveHolder.Players.setText( sb.toString() );

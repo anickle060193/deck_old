@@ -3,7 +3,6 @@ package com.adamnickle.deck;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -21,9 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SeekBar;
 
 import com.larswerkman.holocolorpicker.ColorPicker;
@@ -240,14 +237,14 @@ public class ScratchPadFragment extends Fragment
 
     private void handleLoadScratchPadClick()
     {
-        final AlertDialog dialog = DialogHelper
-                .createBlankAlertDialog( getActivity(), "Select scratch pad to load:" )
-                .setPositiveButton( "Close", null )
-                .create();
-
         final RecyclerView recyclerView = ScratchPadIO.getScratchPadCards( getActivity() );
         if( recyclerView != null )
         {
+            final AlertDialog dialog = DialogHelper
+                    .createBlankAlertDialog( getActivity(), "Select scratch pad to load:" )
+                    .setPositiveButton( "Close", null )
+                    .create();
+
             dialog.setView( recyclerView );
             ( (ScratchPadIO.ScratchPadCardAdapter) recyclerView.getAdapter() ).setScratchPadOnClickListener( new ScratchPadIO.ScratchPadCardAdapter.ScratchPadOnClickListener()
             {
@@ -276,22 +273,18 @@ public class ScratchPadFragment extends Fragment
                         if( dialog.isShowing() )
                         {
                             dialog.dismiss();
-                            DialogHelper
-                                    .createBlankAlertDialog( getActivity(), "Select scratch pad to load:" )
-                                    .setMessage( "There are no scratch pads to load." )
-                                    .setPositiveButton( "Close", null )
-                                    .show();
+                            handleLoadScratchPadClick();
                         }
                     }
                 }
             } );
             recyclerView.setItemAnimator( new DefaultItemAnimator() );
+            dialog.show();
         }
         else
         {
-            dialog.setMessage( "There are no scratch pads to load" );
+            DialogHelper.showPopup( getActivity(), "Select scratch pad to load:", "There are no scratch pads to load.", "OK" );
         }
-        dialog.show();
     }
 
     public static class CircleDrawable extends Drawable

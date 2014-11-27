@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -20,8 +19,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardCollection;
@@ -36,6 +33,7 @@ import com.adamnickle.deck.Interfaces.GameUiListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 
@@ -329,35 +327,31 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     private void handleSetPlayerSidesClick()
     {
         final String[] sideNames = { "Left", "Top", "Right", "Bottom" };
-        final AlertDialog sideDialog = DialogHelper
-                .createSelectItemDialog( getActivity(), "Assign players to side to assist passing:", sideNames, null )
-                .setPositiveButton( "Close", null )
-                .create();
-
-        sideDialog.getListView().setOnItemClickListener( new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick( AdapterView< ? > parent, View view, final int whichSide, long id )
-            {
-                switch( whichSide )
+        DialogHelper
+                .createSelectItemDialog( getActivity(), "Assign players to side to assist passing:", sideNames, new DialogInterface.OnClickListener()
                 {
-                    case 0:
-                        pickPlayerForSide( CardDisplayLayout.Side.LEFT );
-                        break;
-                    case 1:
-                        pickPlayerForSide( CardDisplayLayout.Side.TOP );
-                        break;
-                    case 2:
-                        pickPlayerForSide( CardDisplayLayout.Side.RIGHT );
-                        break;
-                    case 3:
-                        pickPlayerForSide( CardDisplayLayout.Side.BOTTOM );
-                        break;
-                }
-            }
-        } );
-
-        sideDialog.show();
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int whichSide )
+                    {
+                        switch( whichSide )
+                        {
+                            case 0:
+                                pickPlayerForSide( CardDisplayLayout.Side.LEFT );
+                                break;
+                            case 1:
+                                pickPlayerForSide( CardDisplayLayout.Side.TOP );
+                                break;
+                            case 2:
+                                pickPlayerForSide( CardDisplayLayout.Side.RIGHT );
+                                break;
+                            case 3:
+                                pickPlayerForSide( CardDisplayLayout.Side.BOTTOM );
+                                break;
+                        }
+                    }
+                } )
+                .setPositiveButton( "Cancel", null )
+                .show();
     }
 
     private void pickPlayerForSide( final CardDisplayLayout.Side side )
@@ -440,7 +434,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         final CardHolder[] players = getDealableCardHolders( false );
         if( mDeck.getCardCount() < players.length )
         {
-            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are not enough cards left to evenly deal to players." );
+            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are not enough cards left to evenly deal to players.", "OK" );
         }
         else
         {
@@ -479,25 +473,22 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         final CardHolder[] players = getDealableCardHolders( false );
         if( players.length == 0 )
         {
-            DialogHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from." );
+            DialogHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from.", "OK" );
         }
         else if( mDeck.getCardCount() == 0 )
         {
-            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are no cards left to deal." );
+            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are no cards left to deal.", "OK" );
         }
         else
         {
-            final CardHolderAdapter cardHolderAdapter = new CardHolderAdapter( getActivity(), players );
-            DialogHelper.createBlankAlertDialog( getActivity(), "Select player to deal card to:" )
-                    .setAdapter( cardHolderAdapter, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialog, int which )
-                        {
-                            final CardHolder cardHolder = cardHolderAdapter.getItem( which );
-                            mGameConnection.sendCard( GameConnection.MOCK_SERVER_ADDRESS, cardHolder.getID(), mDeck.removeTopCard(), null );
-                        }
-                    } ).show();
+            DialogHelper.displayCardHolderList( getActivity(), "Select player to deal card to:", Arrays.asList( players ), new DialogHelper.CardHolderOnClickListener()
+            {
+                @Override
+                public void onClick( DialogInterface dialog, CardHolder cardHolder )
+                {
+                    mGameConnection.sendCard( GameConnection.MOCK_SERVER_ADDRESS, cardHolder.getID(), mDeck.removeTopCard(), null );
+                }
+            } ).show();
         }
     }
 
@@ -505,11 +496,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     {
         if( mCardDisplay.getChildCount() == 0 )
         {
-            DialogHelper
-                    .createBlankAlertDialog( getActivity(), "No cards to layout." )
-                    .setMessage( "You do not have any cards to layout." )
-                    .setPositiveButton( "Close", null )
-                    .show();
+            DialogHelper.showPopup( getActivity(), "No card to layout", "You do not have any cards to layout.", "Close" );
         }
         else
         {
@@ -556,14 +543,14 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
     private void handleOpenGameClick()
     {
-        final AlertDialog dialog = DialogHelper
-                .createBlankAlertDialog( getActivity(), "Select game save:" )
-                .setPositiveButton( "Close", null )
-                .create();
-
         final RecyclerView gameSaveRecyclerView = GameSaveIO.getGameSaveCards( getActivity() );
         if( gameSaveRecyclerView != null )
         {
+            final AlertDialog dialog = DialogHelper
+                    .createBlankAlertDialog( getActivity(), "Select game save:" )
+                    .setPositiveButton( "Close", null )
+                    .create();
+
             ( (GameSaveIO.GameSaveCardAdapter) gameSaveRecyclerView.getAdapter() ).setGameSaveOnClickListener( new GameSaveIO.GameSaveCardAdapter.GameSaveOnClickListener()
             {
                 @Override
@@ -589,22 +576,18 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                         if( dialog.isShowing() )
                         {
                             dialog.dismiss();
-                            DialogHelper
-                                    .createBlankAlertDialog( getActivity(), "Select game save:" )
-                                    .setMessage( "There are no game saves to open." )
-                                    .setPositiveButton( "Close", null )
-                                    .show();
+                            handleOpenGameClick();
                         }
                     }
                 }
             } );
             dialog.setView( gameSaveRecyclerView );
+            dialog.show();
         }
         else
         {
-            dialog.setMessage( "There are no game saves to open." );
+            DialogHelper.showPopup( getActivity(), "Select game save:", "There are no game saves to open.", "OK" );
         }
-        dialog.show();
     }
 
     /*******************************************************************

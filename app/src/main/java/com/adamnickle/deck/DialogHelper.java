@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 import com.adamnickle.deck.Game.CardHolder;
@@ -28,39 +29,25 @@ public class DialogHelper
         final int padding = context.getResources().getDimensionPixelSize( R.dimen.dialog_widget_padding );
         editText.setPadding( padding, padding, padding, padding );
 
-        AlertDialog.Builder builder = new AlertDialog.Builder( context )
-                .setTitle( title )
-                .setView( editText );
-
-        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick( DialogInterface dialogInterface, int i )
-            {
-                switch( i )
+        return DialogHelper
+                .createBlankAlertDialog( context, title )
+                .setPositiveButton( positiveButtonText, new DialogInterface.OnClickListener()
                 {
-                    case DialogInterface.BUTTON_POSITIVE:
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int i )
+                    {
                         onClickListener.onPositiveButtonClick( dialogInterface, editText.getText().toString() );
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
+                    }
+                } )
+                .setNegativeButton( negativeButtonText, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int i )
+                    {
                         onClickListener.onNegativeButtonClick( dialogInterface );
-                        break;
-                }
-            }
-        };
-
-        if( positiveButtonText != null && !positiveButtonText.isEmpty())
-        {
-            builder.setPositiveButton( positiveButtonText, clickListener);
-        }
-
-        if( negativeButtonText != null && !negativeButtonText.isEmpty() )
-        {
-            builder.setNegativeButton( negativeButtonText, clickListener);
-        }
-
-        return builder;
+                    }
+                } )
+                .setView( editText );
     }
 
     public static AlertDialog.Builder createBlankAlertDialog( Context context, String title )
@@ -71,30 +58,17 @@ public class DialogHelper
 
     public static AlertDialog.Builder createSelectItemDialog( Context context, String title, Object[] items, DialogInterface.OnClickListener listener )
     {
-        String[] itemNames;
-        if( items instanceof String[] )
-        {
-            itemNames = (String[]) items;
-        }
-        else
-        {
-            itemNames = new String[ items.length ];
-            for( int i = 0; i < items.length; i++ )
-            {
-                itemNames[ i ] = items[ i ].toString();
-            }
-        }
-        return new AlertDialog.Builder( context )
-                .setTitle( title )
-                .setItems( itemNames, listener );
+        return DialogHelper
+                .createBlankAlertDialog( context, title )
+                .setAdapter( new ArrayAdapter<Object>( context, android.R.layout.simple_list_item_1, items ), listener );
     }
 
-    public static void showPopup( Context context, String title, String message )
+    public static void showPopup( Context context, String title, String message, String buttonText )
     {
-        new AlertDialog.Builder( context )
-                .setTitle( title )
+        DialogHelper
+                .createBlankAlertDialog( context, title )
                 .setMessage( message )
-                .setPositiveButton( "OK", null )
+                .setPositiveButton( buttonText, null )
                 .show();
     }
 

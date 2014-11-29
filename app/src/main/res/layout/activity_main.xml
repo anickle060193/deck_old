@@ -74,8 +74,8 @@
         android:shadowDy="3"
         android:shadowRadius="1"
         android:textSize="50sp"
-        android:textColor="@color/ModerateCyan"
-        android:layout_gravity="right|bottom"
+        android:textColor="@color/DesaturatedCyan"
+        android:layout_gravity="end|bottom"
         android:layout_weight="0.5"/>
 
 </LinearLayout>

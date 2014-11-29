@@ -70,7 +70,7 @@
         android:shadowDy="3"
         android:shadowRadius="1"
         android:textSize="50sp"
-        android:textColor="@color/ModerateCyan"
+        android:textColor="@color/DesaturatedCyan"
         android:id="@+id/infoButton"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"

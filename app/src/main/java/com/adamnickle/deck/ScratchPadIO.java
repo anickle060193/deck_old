@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -141,7 +140,7 @@ public final class ScratchPadIO
         return BitmapFactory.decodeFile( scratchPad.getPath(), o );
     }
 
-    public static RecyclerView getScratchPadCards( Context context )
+    public static ScratchPadCardAdapter getScratchPadCards( Context context )
     {
         final File scratchPads = getScratchPadStorageDirectory( context );
         final File[] scratchPadFiles = scratchPads.listFiles( new FilenameFilter()
@@ -158,12 +157,7 @@ public final class ScratchPadIO
         }
         else
         {
-            final ScratchPadCardAdapter adapter = new ScratchPadCardAdapter( context, scratchPadFiles );
-            final RecyclerView recyclerView = new RecyclerView( context );
-            recyclerView.setAdapter( adapter );
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager( new LinearLayoutManager( context ) );
-            return recyclerView;
+            return new ScratchPadCardAdapter( context, scratchPadFiles );
         }
     }
 

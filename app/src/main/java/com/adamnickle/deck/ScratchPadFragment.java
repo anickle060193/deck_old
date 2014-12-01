@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -237,16 +238,20 @@ public class ScratchPadFragment extends Fragment
 
     private void handleLoadScratchPadClick()
     {
-        final RecyclerView recyclerView = ScratchPadIO.getScratchPadCards( getActivity() );
-        if( recyclerView != null )
+        final ScratchPadIO.ScratchPadCardAdapter adapter = ScratchPadIO.getScratchPadCards( getActivity() );
+        if( adapter != null )
         {
             final AlertDialog dialog = DialogHelper
                     .createBlankAlertDialog( getActivity(), "Select scratch pad to load:" )
                     .setPositiveButton( "Close", null )
                     .create();
 
+            final RecyclerView recyclerView = new RecyclerView( getActivity() );
+            recyclerView.setLayoutManager( new LinearLayoutManager( getActivity() ) );
+            recyclerView.setAdapter( adapter );
+
             dialog.setView( recyclerView );
-            ( (ScratchPadIO.ScratchPadCardAdapter) recyclerView.getAdapter() ).setScratchPadOnClickListener( new ScratchPadIO.ScratchPadCardAdapter.ScratchPadOnClickListener()
+            adapter.setScratchPadOnClickListener( new ScratchPadIO.ScratchPadCardAdapter.ScratchPadOnClickListener()
             {
                 @Override
                 public void onScratchPadClick( File scratchPad )
@@ -263,7 +268,7 @@ public class ScratchPadFragment extends Fragment
                     dialog.dismiss();
                 }
             } );
-            recyclerView.getAdapter().registerAdapterDataObserver( new RecyclerView.AdapterDataObserver()
+            adapter.registerAdapterDataObserver( new RecyclerView.AdapterDataObserver()
             {
                 @Override
                 public void onChanged()

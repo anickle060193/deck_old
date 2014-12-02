@@ -3,6 +3,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -59,16 +60,12 @@
 
     </LinearLayout>
 
-    <android.widget.IconButton
+    <android.view.IconicsButton
         android:id="@+id/infoButton"
         android:layout_width="45dp"
         android:layout_height="45dp"
-        android:text="{fa-info}"
+        android:text="{faw-info}"
         android:background="@color/DesaturatedCyan"
-        android:shadowColor="#22000000"
-        android:shadowDx="3"
-        android:shadowDy="3"
-        android:shadowRadius="1"
         android:textSize="40sp"
         android:textColor="@null"
         android:gravity="center"

@@ -24,8 +24,6 @@ public class InfoActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_info );
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-
         ( (TextView) findViewById( R.id.versionTextView ) ).setText( "Version: " + BuildConfig.VERSION_NAME );
 
         final ListView listView = (ListView) findViewById( R.id.list );

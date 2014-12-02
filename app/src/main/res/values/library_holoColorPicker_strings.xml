@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+	<string name="define_holoColorPicker"></string>
+	<!-- Author section -->
+	<string name="library_holoColorPicker_author">Lars Werkman</string>
+	<string name="library_holoColorPicker_authorWebsite">http://larswerkman.com/</string>
+	<!-- Library section -->
+	<string name="library_holoColorPicker_libraryName">Holo ColorPicker</string>
+	<string name="library_holoColorPicker_libraryDescription">An Android Holo themed colorpicker designed by Marie Schweiz</string>
+	<string name="library_holoColorPicker_libraryWebsite">https://github.com/LarsWerkman/HoloColorPicker</string>
+	<string name="library_holoColorPicker_libraryVersion">1.4</string>
+	<!-- OpenSource section -->
+	<string name="library_holoColorPicker_isOpenSource">true</string>
+	<string name="library_holoColorPicker_repositoryLink"></string>
+	<!-- ClassPath for autoDetect section -->
+	<string name="library_holoColorPicker_classPath">com.larswerkman.holocolorpicker.ColorPicker</string>
+	<!-- License section -->
+	<string name="library_holoColorPicker_licenseId">apache_2_0</string>
+	<!-- Custom variables section -->
+</resources>

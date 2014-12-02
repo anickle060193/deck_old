@@ -10,8 +10,6 @@
     <string name="close_server_menu_item_text">Close Server</string>
     <string name="restart_connecting_menu_item_text">Restart Connecting</string>
     <string name="leave_server_menu_item_text">Leave Server</string>
-    <string name="send_message_button_text">Send Message</string>
-    <string name="message_edit_text_hint">Message…</string>
     <string name="game_creator_activity_title">Game Creator</string>
     <string name="game_activity_title">Deck Game</string>
     <string name="game_settings_menu_item_text">Settings</string>
@@ -36,5 +34,8 @@
     <string name="drawerOpen">Drawer Open</string>
     <string name="drawerClosed">Drawer Closed</string>
     <string name="info_activity_title">Deck Info</string>
+
+    <string name="adUnitId">ca-app-pub-2974409022548665/6085154570</string>
+    <string name="iubendaPrivacyPolicyLink">https://www.iubenda.com/privacy-policy/546685</string>
 
 </resources>

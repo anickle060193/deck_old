@@ -6,10 +6,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Main"
     android:weightSum="1"
     android:id="@+id/main">
@@ -65,17 +61,17 @@
 
     <android.widget.IconButton
         android:id="@+id/infoButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="{fa-info-circle}"
-        android:background="@null"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:text="{fa-info}"
+        android:background="@color/DesaturatedCyan"
         android:shadowColor="#22000000"
         android:shadowDx="3"
         android:shadowDy="3"
         android:shadowRadius="1"
-        android:textSize="50sp"
-        android:textColor="@color/DesaturatedCyan"
-        android:layout_gravity="end|bottom"
-        android:layout_weight="0.5"/>
+        android:textSize="40sp"
+        android:textColor="@null"
+        android:gravity="center"
+        android:layout_gravity="end|bottom"/>
 
 </LinearLayout>

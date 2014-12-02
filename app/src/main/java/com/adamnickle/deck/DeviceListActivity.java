@@ -38,6 +38,8 @@ public class DeviceListActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.content );
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
         if( savedInstanceState == null )
         {
             mDeviceListFragment = new DeviceListFragment();

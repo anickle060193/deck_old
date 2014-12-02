@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+	<string name="define_notiesDebug"></string>
+	<!-- Author section -->
+	<string name="library_notiesDebug_author">noties</string>
+	<string name="library_notiesDebug_authorWebsite">https://github.com/noties</string>
+	<!-- Library section -->
+	<string name="library_notiesDebug_libraryName">Debug</string>
+	<string name="library_notiesDebug_libraryDescription">Android logging tool. Debug library provides a lot of useful information. For ex., Java file name as tag, method name and a line number where Debug function was called.</string>
+	<string name="library_notiesDebug_libraryWebsite">https://github.com/noties/Debug</string>
+	<string name="library_notiesDebug_libraryVersion">1.1.1</string>
+	<!-- OpenSource section -->
+	<string name="library_notiesDebug_isOpenSource">true</string>
+	<string name="library_notiesDebug_repositoryLink"></string>
+	<!-- ClassPath for autoDetect section -->
+	<string name="library_notiesDebug_classPath">ru.noties.debug.Debug</string>
+	<!-- License section -->
+	<string name="libray_notiesDebug_licenseVersion">LICENSE-NAME</string>
+	<string name="libray_notiesDebug_licenseLink">LICENSE-LINK</string>
+	<string name="libray_notiesDebug_licenseContent">LICENSE-TEXT</string>
+	<!-- Custom variables section -->
+</resources>

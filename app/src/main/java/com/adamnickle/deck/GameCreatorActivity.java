@@ -33,6 +33,8 @@ public class GameCreatorActivity extends ActionBarActivity
         this.setResult( RESULT_CANCELED );
         setContentView( R.layout.content );
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
         if( savedInstanceState == null )
         {
             getSupportFragmentManager()
@@ -77,6 +79,7 @@ public class GameCreatorActivity extends ActionBarActivity
         {
             super.onCreateOptionsMenu( menu, inflater );
             inflater.inflate( R.menu.game_creator, menu );
+            menu.findItem( R.id.done ).setIcon( Icons.getDoneActionIcon( getActivity() ) );
         }
 
         @Override

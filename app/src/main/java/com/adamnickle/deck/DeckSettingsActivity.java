@@ -20,6 +20,8 @@ public class DeckSettingsActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.content );
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
         getFragmentManager()
                 .beginTransaction()
                 .replace( R.id.content, new DeckPreferenceFragment() )
@@ -73,6 +75,7 @@ public class DeckSettingsActivity extends ActionBarActivity
         public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
         {
             inflater.inflate( R.menu.deck_settings, menu );
+            menu.findItem( R.id.done ).setIcon( Icons.getDoneActionIcon( getActivity() ) );
         }
 
         @Override

@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -25,9 +26,15 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="e1a1841ff9279cd6da2f637481db99e1ca4fa5d1" />
+
+        <!--This meta-data tag is required to use Google Play Services.-->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name="com.adamnickle.deck.MainActivity"
@@ -39,28 +46,61 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.adamnickle.deck.DeviceListActivity"
-            android:label="@string/device_list_activity_title" />
-        <activity
-            android:name="com.adamnickle.deck.GameActivity"
-            android:hardwareAccelerated="true"
-            android:label="@string/game_activity_title" />
-        <activity
-            android:name="com.adamnickle.deck.DeckSettingsActivity"
-            android:label="Settings" />
-        <activity
-            android:name="com.adamnickle.deck.GameCreatorActivity"
-            android:label="@string/game_creator_activity_title" />
-        <activity
-            android:name="com.adamnickle.deck.InfoActivity"
-            android:label="@string/info_activity_title"
-            android:theme="@style/AppTheme.FullScreen"
+            android:label="@string/device_list_activity_title"
             android:parentActivityName="com.adamnickle.deck.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.adamnickle.deck.MainActivity" />
         </activity>
+
+        <activity
+            android:name="com.adamnickle.deck.GameActivity"
+            android:hardwareAccelerated="true"
+            android:label="@string/game_activity_title"
+            android:parentActivityName="com.adamnickle.deck.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.MainActivity" />
+        </activity>
+
+        <activity
+            android:name="com.adamnickle.deck.DeckSettingsActivity"
+            android:label="Settings"
+            android:parentActivityName="com.adamnickle.deck.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.MainActivity" />
+        </activity>
+
+        <activity
+            android:name="com.adamnickle.deck.GameCreatorActivity"
+            android:label="@string/game_creator_activity_title"
+            android:parentActivityName="com.adamnickle.deck.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.MainActivity" />
+        </activity>
+
+        <activity
+            android:name="com.adamnickle.deck.InfoActivity"
+            android:label="@string/info_activity_title"
+            android:theme="@style/AppTheme.FullScreen"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.adamnickle.deck.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.MainActivity" />
+        </activity>
+
+
+        <!--Include the AdActivity configChanges and theme. -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@android:style/Theme.Translucent" />
     </application>
 
 </manifest>

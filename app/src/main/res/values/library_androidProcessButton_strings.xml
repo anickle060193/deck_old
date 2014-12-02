@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+	<string name="define_androidProcessButton"></string>
+	<!-- Author section -->
+	<string name="library_androidProcessButton_author">Danylyk Dmytro</string>
+	<string name="library_androidProcessButton_authorWebsite">http://dmytrodanylyk.com/#/about</string>
+	<!-- Library section -->
+	<string name="library_androidProcessButton_libraryName">Android Process Button</string>
+	<string name="library_androidProcessButton_libraryDescription">Android Buttons With Built-in Progress Meters.</string>
+	<string name="library_androidProcessButton_libraryWebsite">https://github.com/dmytrodanylyk/android-process-button</string>
+	<string name="library_androidProcessButton_libraryVersion">1.0.2</string>
+	<!-- OpenSource section -->
+	<string name="library_androidProcessButton_isOpenSource">true</string>
+	<string name="library_androidProcessButton_repositoryLink"></string>
+	<!-- ClassPath for autoDetect section -->
+	<string name="library_androidProcessButton_classPath">com.dd.processbutton.ProcessButton</string>
+	<!-- License section -->
+	<string name="library_androidProcessButton_licenseId">mit</string>
+	<!-- Custom variables section -->
+</resources>

@@ -27,13 +27,11 @@
     <item
         android:id="@+id/actionEraser"
         android:title="Eraser"
-        android:icon="@drawable/ic_eraser"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/actionPen"
         android:title="Pen"
-        android:icon="@drawable/ic_pen"
         app:showAsAction="always"
         android:visible="false" />
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+	<string name="define_changeloglib"></string>
+	<!-- Author section -->
+	<string name="library_changeloglib_author">Gabriele Mariotti</string>
+	<string name="library_changeloglib_authorWebsite">http://gmariotti.blogspot.it/</string>
+	<!-- Library section -->
+	<string name="library_changeloglib_libraryName">Changelog Library</string>
+	<string name="library_changeloglib_libraryDescription">ChangeLog Library provides an easy way to display a change log in your Android app.</string>
+	<string name="library_changeloglib_libraryWebsite">https://github.com/gabrielemariotti/changeloglib</string>
+	<string name="library_changeloglib_libraryVersion">1.5.2</string>
+	<!-- OpenSource section -->
+	<string name="library_changeloglib_isOpenSource">true</string>
+	<string name="library_changeloglib_repositoryLink"></string>
+	<!-- ClassPath for autoDetect section -->
+	<string name="library_changeloglib_classPath">it.gmariotti.changelibs.library.Constants</string>
+	<!-- License section -->
+	<string name="library_changeloglib_licenseId">apache_2_0</string>
+	<!-- Custom variables section -->
+</resources>

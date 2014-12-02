@@ -81,6 +81,8 @@ public class ScratchPadFragment extends Fragment
         menu.findItem( R.id.actionCloseScratchPad ).setIcon( Icons.getCloseAction( context ) );
         menu.findItem( R.id.actionUndo ).setIcon( Icons.getScratchPadUndo( context ) );
         menu.findItem( R.id.actionRedo ).setIcon( Icons.getScratchPadRedo( context ) );
+        menu.findItem( R.id.actionEraser ).setIcon( Icons.getScratchPadEraser( context ) );
+        menu.findItem( R.id.actionPen ).setIcon( Icons.getScratchPadPen( context ) );
     }
 
     @Override

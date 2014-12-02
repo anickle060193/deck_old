@@ -46,9 +46,10 @@ public class GameActivity extends ActionBarActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_game );
 
+
         getSupportActionBar().setDisplayShowTitleEnabled( false );
         getSupportActionBar().setIcon( R.drawable.ic_launcher );
-        getSupportActionBar().setDisplayShowHomeEnabled( true );
+        getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
         mTableView = (SlidingFrameLayout) findViewById( R.id.table );
         mDrawerLayout = (DrawerLayout) findViewById( R.id.drawerLayout );
@@ -197,6 +198,10 @@ public class GameActivity extends ActionBarActivity
                 mTableView.toggleState();
                 return true;
 
+            case android.R.id.home:
+                showGameCloseConfirmation();
+                return true;
+
             default:
                 return super.onOptionsItemSelected( item );
         }
@@ -213,7 +218,15 @@ public class GameActivity extends ActionBarActivity
         {
             mTableView.collapseFrame();
         }
-        else if( mConnectionFragment != null && mConnectionFragment.isConnected() )
+        else
+        {
+            showGameCloseConfirmation();
+        }
+    }
+
+    private void showGameCloseConfirmation()
+    {
+        if( mConnectionFragment != null && mConnectionFragment.isConnected() )
         {
             String message = null;
             switch( mConnectionFragment.getConnectionType() )

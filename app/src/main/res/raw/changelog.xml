@@ -2,6 +2,19 @@
 
 <changelog bulletedList="true">
 
+    <changelogversion versionName="1.0.0" changeDate="December 2, 2014" >
+        <changelogtext>Added to Google Play Store!</changelogtext>
+        <changelogtext>Improved Game Message handling.</changelogtext>
+        <changelogtext>Fixed compatibility issues when trying to connect to older versions of Deck.</changelogtext>
+        <changelogtext>[b]New![/b] Added ability to choose between red and blue card backs.</changelogtext>
+        <changelogtext>Changed Scratchpad and Game loading to use CardViews.</changelogtext>
+        <changelogtext>Changed several icons.</changelogtext>
+        <changelogtext>[b]New![/b] Added Info page.</changelogtext>
+        <changelogtext>[b]New![/b] Added Privacy Policy.</changelogtext>
+        <changelogtext>[b]New![/b] Added Acknowledgments page.</changelogtext>
+        <changelogtext>[b]New![/b] Added Libraries Used page.</changelogtext>
+    </changelogversion>
+
     <changelogversion versionName="0.5.0" changeDate="November 15, 2014" >
         <changelogtext>Upgraded to using the Support v21 library for Material Design!</changelogtext>
         <changelogtext>[b]New![/b] Added ability to designate players to certain sides to make passing cards easier.</changelogtext>

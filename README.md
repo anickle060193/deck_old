@@ -7,6 +7,18 @@ The developmental website for the Deck application can be found at: https://anic
 
 ##Release Versions
 
+###Version 1.0.0
+- Added to Google Play Store!
+- Improved Game Message handling.
+- Fixed compatibility issues when trying to connect to older versions of Deck.
+- **New!** Added ability to choose between red and blue card backs.
+- Changed Scratchpad and Game loading to use CardViews.
+- Changed several icons.
+- **New!** Added Info page.
+- **New!** Added Privacy Policy.
+- **New!** Added Acknowledgments page.
+- **New!** Added Libraries Used page.
+
 ###Version 0.5.0
 - Upgraded to using the Support v21 library for Material Design!
 - **New!** Added ability to designate players to certain sides to make passing cards easier.

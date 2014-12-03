@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
@@ -25,9 +26,7 @@ public class DialogHelper
 
     public static AlertDialog.Builder createEditTextDialog( Context context, String title, String positiveButtonText, String negativeButtonText, final OnEditTextDialogClickListener onClickListener )
     {
-        final EditText editText = new EditText( context );
-        final int padding = context.getResources().getDimensionPixelSize( R.dimen.dialog_widget_padding );
-        editText.setPadding( padding, padding, padding, padding );
+        final EditText editText = (EditText) LayoutInflater.from( context ).inflate( R.layout.dialog_edit_text, null );
 
         return DialogHelper
                 .createBlankAlertDialog( context, title )

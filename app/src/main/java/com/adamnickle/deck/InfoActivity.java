@@ -51,7 +51,8 @@ public class InfoActivity extends ActionBarActivity
                         break;
 
                     case 2:
-                        // Display acknowledgements
+                        Intent acknowledgmentsIntent = new Intent( InfoActivity.this, AcknowledgmentsActivity.class );
+                        startActivity( acknowledgmentsIntent );
                         break;
 
                     case 3:

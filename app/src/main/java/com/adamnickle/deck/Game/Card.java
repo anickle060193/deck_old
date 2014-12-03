@@ -16,6 +16,11 @@ public class Card
     private int mSuit;
     private int mRank;
 
+    public Card()
+    {
+        this( (int) ( Math.random() * Deck.CARD_COUNT ) );
+    }
+
     public Card( int cardNumber )
     {
         if( cardNumber >= Deck.CARD_COUNT || cardNumber < 0 )

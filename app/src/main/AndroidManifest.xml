@@ -95,6 +95,16 @@
                 android:value="com.adamnickle.deck.MainActivity" />
         </activity>
 
+        <activity
+            android:name="com.adamnickle.deck.AcknowledgmentsActivity"
+            android:label="Acknowledgments"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.adamnickle.deck.InfoActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adamnickle.deck.InfoActivity" />
+        </activity>
 
         <!--Include the AdActivity configChanges and theme. -->
         <activity

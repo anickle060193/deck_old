@@ -38,6 +38,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
     private final GestureDetector mDetector;
     private final Vibrator mVibrator;
     private GameUiListener mGameUiListener;
+    private boolean mCanVibrate;
 
     protected final HashMap< String, ArrayList< PlayingCardView > > mCardViewsByOwner;
 
@@ -58,7 +59,15 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         mDetector = new GestureDetector( getContext(), new CardDisplayGestureListener() );
 
         mCardViewsByOwner = new HashMap< String, ArrayList< PlayingCardView > >();
-        mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
+        if( isInEditMode() )
+        {
+            mVibrator = null;
+        }
+        else
+        {
+            mVibrator = (Vibrator) getContext().getSystemService( Context.VIBRATOR_SERVICE );
+        }
+        mCanVibrate = true;
     }
 
     @Override
@@ -155,6 +164,16 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
     }
 
+    public boolean canVibrate()
+    {
+        return mCanVibrate;
+    }
+
+    public void setCanVibrate( boolean canVibrate)
+    {
+        mCanVibrate = canVibrate;
+    }
+
     public void childViewOffScreen( PlayingCardView playingCardView, Side side )
     {
         if( mGameUiListener != null )
@@ -165,7 +184,11 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public boolean childShouldBounce( PlayingCardView playingCardView, Side wall )
     {
-        if( mGameUiListener != null )
+        if( playingCardView.isSpreading() )
+        {
+            return true;
+        }
+        else if( mGameUiListener != null )
         {
             return !mGameUiListener.canSendCard( playingCardView.getOwnerID(), playingCardView.getCard() );
         }
@@ -493,6 +516,19 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
         }
     }
 
+    public void spreadCards()
+    {
+        final int childCount = getChildCount();
+        for( int i = 0; i < childCount; i++ )
+        {
+            final View view = getChildAt( i );
+            if( view instanceof PlayingCardView )
+            {
+                ( (PlayingCardView) view ).spreadCard();
+            }
+        }
+    }
+
     public PlayingCardView createPlayingCardView( String cardHolderID, Card card )
     {
         return new PlayingCardView( getContext(), cardHolderID, card );
@@ -584,7 +620,10 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
                 }
                 playingCardViews.add( playingCardView );
 
-                mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
+		        if( mCanVibrate )
+		        {
+		            mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
+		        }
             }
         } );
     }
@@ -616,7 +655,10 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
                     playingCardViews.add( playingCardView );
                 }
 
-                mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
+		        if( mCanVibrate )
+		        {
+		            mVibrator.vibrate( CARD_RECEIVE_VIBRATION );
+		        }
             }
         } );
     }

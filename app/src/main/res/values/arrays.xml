@@ -7,6 +7,7 @@
 
     <string-array name="backgrounds">
         <item>White</item>
+        <item>Symphony</item>
         <item>Argyle</item>
         <item>Buried</item>
         <item>Cartographer</item>
@@ -31,6 +32,7 @@
 
     <integer-array name="background_drawables">
         <item>@android:color/white</item>
+        <item>@drawable/symphony</item>
         <item>@drawable/argyle</item>
         <item>@drawable/burried</item>
         <item>@drawable/cartographer</item>

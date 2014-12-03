@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="flaticon_link">http://www.flaticon.com/</string>
+    <string name="flaticon_text">
+        flaticon is a free project, created for and by designers and developers.
+        \n\nThanks for the table and card icons!
+    </string>
+
+    <string name="subtlepatterns_link">http://subtlepatterns.com/</string>
+    <string name="subtlepatterns_text">
+        Subtle Patterns is created and curated by Atle Mo.
+        His goal is to be a high quality resource for anyone in need of tilable textured patterns, free to use.
+    </string>
+
+    <string name="cards_link">https://code.google.com/p/vectorized-playing-cards/</string>
+
+    <string name="chunkFive_link">http://www.fontsquirrel.com/fonts/ChunkFive</string>
+    <string name="chunkFive_text">
+        ChunkFive font was used in the icon for Deck.
+    </string>
+
+    <string name="cardFlipAnimations_link">http://www.techrepublic.com/blog/software-engineer/use-androids-scale-animation-to-simulate-a-3d-flip/</string>
+    <string name="cardFlipAnimations_text">
+        The flipping animation used with the playing cards was originally created by William J. Francis. They\'ve been slightly modified for this app.
+    </string>
+
+</resources>

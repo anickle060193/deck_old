@@ -20,4 +20,6 @@
     <dimen name="card_corner_radius">5dp</dimen>
 
     <dimen name="dialog_widget_padding">16dp</dimen>
+
+    <dimen name="card_layout_min_height">200dp</dimen>
 </resources>

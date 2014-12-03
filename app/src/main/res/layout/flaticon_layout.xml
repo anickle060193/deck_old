@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_table"/>
+
+    <ImageView
+        android:id="@+id/cardImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/card"
+        android:layout_below="@id/image"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/image"
+        android:layout_centerVertical="true"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:text="@string/flaticon_text"
+        android:layout_marginLeft="4dp"/>
+
+</RelativeLayout>

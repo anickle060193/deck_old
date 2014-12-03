@@ -41,6 +41,10 @@ public class PlayingCardView extends ImageView
     private float mScale;
     private boolean mAttachedToWindow;
     private boolean mBitmapLoaded;
+    private boolean mIsSpreading;
+
+    protected final AnimationSet mToMiddle;
+    protected final AnimationSet mFromMiddle;
 
     public PlayingCardView( final Context context, String ownerID, Card card, float scale )
     {
@@ -55,6 +59,7 @@ public class PlayingCardView extends ImageView
         mScale = Math.round( scale * 100.0f ) / 100.0f;
         mAttachedToWindow = false;
         mBitmapLoaded = false;
+        mIsSpreading = false;
 
         this.setLayoutParams( new CardDisplayLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
         this.setScaleType( ScaleType.CENTER_CROP );
@@ -78,6 +83,31 @@ public class PlayingCardView extends ImageView
             final int padding = cardOutlineWidth + cardOutlineSpace;
             this.setPadding( padding, padding, padding, padding );
         }
+
+        mToMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_first_half );
+        mFromMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_last_half );
+
+        mToMiddle.getAnimations().get( 0 ).setAnimationListener( new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationEnd( Animation animation )
+            {
+                mFaceUp = !mFaceUp;
+                PlayingCardView.this.setCardBitmap();
+                PlayingCardView.this.clearAnimation();
+                PlayingCardView.this.startAnimation( mFromMiddle );
+            }
+
+            @Override
+            public void onAnimationStart( Animation animation )
+            {
+            }
+
+            @Override
+            public void onAnimationRepeat( Animation animation )
+            {
+            }
+        } );
 
         new Thread()
         {
@@ -231,10 +261,15 @@ public class PlayingCardView extends ImageView
                 {
                     mVelocityY = 0.0f;
                 }
+
                 if( mVelocityX != 0.0f && mVelocityY != 0.0f )
                 {
                     mLastUpdate = now;
                     PlayingCardView.this.postDelayed( this, 10 );
+                }
+                else if( mVelocityX == 0.0f && mVelocityY == 0.0f )
+                {
+                    PlayingCardView.this.stop();
                 }
             }
         }
@@ -254,10 +289,27 @@ public class PlayingCardView extends ImageView
         this.post( mFlingUpdater );
     }
 
+    public void spreadCard()
+    {
+        setIsSpreading( true );
+        this.fling( (float) Math.random() * 40000.0f - 20000.0f, (float) Math.random() * 40000.0f - 20000.0f );
+    }
+
+    public void setIsSpreading( boolean isSpreading )
+    {
+        mIsSpreading = isSpreading;
+    }
+
+    public boolean isSpreading()
+    {
+        return mIsSpreading;
+    }
+
     public synchronized void stop()
     {
         mVelocityX = 0.0f;
         mVelocityY = 0.0f;
+        mIsSpreading = false;
     }
 
     @Override
@@ -374,32 +426,7 @@ public class PlayingCardView extends ImageView
         {
             if( mAttachedToWindow && animate )
             {
-                final AnimationSet toMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_first_half );
-                final AnimationSet fromMiddle = (AnimationSet) AnimationUtils.loadAnimation( getContext(), R.anim.flip_last_half );
-
-                toMiddle.getAnimations().get( 0 ).setAnimationListener( new Animation.AnimationListener()
-                {
-                    @Override
-                    public void onAnimationEnd( Animation animation )
-                    {
-                        mFaceUp = !mFaceUp;
-                        PlayingCardView.this.setCardBitmap();
-                        PlayingCardView.this.clearAnimation();
-                        PlayingCardView.this.startAnimation( fromMiddle );
-                    }
-
-                    @Override
-                    public void onAnimationStart( Animation animation )
-                    {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat( Animation animation )
-                    {
-                    }
-                } );
-
-                this.startAnimation( toMiddle );
+                this.startAnimation( mToMiddle );
             }
             else
             {

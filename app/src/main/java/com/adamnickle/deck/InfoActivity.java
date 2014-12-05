@@ -68,10 +68,5 @@ public class InfoActivity extends ActionBarActivity
                 }
             }
         } );
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add( R.id.adFrame, new AdFragment() )
-                .commit();
     }
 }

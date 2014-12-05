@@ -19,7 +19,7 @@ repositories {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.2"
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
         applicationId "com.adamnickle.deck"
@@ -30,8 +30,8 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //runProguard false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -52,7 +52,6 @@ dependencies {
     compile 'ru.noties:debug:1.1.0'
     compile 'com.larswerkman:HoloColorPicker:1.4'
     compile 'com.nineoldandroids:library:2.4.0'
-    compile 'com.google.android.gms:play-services:6.1.71'
     compile('com.mikepenz.aboutlibraries:library:4.4.0@aar') {
         transitive = true
     }

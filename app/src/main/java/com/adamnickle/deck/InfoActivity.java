@@ -1,7 +1,6 @@
 package com.adamnickle.deck;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -33,7 +32,7 @@ public class InfoActivity extends ActionBarActivity
         listView.setOnItemClickListener( new AdapterView.OnItemClickListener()
         {
             @Override
-            public void onItemClick( AdapterView<?> adapterView, View view, int i, long l )
+            public void onItemClick( AdapterView< ? > adapterView, View view, int i, long l )
             {
                 switch( i )
                 {
@@ -46,8 +45,7 @@ public class InfoActivity extends ActionBarActivity
                         break;
 
                     case 1:
-                        Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( getResources().getString( R.string.iubendaPrivacyPolicyLink ) ) );
-                        startActivity( browserIntent );
+                        WebActivity.showPage( InfoActivity.this, R.string.iubendaPrivacyPolicyLink );
                         break;
 
                     case 2:

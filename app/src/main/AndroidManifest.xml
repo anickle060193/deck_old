@@ -101,6 +101,9 @@
                 android:value="com.adamnickle.deck.InfoActivity" />
         </activity>
 
+        <activity
+            android:name="com.adamnickle.deck.WebActivity" />
+
     </application>
 
 </manifest>

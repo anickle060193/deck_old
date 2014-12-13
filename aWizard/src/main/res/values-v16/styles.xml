@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="WizardPageTitle">
+        <item name="android:id">@android:id/title</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:textSize">@dimen/titleTextSize</item>
+        <item name="android:textColor">#ff0099cc</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+    </style>
+</resources>

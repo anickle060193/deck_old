@@ -104,6 +104,9 @@
         <activity
             android:name="com.adamnickle.deck.WebActivity" />
 
+        <activity
+            android:name=".GameCreatorWizardActivity" />
+
     </application>
 
 </manifest>

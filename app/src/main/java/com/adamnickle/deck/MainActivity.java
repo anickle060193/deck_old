@@ -49,7 +49,7 @@ public class MainActivity extends ActionBarActivity
             @Override
             public void onClick( View view )
             {
-                Intent createGame = new Intent( MainActivity.this, GameCreatorActivity.class );
+                Intent createGame = new Intent( MainActivity.this, GameCreatorWizardActivity.class );
                 startActivityForResult( createGame, REQUEST_CREATE_GAME );
             }
         } );

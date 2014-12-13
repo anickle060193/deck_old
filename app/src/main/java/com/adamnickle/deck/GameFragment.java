@@ -743,14 +743,18 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     @Override
     public void onConnectionStateChange( ConnectionFragment.State newState )
     {
-        getActivity().runOnUiThread( new Runnable()
+        final Activity activity = getActivity();
+        if( activity != null )
         {
-            @Override
-            public void run()
+            activity.runOnUiThread( new Runnable()
             {
-                getActivity().invalidateOptionsMenu();
-            }
-        } );
+                @Override
+                public void run()
+                {
+                    activity.invalidateOptionsMenu();
+                }
+            } );
+        }
     }
 
     @Override

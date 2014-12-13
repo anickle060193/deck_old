@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class CardDisplayLayout extends FrameLayout implements CardHolderListener
@@ -506,12 +507,16 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void resetCard( String cardHolderID, Card card )
     {
-        for( PlayingCardView playingCardView : mCardViewsByOwner.get( cardHolderID ) )
+        List<PlayingCardView> cardViews = mCardViewsByOwner.get( cardHolderID );
+        if( cardViews != null )
         {
-            if( playingCardView.getCard().equals( card ) )
+            for( PlayingCardView playingCardView : mCardViewsByOwner.get( cardHolderID ) )
             {
-                playingCardView.reset();
-                break;
+                if( playingCardView.getCard().equals( card ) )
+                {
+                    playingCardView.reset();
+                    break;
+                }
             }
         }
     }

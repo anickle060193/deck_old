@@ -1,5 +1,10 @@
 package com.adamnickle.deck.Game;
 
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -82,6 +87,11 @@ public class Card
     public String toString()
     {
         return Deck.RANK_STRINGS[ mRank ] + " of " + Deck.SUIT_STRINGS[ mSuit ];
+    }
+
+    public String toShortString()
+    {
+        return Deck.SHORT_RANK_STRINGS[ mRank ] + Deck.SHORT_SUIT_STRINGS[ mSuit ];
     }
 
     @Override

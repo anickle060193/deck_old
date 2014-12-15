@@ -2,7 +2,9 @@
 
 Virtual Android Deck Application
 
-The developmental website for the Deck application can be found at: https://anickle060193.github.io/deck
+This app can be downloaded from the Google Play Store [here](https://play.google.com/store/apps/details?id=com.adamnickle.deck).
+
+The developmental website for the Deck application can be found [here](https://anickle060193.github.io/deck).
 
 
 ##Release Versions

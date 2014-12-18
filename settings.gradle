@@ -1,2 +1,3 @@
-include ':app', ':'
+include ':app'
 include ':aWizard'
+include ':android-actionItemBadge:library'

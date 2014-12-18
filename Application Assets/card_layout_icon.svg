@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="320"
+   height="320"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="card_layout_icon.svg"
+   inkscape:export-filename="D:\Adam\AndroidStudioProjects\Deck\Application Assets\card_layout_icon.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <filter
+       inkscape:collect="always"
+       id="filter3874"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.12"
+         id="feGaussianBlur3876" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3950">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.2"
+         id="feGaussianBlur3952" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.1621094"
+     inkscape:cx="73.829118"
+     inkscape:cy="116.32792"
+     inkscape:document-units="px"
+     inkscape:current-layer="g3836"
+     showgrid="false"
+     inkscape:showpageshadow="false"
+     borderlayer="true"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-732.3622)">
+    <g
+       id="g3836"
+       transform="translate(0.02016807,-0.03367402)">
+      <g
+         id="g3936"
+         style="fill:#000000;fill-opacity:0.50793654;filter:url(#filter3950)"
+         transform="translate(2,2)">
+        <rect
+           style="color:#000000;fill:#000000;fill-opacity:0.50793654;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3938"
+           width="70"
+           height="110"
+           x="39.979832"
+           y="772.39587" />
+        <rect
+           style="color:#000000;fill:#000000;fill-opacity:0.50793654;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3940"
+           width="70"
+           height="110"
+           x="209.97983"
+           y="772.39587" />
+        <rect
+           style="color:#000000;fill:#000000;fill-opacity:0.50793654;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3942"
+           width="70"
+           height="110"
+           x="209.97983"
+           y="902.39587" />
+        <rect
+           style="color:#000000;fill:#000000;fill-opacity:0.50793654;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3944"
+           width="70"
+           height="110"
+           x="39.979832"
+           y="902.39587" />
+        <rect
+           style="color:#000000;fill:#000000;fill-opacity:0.50793654;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3946"
+           width="70"
+           height="110"
+           x="124.97984"
+           y="902.39587" />
+        <rect
+           style="color:#000000;fill:#000000;fill-opacity:0.50793654;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3948"
+           width="70"
+           height="110"
+           x="124.97984"
+           y="772.39587" />
+      </g>
+      <g
+         id="g3928">
+        <rect
+           y="772.39587"
+           x="39.979832"
+           height="110"
+           width="70"
+           id="rect3878"
+           style="color:#000000;fill:#4bb5c1;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+        <rect
+           y="772.39587"
+           x="209.97983"
+           height="110"
+           width="70"
+           id="rect3878-2"
+           style="color:#000000;fill:#4bb5c1;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+        <rect
+           y="902.39587"
+           x="209.97983"
+           height="110"
+           width="70"
+           id="rect3878-4"
+           style="color:#000000;fill:#4bb5c1;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+        <rect
+           y="902.39587"
+           x="39.979832"
+           height="110"
+           width="70"
+           id="rect3878-5"
+           style="color:#000000;fill:#4bb5c1;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+        <rect
+           y="902.39587"
+           x="124.97984"
+           height="110"
+           width="70"
+           id="rect3878-51"
+           style="color:#000000;fill:#4bb5c1;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+        <rect
+           y="772.39587"
+           x="124.97984"
+           height="110"
+           width="70"
+           id="rect3878-7"
+           style="color:#000000;fill:#4bb5c1;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      </g>
+    </g>
+  </g>
+</svg>

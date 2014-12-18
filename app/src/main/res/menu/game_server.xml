@@ -5,6 +5,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/actionDealCards"
+        app:actionLayout="@layout/menu_badge"
+        android:title="@string/actionDealCardsText"
+        android:icon="@drawable/card"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/actionSaveGame"
         android:title="@string/actionSaveGameText"
         app:showAsAction="never" />
@@ -22,11 +29,6 @@
     <item
         android:id="@+id/shuffleCards"
         android:title="@string/actionShuffleCardsText"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/actionDealCards"
-        android:title="@string/actionDealCardsText"
         app:showAsAction="never" />
 
     <item

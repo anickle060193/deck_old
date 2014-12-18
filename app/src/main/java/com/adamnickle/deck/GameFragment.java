@@ -30,6 +30,7 @@ import com.adamnickle.deck.Interfaces.ConnectionFragment;
 import com.adamnickle.deck.Interfaces.GameConnection;
 import com.adamnickle.deck.Interfaces.GameConnectionListener;
 import com.adamnickle.deck.Interfaces.GameUiListener;
+import com.mikepenz.actionitembadge.library.ActionItemBadge;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -279,6 +280,15 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
         if( mGameConnection.isServer() )
         {
             inflater.inflate( R.menu.game_server, menu );
+
+            ActionItemBadge
+                    .update(
+                            this,
+                            menu.findItem( R.id.actionDealCards ),
+                            getResources().getDrawable( R.drawable.card ),
+                            ActionItemBadge.BadgeStyle.BLUE,
+                            mDeck.getCardCount()
+                    );
         }
     }
 
@@ -301,6 +311,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
 
             case R.id.shuffleCards:
                 mDeck.shuffle();
+                getActivity().invalidateOptionsMenu();
                 return true;
 
             case R.id.actionLayoutCards:
@@ -427,14 +438,19 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
             mGameConnection.clearCards( mLocalPlayer.getID(), player.getID() );
         }
         mDeck.resetCards();
+        getActivity().invalidateOptionsMenu();
     }
 
     private void handleDealCardsClick()
     {
         final CardHolder[] players = getDealableCardHolders( false );
-        if( mDeck.getCardCount() < players.length )
+        if( mDeck.getCardCount() == 0 )
         {
-            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are not enough cards left to evenly deal to players.", "OK" );
+            DialogHelper.showPopup( getActivity(), "No Cards Left", "There are no cards left to deal.", "OK" );
+        }
+        else if( mDeck.getCardCount() < players.length )
+        {
+            DialogHelper.showPopup( getActivity(), "Not Enough Cards Left", "There are not enough cards left to evenly deal to players.", "OK" );
         }
         else
         {
@@ -463,6 +479,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                     {
                         mGameConnection.sendCards( mLocalPlayer.getID(), players[ i ].getID(), cardsDealt[ i ] );
                     }
+                    getActivity().invalidateOptionsMenu();
                 }
             } ).show();
         }
@@ -471,11 +488,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
     private void handleDealSingleCardClick()
     {
         final CardHolder[] players = getDealableCardHolders( false );
-        if( players.length == 0 )
-        {
-            DialogHelper.showPopup( getActivity(), "No Players Connected", "There are not players connected to the current game to select from.", "OK" );
-        }
-        else if( mDeck.getCardCount() == 0 )
+        if( mDeck.getCardCount() == 0 )
         {
             DialogHelper.showPopup( getActivity(), "No Cards Left", "There are no cards left to deal.", "OK" );
         }
@@ -487,6 +500,7 @@ public class GameFragment extends Fragment implements GameConnectionListener, Ga
                 public void onClick( DialogInterface dialog, CardHolder cardHolder )
                 {
                     mGameConnection.sendCard( GameConnection.MOCK_SERVER_ADDRESS, cardHolder.getID(), mDeck.removeTopCard(), null );
+                    getActivity().invalidateOptionsMenu();
                 }
             } ).show();
         }

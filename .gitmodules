@@ -1,0 +1,3 @@
+[submodule "android-actionItemBadge"]
+	path = android-actionItemBadge
+	url = https://github.com/mikepenz/Android-ActionItemBadge.git

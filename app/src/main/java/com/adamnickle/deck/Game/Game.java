@@ -6,6 +6,9 @@ import android.os.Parcelable;
 
 public class Game implements Parcelable
 {
+    public static final int MAX_DRAW_PILES = 4;
+    public static final int MAX_DISCARD_PILES = 4;
+
     public int DrawPiles;
     public int DiscardPiles;
 

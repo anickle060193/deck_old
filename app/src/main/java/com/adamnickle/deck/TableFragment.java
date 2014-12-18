@@ -287,7 +287,7 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
 
             //TODO Send all piles at same time
             final Intent gameIntent = getActivity().getIntent();
-            final Game game = gameIntent.getParcelableExtra( GameCreatorActivity.EXTRA_GAME );
+            final Game game = gameIntent.getParcelableExtra( GameCreatorWizardActivity.EXTRA_GAME );
             if( game != null )
             {
                 for( int i = 0; i < game.DrawPiles; i++ )

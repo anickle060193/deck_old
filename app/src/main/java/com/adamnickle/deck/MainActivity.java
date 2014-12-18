@@ -114,12 +114,12 @@ public class MainActivity extends ActionBarActivity
                     break;
 
                 case Activity.RESULT_OK:
-                    final Game game = data.getParcelableExtra( GameCreatorActivity.EXTRA_GAME );
+                    final Game game = data.getParcelableExtra( GameCreatorWizardActivity.EXTRA_GAME );
 
                     final Intent startServer = new Intent( MainActivity.this, GameActivity.class );
                     startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_TYPE, ConnectionFragment.ConnectionType.SERVER );
                     startServer.putExtra( ConnectionFragment.EXTRA_CONNECTION_CLASS_NAME, BluetoothConnectionFragment.class.getName() );
-                    startServer.putExtra( GameCreatorActivity.EXTRA_GAME, game );
+                    startServer.putExtra( GameCreatorWizardActivity.EXTRA_GAME, game );
                     startActivityForResult( startServer, GameActivity.REQUEST_START_GAME );
                     break;
             }

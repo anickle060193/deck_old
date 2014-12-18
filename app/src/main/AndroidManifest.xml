@@ -71,7 +71,7 @@
         </activity>
 
         <activity
-            android:name="com.adamnickle.deck.GameCreatorActivity"
+            android:name="com.adamnickle.deck.GameCreatorWizardActivity"
             android:label="@string/game_creator_activity_title"
             android:parentActivityName="com.adamnickle.deck.MainActivity" >
             <meta-data
@@ -103,9 +103,6 @@
 
         <activity
             android:name="com.adamnickle.deck.WebActivity" />
-
-        <activity
-            android:name=".GameCreatorWizardActivity" />
 
     </application>
 

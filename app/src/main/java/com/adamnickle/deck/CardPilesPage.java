@@ -6,25 +6,27 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import com.adamnickle.deck.Game.Game;
+
 import java.util.ArrayList;
 
 import dev.dworks.libs.awizard.model.PageFragmentCallbacks;
 import dev.dworks.libs.awizard.model.ReviewItem;
 import dev.dworks.libs.awizard.model.WizardModelCallbacks;
-import dev.dworks.libs.awizard.model.page.CustomerInfoPage;
 import dev.dworks.libs.awizard.model.page.Page;
 
 
 public class CardPilesPage extends Page
 {
-    public static final String DRAW_PILES_KEY = "draw_piles_key";
-    public static final String DISCARD_PILES_KEY = "discard_piles_key";
+    public static final String KEY_DRAW_PILES = "draw_piles_key";
+    public static final String KEY_DISCARD_PILES = "discard_piles_key";
 
     protected CardPilesPage( WizardModelCallbacks callbacks, String title )
     {
@@ -40,8 +42,44 @@ public class CardPilesPage extends Page
     @Override
     public void getReviewItems( ArrayList<ReviewItem> destination )
     {
-        destination.add( new ReviewItem( "Draw Piles", mData.getString( DRAW_PILES_KEY ), getKey(), -1 ) );
-        destination.add( new ReviewItem( "Discard Piles", mData.getString( DISCARD_PILES_KEY ), getKey(), -1 ) );
+        destination.add( new ReviewItem( "Draw Piles", mData.getString( KEY_DRAW_PILES ), getKey(), -1 ) );
+        destination.add( new ReviewItem( "Discard Piles", mData.getString( KEY_DISCARD_PILES ), getKey(), -1 ) );
+    }
+
+    @Override
+    public boolean isCompleted()
+    {
+        final int drawPiles = getDrawPiles();
+        final int discardPiles = getDiscardPiles();
+        return 0 <= drawPiles && drawPiles <= Game.MAX_DRAW_PILES && 0 <= discardPiles && discardPiles <= Game.MAX_DISCARD_PILES;
+    }
+
+    public int getDrawPiles()
+    {
+        int drawPiles;
+        try
+        {
+            drawPiles = Integer.parseInt( getData().getString( KEY_DRAW_PILES ) );
+        }
+        catch( NumberFormatException e )
+        {
+            drawPiles = -1;
+        }
+        return drawPiles;
+    }
+
+    public int getDiscardPiles()
+    {
+        int discardPiles;
+        try
+        {
+            discardPiles = Integer.parseInt( getData().getString( KEY_DISCARD_PILES ) );
+        }
+        catch( NumberFormatException e )
+        {
+            discardPiles = -1;
+        }
+        return discardPiles;
     }
 
     public static class CardPilesFragment extends Fragment
@@ -81,10 +119,50 @@ public class CardPilesPage extends Page
             ( (TextView) rootView.findViewById( android.R.id.title ) ).setText( mPage.getTitle() );
 
             mDrawPiles = ( (TextView) rootView.findViewById( R.id.drawPiles ) );
-            mDrawPiles.setText( mPage.getData().getString( CardPilesPage.DRAW_PILES_KEY ) );
+            mDrawPiles.setText( mPage.getData().getString( CardPilesPage.KEY_DRAW_PILES ) );
+            mDrawPiles.setHint( "0 - " + Game.MAX_DRAW_PILES );
+            mDrawPiles.addTextChangedListener( new TextWatcher()
+            {
+                @Override
+                public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 )
+                {
+                }
+
+                @Override
+                public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 )
+                {
+                }
+
+                @Override
+                public void afterTextChanged( Editable editable )
+                {
+                    mPage.getData().putString( CardPilesPage.KEY_DRAW_PILES, ( editable != null ) ? editable.toString() : null );
+                    mPage.notifyDataChanged();
+                }
+            } );
 
             mDiscardPiles = ( (TextView) rootView.findViewById( R.id.discardPiles ) );
-            mDiscardPiles.setText( mPage.getData().getString( CardPilesPage.DISCARD_PILES_KEY ) );
+            mDiscardPiles.setText( mPage.getData().getString( CardPilesPage.KEY_DISCARD_PILES ) );
+            mDiscardPiles.setHint( "0 - " + Game.MAX_DISCARD_PILES );
+            mDiscardPiles.addTextChangedListener( new TextWatcher()
+            {
+                @Override
+                public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 )
+                {
+                }
+
+                @Override
+                public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 )
+                {
+                }
+
+                @Override
+                public void afterTextChanged( Editable editable )
+                {
+                    mPage.getData().putString( CardPilesPage.KEY_DISCARD_PILES, ( editable != null ) ? editable.toString() : null );
+                    mPage.notifyDataChanged();
+                }
+            } );
             return rootView;
         }
 
@@ -112,61 +190,21 @@ public class CardPilesPage extends Page
         public void onViewCreated( View view, Bundle savedInstanceState )
         {
             super.onViewCreated( view, savedInstanceState );
-
-            mDrawPiles.addTextChangedListener( new TextWatcher()
-            {
-                @Override
-                public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 )
-                {
-                }
-
-                @Override
-                public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 )
-                {
-                }
-
-                @Override
-                public void afterTextChanged( Editable editable )
-                {
-                    mPage.getData().putString( CardPilesPage.DRAW_PILES_KEY, ( editable != null ) ? editable.toString() : null );
-                    mPage.notifyDataChanged();
-                }
-            } );
-
-            mDiscardPiles.addTextChangedListener( new TextWatcher()
-            {
-                @Override
-                public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 )
-                {
-                }
-
-                @Override
-                public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 )
-                {
-                }
-
-                @Override
-                public void afterTextChanged( Editable editable )
-                {
-                    mPage.getData().putString( CardPilesPage.DISCARD_PILES_KEY, ( editable != null ) ? editable.toString() : null );
-                    mPage.notifyDataChanged();
-                }
-            } );
         }
 
-        @Override
-        public void setUserVisibleHint( boolean isVisibleToUser )
-        {
-            super.setUserVisibleHint( isVisibleToUser );
-
-            if( mDrawPiles != null )
-            {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService( Context.INPUT_METHOD_SERVICE );
-                if( !isVisibleToUser )
-                {
-                    imm.hideSoftInputFromWindow( getView().getWindowToken(), 0 );
-                }
-            }
-        }
+//        @Override
+//        public void setUserVisibleHint( boolean isVisibleToUser )
+//        {
+//            super.setUserVisibleHint( isVisibleToUser );
+//
+//            if( mDrawPiles != null )
+//            {
+//                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService( Context.INPUT_METHOD_SERVICE );
+//                if( !isVisibleToUser )
+//                {
+//                    imm.hideSoftInputFromWindow( getView().getWindowToken(), 0 );
+//                }
+//            }
+//        }
     }
 }

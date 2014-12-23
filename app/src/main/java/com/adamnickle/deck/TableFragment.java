@@ -293,7 +293,8 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 for( int i = 0; i < game.DrawPiles; i++ )
                 {
                     DRAW_PILE_COUNT++;
-                    final CardHolder drawPile = new CardHolder( DRAW_PILE_ID_PREFIX + DRAW_PILE_COUNT, DRAW_PILE_NAME_PREFIX + DRAW_PILE_COUNT );
+                    final String cardPileName = ( game.DrawPiles == 1 ) ? DRAW_PILE_NAME_PREFIX : ( DRAW_PILE_NAME_PREFIX + DRAW_PILE_COUNT );
+                    final CardHolder drawPile = new CardHolder( DRAW_PILE_ID_PREFIX + DRAW_PILE_COUNT, cardPileName );
                     drawPile.setCardHolderListener( mTableView );
                     mDrawPiles.put( drawPile.getID(), drawPile );
                     if( mGameConnection.isServer() )
@@ -304,7 +305,8 @@ public class TableFragment extends Fragment implements GameConnectionListener, G
                 for( int i = 0; i < game.DiscardPiles; i++ )
                 {
                     DISCARD_PILE_COUNT++;
-                    final CardHolder discardPile = new CardHolder( DISCARD_PILE_ID_PREFIX + DISCARD_PILE_COUNT, DISCARD_PILE_NAME_PREFIX + DISCARD_PILE_COUNT );
+                    final String cardPileName = ( game.DiscardPiles == 1 ) ? DISCARD_PILE_NAME_PREFIX : ( DISCARD_PILE_NAME_PREFIX + DISCARD_PILE_COUNT );
+                    final CardHolder discardPile = new CardHolder( DISCARD_PILE_ID_PREFIX + DISCARD_PILE_COUNT, cardPileName );
                     discardPile.setCardHolderListener( mTableView );
                     mDiscardPiles.put( discardPile.getID(), discardPile );
                     if( mGameConnection.isServer() )

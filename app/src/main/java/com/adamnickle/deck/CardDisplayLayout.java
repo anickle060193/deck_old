@@ -31,6 +31,9 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 {
     private static final long CARD_RECEIVE_VIBRATION = 40L;
 
+    private static final int STARTING_LAYOUT_X = 50;
+    private static final int STARTING_LAYOUT_Y = 50;
+
     public enum Side
     {
         LEFT, TOP, RIGHT, BOTTOM, NONE
@@ -458,16 +461,7 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public void sortCards( String cardHolderID, CardCollection.SortingType sortingType )
     {
-        final ArrayList< PlayingCardView > playingCardViews = new ArrayList< PlayingCardView >();
-        final int childCount = getChildCount();
-        for( int i = 0; i < childCount; i++ )
-        {
-            final View child = getChildAt( i );
-            if( child instanceof PlayingCardView )
-            {
-                playingCardViews.add( (PlayingCardView) child );
-            }
-        }
+        final ArrayList<PlayingCardView> playingCardViews = mCardViewsByOwner.get( cardHolderID );
         Collections.sort( playingCardViews, new PlayingCardView.PlayingCardViewComparator( sortingType ) );
         for( PlayingCardView playingCardView : playingCardViews )
         {
@@ -477,30 +471,37 @@ public class CardDisplayLayout extends FrameLayout implements CardHolderListener
 
     public synchronized void layoutCards( String cardHolderID )
     {
-        if( getChildCount() == 0 )
+        final ArrayList<PlayingCardView> cardViews = mCardViewsByOwner.get( cardHolderID );
+        if( cardViews == null || cardViews.size() == 0 )
         {
             return;
         }
 
-        int x = 50;
-        int y = 50;
-        final int childCount = getChildCount();
-        for( int i = 0; i < childCount; i++ )
+        final int displayWidth = this.getWidth();
+        final int displayHeight = this.getHeight();
+
+        final int cardWidth = cardViews.get( 0 ).getWidth();
+
+        final int cardHorizontalOffset = (int) ( cardWidth * 0.3f );
+
+        final int cardsPerRow = ( displayWidth - STARTING_LAYOUT_X - ( cardWidth - cardHorizontalOffset ) ) / cardHorizontalOffset;
+        final int rows = (int) Math.ceil( (float) cardViews.size() / cardsPerRow );
+        final int verticalCardSpace = displayHeight - STARTING_LAYOUT_Y;
+        final int cardVerticalOffset = (int) ( (float) verticalCardSpace / rows );
+
+        int x = STARTING_LAYOUT_X;
+        int y = STARTING_LAYOUT_Y;
+        for( PlayingCardView playingCardView : cardViews )
         {
-            final View child = getChildAt( i );
-            if( child instanceof PlayingCardView )
+            playingCardView.stop();
+            playingCardView.flip( true, false );
+            playingCardView.setX( x );
+            playingCardView.setY( y );
+            x += cardHorizontalOffset;
+            if( x + cardWidth > displayWidth )
             {
-                final PlayingCardView playingCardView = (PlayingCardView) child;
-                playingCardView.stop();
-                playingCardView.flip( true, false );
-                playingCardView.setX( x );
-                playingCardView.setY( y );
-                x += (int) ( playingCardView.getWidth() * 0.30f );
-                if( x + playingCardView.getWidth() > this.getWidth() )
-                {
-                    x = 50;
-                    y += playingCardView.getHeight() + 10;
-                }
+                x = 50;
+                y += cardVerticalOffset;
             }
         }
     }

@@ -8,7 +8,7 @@
         android:id="@+id/actionToggleTable"
         android:title="@string/actionToggleTableText"
         android:icon="@drawable/ic_table"
-        app:showAsAction="ifRoom"
-        android:orderInCategory="2" />
+        app:showAsAction="always"
+        android:orderInCategory="3" />
 
 </menu>

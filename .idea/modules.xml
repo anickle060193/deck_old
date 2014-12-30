@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/aWizard/aWizard.iml" filepath="$PROJECT_DIR$/aWizard/aWizard.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/deck.iml" filepath="$PROJECT_DIR$/deck.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-actionItemBadge/library/library.iml" filepath="$PROJECT_DIR$/android-actionItemBadge/library/library.iml" />
     </modules>
   </component>
 </project>

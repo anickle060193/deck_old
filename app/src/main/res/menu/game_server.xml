@@ -9,7 +9,8 @@
         app:actionLayout="@layout/menu_badge"
         android:title="@string/actionDealCardsText"
         android:icon="@drawable/card"
-        app:showAsAction="ifRoom" />
+        android:orderInCategory="1"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/actionSaveGame"

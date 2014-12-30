@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+	<string name="define_aWizard"></string>
+	<!-- Author section -->
+	<string name="library_aWizard_author">Hari Krishna Dulipudi</string>
+	<string name="library_aWizard_authorWebsite">http://www.dworks.in/</string>
+	<!-- Library section -->
+	<string name="library_aWizard_libraryName">AWizard</string>
+	<string name="library_aWizard_libraryDescription">AWizard library can be used for creating wizards very easily. You can use from out-of-box pages from the library or create your own pages easily.</string>
+	<string name="library_aWizard_libraryWebsite">https://github.com/DWorkS/AWizard</string>
+	<string name="library_aWizard_libraryVersion"></string>
+	<!-- OpenSource section -->
+	<string name="library_aWizard_isOpenSource">true</string>
+	<string name="library_aWizard_repositoryLink">http://github.com</string>
+	<!-- ClassPath for autoDetect section -->
+	<string name="library_aWizard_classPath">dev.dworks.libs.awizard.WizardActivity</string>
+	<!-- License section -->
+	<string name="library_aWizard_licenseId">apache_2_0</string>
+	<!-- Custom variables section -->
+</resources>
